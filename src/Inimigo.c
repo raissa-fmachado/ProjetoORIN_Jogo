@@ -12,6 +12,7 @@
 
 #include "Inimigo.h"
 #include "InimigoMotobug.h"
+#include "InimigoSpikes.h"
 #include "Tipos.h"
 
 /**
@@ -36,6 +37,9 @@ void destruirInimigo( Inimigo *inimigo ) {
             case TIPO_INIMIGO_MOTOBUG:
                 destruirInimigoMotobug( (InimigoMotobug*) inimigo->objeto );
                 break;
+            case TIPO_INIMIGO_SPIKES:
+                destruirInimigoSpikes( (InimigoSpikes*) inimigo->objeto );
+                break;
             default:
                 break;
         }
@@ -52,6 +56,9 @@ void atualizarInimigo( Inimigo *inimigo, GameWorld *gw, float delta ) {
         case TIPO_INIMIGO_MOTOBUG:
             atualizarInimigoMotobug( (InimigoMotobug*) inimigo->objeto, gw, delta );
             break;
+        case TIPO_INIMIGO_SPIKES:
+            atualizarInimigoSpikes( (InimigoSpikes*) inimigo->objeto, gw, delta );
+            break;
         default:
             return;
     }
@@ -66,6 +73,9 @@ void desenharInimigo( Inimigo *inimigo ) {
     switch ( inimigo->tipo ) {
         case TIPO_INIMIGO_MOTOBUG:
             desenharInimigoMotobug( (InimigoMotobug*) inimigo->objeto );
+            break;
+        case TIPO_INIMIGO_SPIKES:
+            desenharInimigoSpikes( (InimigoSpikes*) inimigo->objeto );
             break;
         default:
             return;
@@ -92,6 +102,11 @@ void resolverColisaoInimigoObstaculosMapaX( Inimigo *inimigo, Mapa *mapa ) {
             qa = getQuadroAnimacaoAtualInimigoMotobug( motobug );
             olhandoParaDireita = &motobug->olhandoParaDireita;
             ret = &motobug->ret;
+        } else if ( inimigo->tipo == TIPO_INIMIGO_SPIKES ) {
+            InimigoSpikes *spikes = (InimigoSpikes*) inimigo->objeto;
+            qa = getQuadroAnimacaoAtualInimigoSpikes( spikes );
+            olhandoParaDireita = &spikes->olhandoParaDireita;
+            ret = &spikes->ret;
         } else {
             el = el->proximo;
             continue;
@@ -149,6 +164,12 @@ void resolverColisaoInimigoObstaculosMapaY( Inimigo *inimigo, Mapa *mapa ) {
             olhandoParaDireita = &motobug->olhandoParaDireita;
             ret = &motobug->ret;
             vel = &motobug->vel;
+        } else if ( inimigo->tipo == TIPO_INIMIGO_SPIKES ) {
+            InimigoSpikes *spikes = (InimigoSpikes*) inimigo->objeto;
+            qa = getQuadroAnimacaoAtualInimigoSpikes( spikes );
+            olhandoParaDireita = &spikes->olhandoParaDireita;
+            ret = &spikes->ret;
+            vel = &spikes->vel;
         } else {
             el = el->proximo;
             continue;

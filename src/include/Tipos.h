@@ -35,11 +35,21 @@ typedef enum EstadoInimigoMotobug
 } EstadoInimigoMotobug;
 
 /**
+ * @brief Representa o estado do inimigo do tipo Spikes.
+ */
+typedef enum EstadoInimigoSpikes
+{
+    ESTADO_INIMIGO_SPIKES_ANDANDO,
+    ESTADO_INIMIGO_SPIKES_MORRENDO,
+} EstadoInimigoSpikes;
+
+/**
  * @brief Representa o tipo de um inimigo.
  */
 typedef enum TipoInimigo
 {
     TIPO_INIMIGO_MOTOBUG,
+    TIPO_INIMIGO_SPIKES,
 } TipoInimigo;
 
 /**
@@ -170,6 +180,32 @@ typedef struct InimigoMotobug
     Animacao animacaoMorrendo;
 
 } InimigoMotobug;
+
+/**
+ * @brief Representa um inimigo do tipo Spikes.
+ */
+typedef struct InimigoSpikes
+{
+
+    Rectangle ret;
+    Vector2 vel;
+    Color cor;
+
+    float velAndando;
+    float velMaxQueda;
+
+    EstadoInimigoSpikes estado;
+    bool ativo;
+    bool olhandoParaDireita; // *cuidado! a reflexão dos inimigos é ao contrário
+                             // do jogador! eles começam olhando para a esquerda
+                             // e as sprites são orientadas para a esquerda inicialmente
+    Animacao *animacoes[2];
+    int quantidadeAnimacoes;
+
+    Animacao animacaoAndando;
+    Animacao animacaoMorrendo;
+
+} InimigoSpikes;
 
 /**
  * @brief Representa um inimigo.

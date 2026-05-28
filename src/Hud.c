@@ -170,11 +170,13 @@ static void desenharNumeroPequeno(int numero, int x, int y)
 
 static void desenharTempo(float tempo, int x, int y)
 {
+    /* Limita a 9:59 (599 segundos) */
+    if (tempo > 599.0f) tempo = 599.0f;
+
     int minutos = (int)tempo / 60;
     int segundos = (int)tempo % 60;
 
     char texto[20];
-
     sprintf(texto, "%01d:%02d", minutos, segundos);
 
     desenharTextoSprite(texto, x, y);
