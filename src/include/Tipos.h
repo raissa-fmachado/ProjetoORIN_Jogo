@@ -14,7 +14,8 @@
 /**
  * @brief Representa o estado do jogador.
  */
-typedef enum EstadoJogador {
+typedef enum EstadoJogador
+{
     ESTADO_JOGADOR_PARADO,
     ESTADO_JOGADOR_ANDANDO,
     ESTADO_JOGADOR_ANDANDO_RAPIDO,
@@ -27,7 +28,8 @@ typedef enum EstadoJogador {
 /**
  * @brief Representa o estado do inimigo do tipo Motobug.
  */
-typedef enum EstadoInimigoMotobug {
+typedef enum EstadoInimigoMotobug
+{
     ESTADO_INIMIGO_MOTOBUG_ANDANDO,
     ESTADO_INIMIGO_MOTOBUG_MORRENDO,
 } EstadoInimigoMotobug;
@@ -35,14 +37,16 @@ typedef enum EstadoInimigoMotobug {
 /**
  * @brief Representa o tipo de um inimigo.
  */
-typedef enum TipoInimigo {
+typedef enum TipoInimigo
+{
     TIPO_INIMIGO_MOTOBUG,
 } TipoInimigo;
 
 /**
  * @brief Representa o estado do item do tipo anel.
  */
-typedef enum EstadoItemAnel {
+typedef enum EstadoItemAnel
+{
     ESTADO_ITEM_ANEL_PARADO,
     ESTADO_ITEM_ANEL_COLETADO,
 } EstadoItemAnel;
@@ -50,14 +54,16 @@ typedef enum EstadoItemAnel {
 /**
  * @brief Representa o tipo de um item.
  */
-typedef enum TipoItem {
+typedef enum TipoItem
+{
     TIPO_ITEM_ANEL,
 } TipoItem;
 
 /**
  * @brief Representa o tipo de um elemento do mapa
  */
-typedef enum TipoElementoMapa {
+typedef enum TipoElementoMapa
+{
     TIPO_ELEMENTO_MAPA_OBSTACULO,
     TIPO_ELEMENTO_MAPA_ITEM,
     TIPO_ELEMENTO_MAPA_INIMIGO,
@@ -66,7 +72,8 @@ typedef enum TipoElementoMapa {
 /**
  * @brief Representa um quadro de animação com imagem.
  */
-typedef struct QuadroAnimacao {
+typedef struct QuadroAnimacao
+{
     Rectangle fonte;
     int duracao;          // milisegundos
     Rectangle retColisao; // deve ser interpretado como posicionamento relativo
@@ -75,7 +82,8 @@ typedef struct QuadroAnimacao {
 /**
  * @brief Representa uma animação.
  */
-typedef struct Animacao {
+typedef struct Animacao
+{
     QuadroAnimacao *quadros;
     int quantidadeQuadros;
     int quadroAtual;
@@ -88,7 +96,8 @@ typedef struct Animacao {
 /**
  * @brief Representa o jogador controlado pelo usuário.
  */
-typedef struct Jogador {
+typedef struct Jogador
+{
 
     Rectangle ret;
     Vector2 vel;
@@ -139,7 +148,8 @@ typedef struct Jogador {
 /**
  * @brief Representa um inimigo do tipo Motobug.
  */
-typedef struct InimigoMotobug {
+typedef struct InimigoMotobug
+{
 
     Rectangle ret;
     Vector2 vel;
@@ -150,9 +160,9 @@ typedef struct InimigoMotobug {
 
     EstadoInimigoMotobug estado;
     bool ativo;
-    bool olhandoParaDireita;     // *cuidado! a reflexão dos inimigos é ao contrário
-                                 // do jogador! eles começam olhando para a esquerda
-                                 // e as sprites são orientadas para a esquerda inicialmente
+    bool olhandoParaDireita; // *cuidado! a reflexão dos inimigos é ao contrário
+                             // do jogador! eles começam olhando para a esquerda
+                             // e as sprites são orientadas para a esquerda inicialmente
     Animacao *animacoes[2];
     int quantidadeAnimacoes;
 
@@ -165,7 +175,8 @@ typedef struct InimigoMotobug {
  * @brief Representa um inimigo.
  * O inimigo de fato é endereçado via membro "objeto".
  */
-typedef struct Inimigo {
+typedef struct Inimigo
+{
     void *objeto;
     TipoInimigo tipo;
 } Inimigo;
@@ -173,7 +184,8 @@ typedef struct Inimigo {
 /**
  * @brief Representa um item do tipo anel.
  */
-typedef struct ItemAnel {
+typedef struct ItemAnel
+{
 
     Rectangle ret;
     Color cor;
@@ -193,7 +205,8 @@ typedef struct ItemAnel {
  * @brief Representa um item estático do mapa.
  * O item de fato é endereçado via membro "objeto".
  */
-typedef struct Item {
+typedef struct Item
+{
     void *objeto;
     TipoItem tipo;
 } Item;
@@ -201,7 +214,8 @@ typedef struct Item {
 /**
  * @brief Representa um obstáculo estático do mapa.
  */
-typedef struct Obstaculo {
+typedef struct Obstaculo
+{
     Rectangle ret;
     Color cor;
     Rectangle fonte;
@@ -213,7 +227,8 @@ typedef struct Obstaculo {
  * O elemento de fato é endereçado via membro "objeto".
  */
 typedef struct ElementoMapa ElementoMapa;
-struct ElementoMapa {
+struct ElementoMapa
+{
     void *objeto;
     TipoElementoMapa tipo;
     ElementoMapa *proximo;
@@ -222,16 +237,16 @@ struct ElementoMapa {
 /**
  * @brief Representa um mapa de fase do jogo.
  */
-typedef struct Mapa {
-
+typedef struct Mapa
+{
     // listas ligadas de elementos do mapa
     ElementoMapa *obstaculos; // marca o fim da lista
     int quantidadeObstaculos;
 
-    ElementoMapa *itens;      // marca o fim da lista
+    ElementoMapa *itens; // marca o fim da lista
     int quantidadeItens;
 
-    ElementoMapa *inimigos;   // marca o fim da lista
+    ElementoMapa *inimigos; // marca o fim da lista
     int quantidadeInimigos;
 
     float dimensaoPadraoElementos;
@@ -243,8 +258,8 @@ typedef struct Mapa {
 /**
  * @brief Representa o mundo do jogo e seus elementos.
  */
-typedef struct GameWorld {
-
+typedef struct GameWorld
+{
     Mapa *mapa;
     Jogador *jogador;
 
@@ -253,7 +268,7 @@ typedef struct GameWorld {
     float gravidade;
 
     /* ── HUD ── */
-    int   pontuacao;    /* pontuação acumulada do jogador         */
-    float tempoJogo;    /* tempo decorrido na fase, em segundos   */
+    int pontuacao;   /* pontuação acumulada do jogador         */
+    float tempoJogo; /* tempo decorrido na fase, em segundos   */
 
 } GameWorld;
