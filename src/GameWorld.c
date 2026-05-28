@@ -80,8 +80,13 @@ void updateGameWorld(GameWorld *gw, float delta)
     atualizarJogador(j, gw, delta);
     atualizarCamera(gw);
 
-    /* Avança o cronômetro da fase */
-    gw->tempoJogo += delta;
+    /* Decrementa o cronômetro da fase */
+    if (gw->tempoJogo > 0.0f)
+    {
+        gw->tempoJogo -= delta;
+        if (gw->tempoJogo < 0.0f)
+            gw->tempoJogo = 0.0f;
+    }
 }
 
 /**
@@ -171,8 +176,8 @@ static void inicializar(GameWorld *gw)
 
     gw->gravidade = 900;
 
-    gw->tempoJogo = 0.0f;
-    gw->pontuacao = 400;
+    gw->tempoJogo = 599.0f; // 9 minutos e 59 segundos
+    gw->pontuacao = 0;
 }
 
 static void reiniciar(GameWorld *gw)
@@ -189,6 +194,6 @@ static void reiniciar(GameWorld *gw)
     inicializar(gw);
 
     /* reset do cronômetro e pontuação */
-    gw->tempoJogo = 0.0f;
+    gw->tempoJogo = 599.0f; // 9 minutos e 59 segundos
     gw->pontuacao = 0;
 }

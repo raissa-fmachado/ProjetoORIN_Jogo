@@ -28,8 +28,8 @@ static Animacao *getAnimacaoAtualJogador( Jogador *j );
 static void resolverColisaoJogadorObstaculosMapaX( Jogador *j, Mapa *mapa );
 static void resolverColisaoJogadorObstaculosMapaY( Jogador *j, Mapa *mapa );
 
-static void resolverColisaoJogadorItensMapa( Jogador *j, Mapa *mapa );
-static void resolverColisaoJogadorInimigosMapa( Jogador *j, Mapa *mapa );
+static void resolverColisaoJogadorItensMapa( Jogador *j, Mapa *mapa, GameWorld *gw );
+static void resolverColisaoJogadorInimigosMapa( Jogador *j, Mapa *mapa, GameWorld *gw );
 
 static const bool MOSTRAR_RETANGULOS = false;
 
@@ -96,7 +96,6 @@ Jogador *criarJogador( float x, float y, float w, float h ) {
         false,           // de trás para frente
         (Rectangle) {    // retângulo de colisão padrão para cada quadro
             32, 20, 42, 76
-            //18, 20, 54, 76
         }
     );
 
@@ -117,7 +116,6 @@ Jogador *criarJogador( float x, float y, float w, float h ) {
         false,           // de trás para frente
         (Rectangle) {    // retângulo de colisão padrão para cada quadro
             32, 20, 42, 76
-            //18, 20, 54, 76
         }
     );
 
@@ -138,7 +136,6 @@ Jogador *criarJogador( float x, float y, float w, float h ) {
         false,           // de trás para frente
         (Rectangle) {    // retângulo de colisão padrão para cada quadro
             32, 20, 42, 76
-            //18, 20, 54, 76
         }
     );
 
@@ -159,7 +156,6 @@ Jogador *criarJogador( float x, float y, float w, float h ) {
         false,           // de trás para frente
         (Rectangle) {    // retângulo de colisão padrão para cada quadro
             32, 20, 42, 76
-            //18, 20, 54, 76
         }
     );
 
@@ -180,7 +176,6 @@ Jogador *criarJogador( float x, float y, float w, float h ) {
         false,           // de trás para frente
         (Rectangle) {    // retângulo de colisão padrão para cada quadro
             32, 46, 42, 50
-            //18, 36, 60, 60
         }
     );
 
@@ -201,7 +196,6 @@ Jogador *criarJogador( float x, float y, float w, float h ) {
         false,           // de trás para frente
         (Rectangle) {    // retângulo de colisão padrão para cada quadro
             32, 46, 42, 50
-            //18, 36, 60, 60
         }
     );
 
@@ -222,7 +216,6 @@ Jogador *criarJogador( float x, float y, float w, float h ) {
         false,           // de trás para frente
         (Rectangle) {    // retângulo de colisão padrão para cada quadro
             32, 46, 42, 50
-            //18, 36, 60, 60
         }
     );
 
@@ -384,8 +377,8 @@ void atualizarJogador( Jogador *j, GameWorld *gw, float delta ) {
     j->ret.y += j->vel.y * delta;
     resolverColisaoJogadorObstaculosMapaY( j, gw->mapa );
 
-    resolverColisaoJogadorItensMapa( j, gw->mapa );
-    resolverColisaoJogadorInimigosMapa( j, gw->mapa );
+    resolverColisaoJogadorItensMapa( j, gw->mapa, gw );
+    resolverColisaoJogadorInimigosMapa( j, gw->mapa, gw );
 
 }
 
@@ -525,7 +518,7 @@ static void resolverColisaoJogadorObstaculosMapaY( Jogador *j, Mapa *mapa ) {
 
 }
 
-static void resolverColisaoJogadorItensMapa( Jogador *j, Mapa *mapa ) {
+static void resolverColisaoJogadorItensMapa( Jogador *j, Mapa *mapa, GameWorld *gw ) {
 
     ElementoMapa *el = mapa->itens;
 
@@ -568,6 +561,7 @@ static void resolverColisaoJogadorItensMapa( Jogador *j, Mapa *mapa ) {
             if ( CheckCollisionRecs( retColCalculado, retColItemCalculado ) ) {
                 itemAnel->estado = ESTADO_ITEM_ANEL_COLETADO;
                 j->quantidadeAneis++;
+                gw->pontuacao += 100; /* +100 pontos por anel coletado */
                 PlaySound( rm.somAnel );
             }
 
@@ -579,7 +573,7 @@ static void resolverColisaoJogadorItensMapa( Jogador *j, Mapa *mapa ) {
 
 }
 
-static void resolverColisaoJogadorInimigosMapa( Jogador *j, Mapa *mapa ) {
+static void resolverColisaoJogadorInimigosMapa( Jogador *j, Mapa *mapa, GameWorld *gw ) {
 
     ElementoMapa *el = mapa->inimigos;
 
@@ -635,6 +629,7 @@ static void resolverColisaoJogadorInimigosMapa( Jogador *j, Mapa *mapa ) {
                 if ( j->estado >= ESTADO_JOGADOR_PULANDO && j->estado <= ESTADO_JOGADOR_PULANDO_CORRENDO ) {
                     j->vel.y = j->velPulo;
                     motobug->estado = ESTADO_INIMIGO_MOTOBUG_MORRENDO;
+                    gw->pontuacao += 100; /* +100 pontos por inimigo derrotado */
                     PlaySound( rm.somHitInimigo );
                 } else if ( !j->invulneravel ) {
                     if ( j->quantidadeAneis > 0 ) {
