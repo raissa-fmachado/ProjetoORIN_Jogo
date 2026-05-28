@@ -14,6 +14,7 @@
 #include "Animacao.h"
 #include "Inimigo.h"
 #include "InimigoMotobug.h"
+#include "InimigoSpikes.h"
 #include "Item.h"
 #include "ItemAnel.h"
 #include "Macros.h"
@@ -612,20 +613,19 @@ static void resolverColisaoJogadorInimigosMapa( Jogador *j, Mapa *mapa, GameWorl
             olhandoParaDireita = &motobug->olhandoParaDireita;
             ret = &motobug->ret;
 
-            float deslocamentoX = *olhandoParaDireita
+            float deslocXIni = *olhandoParaDireita
                 ? ret->width - qaInimigo->retColisao.x - qaInimigo->retColisao.width
                 : qaInimigo->retColisao.x;
-            float deslocamentoY = qaInimigo->retColisao.y;
+            float deslocYIni = qaInimigo->retColisao.y;
 
             Rectangle retColInimigoCalculado = {
-                ret->x + deslocamentoX,
-                ret->y + deslocamentoY,
+                ret->x + deslocXIni,
+                ret->y + deslocYIni,
                 qaInimigo->retColisao.width,
                 qaInimigo->retColisao.height
             };
 
             if ( CheckCollisionRecs( retColCalculado, retColInimigoCalculado ) ) {
-
                 if ( j->estado >= ESTADO_JOGADOR_PULANDO && j->estado <= ESTADO_JOGADOR_PULANDO_CORRENDO ) {
                     j->vel.y = j->velPulo;
                     motobug->estado = ESTADO_INIMIGO_MOTOBUG_MORRENDO;
@@ -641,9 +641,51 @@ static void resolverColisaoJogadorInimigosMapa( Jogador *j, Mapa *mapa, GameWorl
                     }
                     j->invulneravel = true;
                 }
-
                 return; // um inimigo de cada vez!
+            }
 
+        } else if ( inimigo->tipo == TIPO_INIMIGO_SPIKES ) {
+
+            InimigoSpikes *spikes = (InimigoSpikes*) inimigo->objeto;
+
+            if ( !spikes->ativo || spikes->estado == ESTADO_INIMIGO_SPIKES_MORRENDO ) {
+                el = el->proximo;
+                continue;
+            }
+
+            qaInimigo = getQuadroAnimacaoAtualInimigoSpikes( spikes );
+            olhandoParaDireita = &spikes->olhandoParaDireita;
+            ret = &spikes->ret;
+
+            float deslocXIni = *olhandoParaDireita
+                ? ret->width - qaInimigo->retColisao.x - qaInimigo->retColisao.width
+                : qaInimigo->retColisao.x;
+            float deslocYIni = qaInimigo->retColisao.y;
+
+            Rectangle retColInimigoCalculado = {
+                ret->x + deslocXIni,
+                ret->y + deslocYIni,
+                qaInimigo->retColisao.width,
+                qaInimigo->retColisao.height
+            };
+
+            if ( CheckCollisionRecs( retColCalculado, retColInimigoCalculado ) ) {
+                if ( j->estado >= ESTADO_JOGADOR_PULANDO && j->estado <= ESTADO_JOGADOR_PULANDO_CORRENDO ) {
+                    j->vel.y = j->velPulo;
+                    spikes->estado = ESTADO_INIMIGO_SPIKES_MORRENDO;
+                    gw->pontuacao += 100; /* +100 pontos por inimigo derrotado */
+                    PlaySound( rm.somHitInimigo );
+                } else if ( !j->invulneravel ) {
+                    if ( j->quantidadeAneis > 0 ) {
+                        j->quantidadeAneis = 0;
+                        PlaySound( rm.somHitComAnel );
+                    } else {
+                        j->quantidadeVidas--;
+                        PlaySound( rm.somMorte );
+                    }
+                    j->invulneravel = true;
+                }
+                return; // um inimigo de cada vez!
             }
 
         }
