@@ -10,7 +10,14 @@
 #include "Tipos.h"
 
 /**
- * @brief Carrega um mapa a partir de uma arquivo.
+ * @brief Carrega um mapa a partir de um arquivo usando a textura da fase indicada.
+ *        fase = 1 → Green Hill (texturaTerreno)
+ *        fase = 2 → Marble Zone (texturaTerreno2)
+ */
+Mapa *carregarMapaFase( const char *caminhoArquivo, int fase );
+
+/**
+ * @brief Carrega um mapa usando a textura da fase 1 (compatibilidade).
  */
 Mapa *carregarMapa( const char *caminhoArquivo );
 

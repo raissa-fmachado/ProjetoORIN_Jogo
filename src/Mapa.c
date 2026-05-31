@@ -28,8 +28,10 @@ static void inserirInimigo( Mapa *mapa, ElementoMapa *inimigo );
 
 /**
  * @brief Carrega um mapa a partir de uma arquivo.
+ *        O parâmetro fase indica qual textura de terreno usar (1 = Green Hill,
+ *        2 = Marble Zone). GameWorld chama esta função passando gw->faseAtual.
  */
-Mapa *carregarMapa( const char *caminhoArquivo ) {
+Mapa *carregarMapaFase( const char *caminhoArquivo, int fase ) {
 
     // aloca um novo mapa
     Mapa *novoMapa = (Mapa*) malloc( sizeof( Mapa ) );
@@ -46,6 +48,9 @@ Mapa *carregarMapa( const char *caminhoArquivo ) {
     novoMapa->dimensaoPadraoElementos = 48;
     novoMapa->linhas = 0;
     novoMapa->colunas = 0;
+
+    /* Seleciona a textura de terreno de acordo com a fase */
+    Texture2D *texterreno = (fase == 2) ? &rm.texturaTerreno2 : &rm.texturaTerreno;
     
     // carrega dados do arquivo de texto
     char *dadosMapa = LoadFileText( caminhoArquivo );
@@ -55,14 +60,10 @@ Mapa *carregarMapa( const char *caminhoArquivo ) {
     int linhaAtual = 0;
     int colunaAtual = 0;
 
-    // caractere atual marca inicialmente a primeira posição de dadosMapa
-    // C-strings terminam em '\0', sendo assim, caminhamos caractere por 
-    // caractere até o fim
     while ( *caractereAtual != '\0' ) {
 
         char c = *caractereAtual;
 
-        // fim de linha?
         if ( c == '\n' ) {
 
             linhaAtual++;
@@ -95,7 +96,7 @@ Mapa *carregarMapa( const char *caminhoArquivo ) {
                             novoMapa->dimensaoPadraoElementos,
                             novoMapa->dimensaoPadraoElementos
                         },
-                        &rm.texturaTerreno
+                        texterreno   /* ← usa a textura da fase correta */
                     );
 
                     el->tipo = TIPO_ELEMENTO_MAPA_OBSTACULO;
@@ -227,11 +228,17 @@ Mapa *carregarMapa( const char *caminhoArquivo ) {
 
     novoMapa->linhas++;
     
-    // descarrega os dados
     UnloadFileText( dadosMapa );
 
     return novoMapa;
 
+}
+
+/**
+ * @brief Mantém compatibilidade com chamadas antigas (usa fase 1).
+ */
+Mapa *carregarMapa( const char *caminhoArquivo ) {
+    return carregarMapaFase( caminhoArquivo, 1 );
 }
 
 /**

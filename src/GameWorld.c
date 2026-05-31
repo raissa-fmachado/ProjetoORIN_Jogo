@@ -187,6 +187,7 @@ void drawGameWorld(GameWorld *gw)
 
 static void desenharFundo(GameWorld *gw)
 {
+    /* Seleciona a textura de fundo de acordo com a fase atual */
     Texture2D fundo = (gw->faseAtual == 1) ? rm.texturaFundo : rm.texturaFundo2;
 
     int larguraFundo = fundo.width;
@@ -229,6 +230,8 @@ static void atualizarCamera(GameWorld *gw)
 
 /**
  * @brief Carrega os dados de uma fase específica sem reiniciar pontuação.
+ *        Usa carregarMapaFase() para que os tiles da fase correta sejam
+ *        atribuídos já no momento da leitura do mapa.
  */
 static void carregarFase(GameWorld *gw, int fase)
 {
@@ -242,7 +245,9 @@ static void carregarFase(GameWorld *gw, int fase)
         ? "resources/mapas/mapa01.txt"
         : "resources/mapas/mapa02.txt";
 
-    gw->mapa = carregarMapa(caminhoMapa);
+    /* Passa o número da fase para que os obstáculos usem a textura correta */
+    gw->mapa = carregarMapaFase(caminhoMapa, fase);
+
     gw->jogador = criarJogador(
         GetScreenWidth() / 2 + 144,
         calcularAlturaMapa(gw->mapa) - 196,
@@ -298,7 +303,6 @@ static void reiniciar(GameWorld *gw)
 
 /**
  * @brief Retorna true quando o jogador passa da borda direita do mapa.
- *        Usa a mesma lógica de câmera: margem de 1 tile (48px) além do fim.
  */
 static bool jogadorChegouAoFim(GameWorld *gw)
 {
