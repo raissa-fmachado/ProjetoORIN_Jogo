@@ -344,4 +344,16 @@ typedef struct GameWorld
     int pontuacao;
     float tempoJogo;
 
+    /* ── Fases ── */
+    int faseAtual;           /* 1 ou 2                                    */
+    bool faseCompleta;       /* true quando o jogador chega ao fim        */
+
+    /* ── Transição (fade) ── */
+    float fadeDuracao;       /* duração total de cada fade (seg)          */
+    float fadeContador;      /* contador de tempo do fade atual           */
+    float fadeAlpha;         /* 0.0 = transparente, 1.0 = preto total     */
+    bool  fadeEntrada;       /* true = fade-in (preto→jogo)               */
+    bool  fadeSaida;         /* true = fade-out (jogo→preto)              */
+    bool  trocandoFase;      /* flag interna: fade-out concluído, trocar  */
+
 } GameWorld;

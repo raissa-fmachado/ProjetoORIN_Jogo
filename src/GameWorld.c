@@ -19,16 +19,21 @@
 #include "Hud.h"
 
 #include "raylib/raylib.h"
-// #include "raylib/raymath.h"
-// #define RAYGUI_IMPLEMENTATION    // to use raygui, comment these three lines.
-// #include "raylib/raygui.h"       // other compilation units must only include
-// #undef RAYGUI_IMPLEMENTATION     // raygui.h
 
 static void desenharFundo(GameWorld *gw);
 static void atualizarCamera(GameWorld *gw);
-
 static void inicializar(GameWorld *gw);
 static void reiniciar(GameWorld *gw);
+static void carregarFase(GameWorld *gw, int fase);
+static void destruirFaseAtual(GameWorld *gw);
+static bool jogadorChegouAoFim(GameWorld *gw);
+
+/* ─── Duração do fade em segundos ─────────────────────────────────────────── */
+#define FADE_DURACAO 1.2f
+
+/* ─── Cor de fundo de cada fase ───────────────────────────────────────────── */
+static const Color COR_FUNDO_FASE1 = {36,  0, 180, 255};   /* azul Green Hill  */
+static const Color COR_FUNDO_FASE2 = {80, 20,  20, 255};   /* vinho Marble Zone */
 
 /**
  * @brief Cria uma instância alocada dinamicamente da struct GameWorld.
@@ -36,6 +41,8 @@ static void reiniciar(GameWorld *gw);
 GameWorld *createGameWorld(void)
 {
     GameWorld *gw = (GameWorld *)malloc(sizeof(GameWorld));
+    gw->mapa    = NULL;
+    gw->jogador = NULL;
     inicializar(gw);
     return gw;
 }
@@ -58,34 +65,91 @@ void destroyGameWorld(GameWorld *gw)
  */
 void updateGameWorld(GameWorld *gw, float delta)
 {
+    /* ── música ─────────────────────────────────────────────────────────── */
+    Music *musicaAtual = (gw->faseAtual == 1) ? &rm.musicaFase01 : &rm.musicaFase02;
 
-    if (!IsMusicStreamPlaying(rm.musicaFase01))
-    {
-        PlayMusicStream(rm.musicaFase01);
-    }
+    if (!IsMusicStreamPlaying(*musicaAtual))
+        PlayMusicStream(*musicaAtual);
     else
-    {
-        UpdateMusicStream(rm.musicaFase01);
-    }
+        UpdateMusicStream(*musicaAtual);
 
+    /* ── reinício manual ─────────────────────────────────────────────────── */
     if (IsKeyPressed(KEY_R))
     {
         reiniciar(gw);
         return;
     }
 
-    Jogador *j = gw->jogador;
+    /* ── fade de saída: espera terminar antes de trocar fase ─────────────── */
+    if (gw->fadeSaida)
+    {
+        gw->fadeContador += delta;
+        gw->fadeAlpha = gw->fadeContador / gw->fadeDuracao;
+        if (gw->fadeAlpha >= 1.0f)
+        {
+            gw->fadeAlpha  = 1.0f;
+            gw->fadeSaida  = false;
+            gw->trocandoFase = true;
+        }
+        return; /* pausa o jogo durante o fade-out */
+    }
+
+    /* ── troca de fase efetiva ───────────────────────────────────────────── */
+    if (gw->trocandoFase)
+    {
+        gw->trocandoFase = false;
+
+        /* para a música atual */
+        StopMusicStream(*musicaAtual);
+
+        int proximaFase = (gw->faseAtual == 1) ? 2 : 1;
+        carregarFase(gw, proximaFase);
+
+        /* inicia o fade-in */
+        gw->fadeEntrada  = true;
+        gw->fadeContador = 0.0f;
+        gw->fadeAlpha    = 1.0f;
+        return;
+    }
+
+    /* ── fade de entrada ─────────────────────────────────────────────────── */
+    if (gw->fadeEntrada)
+    {
+        gw->fadeContador += delta;
+        gw->fadeAlpha = 1.0f - (gw->fadeContador / gw->fadeDuracao);
+        if (gw->fadeAlpha <= 0.0f)
+        {
+            gw->fadeAlpha   = 0.0f;
+            gw->fadeEntrada = false;
+        }
+        /* o jogo já roda normalmente durante o fade-in */
+    }
+
+    /* ── lógica normal do jogo ───────────────────────────────────────────── */
     atualizarMapa(gw->mapa, gw, delta);
-    entradaJogador(j, delta);
-    atualizarJogador(j, gw, delta);
+    entradaJogador(gw->jogador, delta);
+    atualizarJogador(gw->jogador, gw, delta);
     atualizarCamera(gw);
 
-    /* Decrementa o cronômetro da fase */
     if (gw->tempoJogo > 0.0f)
     {
         gw->tempoJogo -= delta;
         if (gw->tempoJogo < 0.0f)
             gw->tempoJogo = 0.0f;
+    }
+
+    /* ── detecta chegada ao fim da fase ─────────────────────────────────── */
+    if (!gw->faseCompleta && !gw->fadeSaida && jogadorChegouAoFim(gw))
+    {
+        gw->faseCompleta = true;
+
+        /* só transiciona se ainda há uma próxima fase */
+        if (gw->faseAtual < 2)
+        {
+            gw->fadeSaida    = true;
+            gw->fadeContador = 0.0f;
+            gw->fadeAlpha    = 0.0f;
+        }
     }
 }
 
@@ -94,9 +158,10 @@ void updateGameWorld(GameWorld *gw, float delta)
  */
 void drawGameWorld(GameWorld *gw)
 {
+    Color corFundo = (gw->faseAtual == 1) ? COR_FUNDO_FASE1 : COR_FUNDO_FASE2;
 
     BeginDrawing();
-    ClearBackground((Color){36, 0, 180, 255});
+    ClearBackground(corFundo);
 
     BeginMode2D(gw->camera);
     desenharFundo(gw);
@@ -106,94 +171,137 @@ void drawGameWorld(GameWorld *gw)
 
     desenharHud(gw);
 
+    /* ── overlay de fade ────────────────────────────────────────────────── */
+    if (gw->fadeAlpha > 0.0f)
+    {
+        DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(),
+                      Fade(BLACK, gw->fadeAlpha));
+    }
+
     EndDrawing();
 }
 
+/* ─────────────────────────────────────────────────────────────────────────── */
+/*  Funções estáticas                                                          */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
 static void desenharFundo(GameWorld *gw)
 {
+    Texture2D fundo = (gw->faseAtual == 1) ? rm.texturaFundo : rm.texturaFundo2;
 
-    int larguraFundo = rm.texturaFundo.width;
-    int larguraMapa = calcularLarguraMapa(gw->mapa);
-    int alturaMapa = calcularAlturaMapa(gw->mapa);
-    int repeticoes = larguraMapa / larguraFundo;
+    int larguraFundo = fundo.width;
+    int larguraMapa  = calcularLarguraMapa(gw->mapa);
+    int alturaMapa   = calcularAlturaMapa(gw->mapa);
+    int repeticoes   = larguraMapa / larguraFundo;
 
-    int deslocamentoParallax = (int)((gw->camera.target.x / (float)larguraMapa) * 200);
+    int deslocamentoParallax =
+        (int)((gw->camera.target.x / (float)larguraMapa) * 200);
 
     for (int i = 0; i <= repeticoes; i++)
     {
-        DrawTexture(rm.texturaFundo, larguraFundo * i - deslocamentoParallax, alturaMapa - rm.texturaFundo.height, WHITE);
+        DrawTexture(fundo,
+                    larguraFundo * i - deslocamentoParallax,
+                    alturaMapa - fundo.height,
+                    WHITE);
     }
 }
 
 static void atualizarCamera(GameWorld *gw)
 {
-
-    Jogador *j = gw->jogador;
+    Jogador  *j = gw->jogador;
     Camera2D *c = &gw->camera;
 
-    c->offset.x = GetScreenWidth() / 2;
+    c->offset.x = GetScreenWidth()  / 2;
     c->offset.y = GetScreenHeight() / 2;
 
-    // O target é arredondado para o inteiro mais próximo para garantir que a
-    // translação da câmera ocorra sempre em posições inteiras de pixel. Sem esse
-    // arredondamento, o valor float contínuo de ret.x faz os tiles serem
-    // renderizados em posições subpixel, causando frestas visíveis entre eles.
-    c->target.x = roundf(j->ret.x + j->ret.width / 2.0f);
+    c->target.x = roundf(j->ret.x + j->ret.width  / 2.0f);
     c->target.y = roundf(j->ret.y + j->ret.height / 2.0f);
 
-    int minX = GetScreenWidth() / 2;
-    int maxX = calcularLarguraMapa(gw->mapa) - GetScreenWidth() / 2;
-    int maxY = calcularAlturaMapa(gw->mapa) - GetScreenHeight() / 2;
+    int minX = GetScreenWidth()  / 2;
+    int maxX = calcularLarguraMapa(gw->mapa) - GetScreenWidth()  / 2;
+    int maxY = calcularAlturaMapa(gw->mapa)  - GetScreenHeight() / 2;
 
-    if (c->target.x < minX)
-    {
-        c->target.x = minX;
-    }
-    else if (c->target.x > maxX)
-    {
-        c->target.x = maxX;
-    }
+    if      (c->target.x < minX) c->target.x = minX;
+    else if (c->target.x > maxX) c->target.x = maxX;
 
-    if (c->target.y > maxY)
-    {
-        c->target.y = maxY;
-    }
+    if (c->target.y > maxY) c->target.y = maxY;
+}
+
+/**
+ * @brief Carrega os dados de uma fase específica sem reiniciar pontuação.
+ */
+static void carregarFase(GameWorld *gw, int fase)
+{
+    destruirFaseAtual(gw);
+
+    gw->faseAtual    = fase;
+    gw->faseCompleta = false;
+    gw->tempoJogo    = 599.0f;
+
+    const char *caminhoMapa = (fase == 1)
+        ? "resources/mapas/mapa01.txt"
+        : "resources/mapas/mapa02.txt";
+
+    gw->mapa = carregarMapa(caminhoMapa);
+    gw->jogador = criarJogador(
+        GetScreenWidth() / 2 + 144,
+        calcularAlturaMapa(gw->mapa) - 196,
+        96, 96);
+
+    gw->camera = (Camera2D){
+        .offset   = {0},
+        .target   = {0},
+        .rotation = 0.0f,
+        .zoom     = 1.0f
+    };
+}
+
+static void destruirFaseAtual(GameWorld *gw)
+{
+    if (gw->mapa)    { destruirMapa(gw->mapa);       gw->mapa    = NULL; }
+    if (gw->jogador) { destruirJogador(gw->jogador); gw->jogador = NULL; }
 }
 
 static void inicializar(GameWorld *gw)
 {
-
-    // gw->mapa = carregarMapa( "resources/mapas/mapaTeste.txt" );
-    gw->mapa = carregarMapa("resources/mapas/mapa01.txt");
-    gw->jogador = criarJogador(GetScreenWidth() / 2 + 144, calcularAlturaMapa(gw->mapa) - 196, 96, 96);
-
-    gw->camera = (Camera2D){
-        .offset = {0},    // deslocamento relativo da câmera em relação ao alvo
-        .target = {0},    // o alvo da câmera, ou seja, a coordenada em que ela está centralizada
-        .rotation = 0.0f, // rotação da câmera em graus. o pivô é o alvo.
-        .zoom = 1.0f      // zoom da câmera. 1.0f significa sem escala
-    };
-
     gw->gravidade = 900;
-
-    gw->tempoJogo = 599.0f; // 9 minutos e 59 segundos
     gw->pontuacao = 0;
+
+    /* fade */
+    gw->fadeDuracao  = FADE_DURACAO;
+    gw->fadeContador = 0.0f;
+    gw->fadeAlpha    = 1.0f;   /* começa preto e faz fade-in */
+    gw->fadeEntrada  = true;
+    gw->fadeSaida    = false;
+    gw->trocandoFase = false;
+    gw->faseCompleta = false;
+
+    carregarFase(gw, 1);
 }
 
 static void reiniciar(GameWorld *gw)
 {
+    Music *musicaAtual = (gw->faseAtual == 1) ? &rm.musicaFase01 : &rm.musicaFase02;
+    if (IsMusicStreamPlaying(*musicaAtual))
+        StopMusicStream(*musicaAtual);
 
-    destruirMapa(gw->mapa);
-    destruirJogador(gw->jogador);
-
-    if (IsMusicStreamPlaying(rm.musicaFase01))
-    {
-        StopMusicStream(rm.musicaFase01);
-    }
-
-    inicializar(gw);
-
-    /* reset do cronômetro e pontuação */
-    gw->tempoJogo = 599.0f; // 9 minutos e 59 segundos
     gw->pontuacao = 0;
+
+    gw->fadeAlpha    = 1.0f;
+    gw->fadeEntrada  = true;
+    gw->fadeSaida    = false;
+    gw->trocandoFase = false;
+    gw->fadeContador = 0.0f;
+
+    carregarFase(gw, 1);
+}
+
+/**
+ * @brief Retorna true quando o jogador passa da borda direita do mapa.
+ *        Usa a mesma lógica de câmera: margem de 1 tile (48px) além do fim.
+ */
+static bool jogadorChegouAoFim(GameWorld *gw)
+{
+    int fimMapa = calcularLarguraMapa(gw->mapa);
+    return (gw->jogador->ret.x + gw->jogador->ret.width) >= (fimMapa - 48);
 }

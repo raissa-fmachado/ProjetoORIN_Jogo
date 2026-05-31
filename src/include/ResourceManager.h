@@ -2,7 +2,7 @@
  * @file ResourceManager.h
  * @author Prof. Dr. David Buzatto
  * @brief ResourceManager struct and function declarations.
- * 
+ *
  * @copyright Copyright (c) 2026
  */
 #pragma once
@@ -17,8 +17,10 @@ typedef struct ResourceManager {
     Texture2D texturaHud;
     Texture2D texturaHudNumerosP;
 
-    Texture2D texturaTerreno;
-    Texture2D texturaFundo;
+    Texture2D texturaTerreno;    /* tiles da fase 1 (Green Hill)  */
+    Texture2D texturaTerreno2;   /* tiles da fase 2 (Marble Zone) */
+    Texture2D texturaFundo;      /* fundo da fase 1               */
+    Texture2D texturaFundo2;     /* fundo da fase 2               */
 
     Sound somAnel;
     Sound somFrenagem;
@@ -28,6 +30,7 @@ typedef struct ResourceManager {
     Sound somPulo;
 
     Music musicaFase01;
+    Music musicaFase02;
 
 } ResourceManager;
 
@@ -37,8 +40,7 @@ typedef struct ResourceManager {
 extern ResourceManager rm;
 
 /**
- * @brief Load global game resources, linking them in the global instance of
- * ResourceManager called rm.
+ * @brief Load global game resources.
  */
 void loadResourcesResourceManager( void );
 

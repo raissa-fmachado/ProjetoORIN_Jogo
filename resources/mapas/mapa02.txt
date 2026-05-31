@@ -1,0 +1,15 @@
+I                                                           L
+C                                                           E
+C                                    a                      E
+C                               a   aaa                     E
+C                    a         aaa aaaaa  a                 E
+C         a         aaa       aaaaaaaaaaaaaa                E
+C        aLa       aLLLa     aLLLLLLLLLLLLLL     aaaaa      E
+C       LLDLI     aLDDDI    aLDDDDDDDDDDDDDD    LBI LBI     E
+C                aD        aD                               E
+C               aD        aD                                E
+C               D         D                  aaaa           E
+C                                                           E
+C 2   0    D         D          2  1      0     1   0 2  2  E
+FBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBG
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
