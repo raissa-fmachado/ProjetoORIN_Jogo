@@ -13,6 +13,7 @@
 #include "Macros.h"
 #include "Mapa.h"
 #include "Inimigo.h"
+#include "InimigoBallHog.h"
 #include "InimigoMotobug.h"
 #include "InimigoSpikes.h"
 #include "Item.h"
@@ -171,6 +172,25 @@ Mapa *carregarMapa( const char *caminhoArquivo ) {
                                     .height = 60
                                 },
                                 RED
+                            );
+
+                            el->objeto = inimigo;
+                            el->tipo = TIPO_ELEMENTO_MAPA_INIMIGO;
+
+                            break;
+
+                        case '2':
+
+                            inimigo = criarInimigo( TIPO_INIMIGO_BALLHOG );
+
+                            inimigo->objeto = criarInimigoBallHog(
+                                (Rectangle) {
+                                    .x = novoMapa->dimensaoPadraoElementos * colunaAtual,
+                                    .y = novoMapa->dimensaoPadraoElementos * linhaAtual - 12,
+                                    .width = 48,
+                                    .height = 80
+                                },
+                                ORANGE
                             );
 
                             el->objeto = inimigo;

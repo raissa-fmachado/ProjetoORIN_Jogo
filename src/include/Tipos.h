@@ -44,12 +44,22 @@ typedef enum EstadoInimigoSpikes
 } EstadoInimigoSpikes;
 
 /**
+ * @brief Representa o estado do inimigo do tipo BallHog.
+ */
+typedef enum EstadoInimigoBallHog
+{
+    ESTADO_INIMIGO_BALLHOG_ANDANDO,
+    ESTADO_INIMIGO_BALLHOG_MORRENDO,
+} EstadoInimigoBallHog;
+
+/**
  * @brief Representa o tipo de um inimigo.
  */
 typedef enum TipoInimigo
 {
     TIPO_INIMIGO_MOTOBUG,
     TIPO_INIMIGO_SPIKES,
+    TIPO_INIMIGO_BALLHOG,
 } TipoInimigo;
 
 /**
@@ -170,9 +180,7 @@ typedef struct InimigoMotobug
 
     EstadoInimigoMotobug estado;
     bool ativo;
-    bool olhandoParaDireita; // *cuidado! a reflexão dos inimigos é ao contrário
-                             // do jogador! eles começam olhando para a esquerda
-                             // e as sprites são orientadas para a esquerda inicialmente
+    bool olhandoParaDireita;
     Animacao *animacoes[2];
     int quantidadeAnimacoes;
 
@@ -196,9 +204,7 @@ typedef struct InimigoSpikes
 
     EstadoInimigoSpikes estado;
     bool ativo;
-    bool olhandoParaDireita; // *cuidado! a reflexão dos inimigos é ao contrário
-                             // do jogador! eles começam olhando para a esquerda
-                             // e as sprites são orientadas para a esquerda inicialmente
+    bool olhandoParaDireita;
     Animacao *animacoes[2];
     int quantidadeAnimacoes;
 
@@ -206,6 +212,37 @@ typedef struct InimigoSpikes
     Animacao animacaoMorrendo;
 
 } InimigoSpikes;
+
+/**
+ * @brief Representa um inimigo do tipo BallHog.
+ */
+typedef struct InimigoBallHog
+{
+
+    Rectangle ret;
+    Vector2 vel;
+    Color cor;
+
+    float velAndando;
+    float velMaxQueda;
+
+    EstadoInimigoBallHog estado;
+    bool ativo;
+    bool olhandoParaDireita;
+    Animacao *animacoes[2];
+    int quantidadeAnimacoes;
+
+    Animacao animacaoAndando;
+    Animacao animacaoMorrendo;
+
+    // bola preta lançada ao morrer
+    bool bolaAtiva;
+    Rectangle bolaRet;
+    Vector2 bolaVel;
+    float contadorTempoBola;
+    float tempoBola;
+
+} InimigoBallHog;
 
 /**
  * @brief Representa um inimigo.
@@ -276,13 +313,13 @@ struct ElementoMapa
 typedef struct Mapa
 {
     // listas ligadas de elementos do mapa
-    ElementoMapa *obstaculos; // marca o fim da lista
+    ElementoMapa *obstaculos;
     int quantidadeObstaculos;
 
-    ElementoMapa *itens; // marca o fim da lista
+    ElementoMapa *itens;
     int quantidadeItens;
 
-    ElementoMapa *inimigos; // marca o fim da lista
+    ElementoMapa *inimigos;
     int quantidadeInimigos;
 
     float dimensaoPadraoElementos;
@@ -304,7 +341,7 @@ typedef struct GameWorld
     float gravidade;
 
     /* ── HUD ── */
-    int pontuacao;   /* pontuação acumulada do jogador         */
-    float tempoJogo; /* tempo decorrido na fase, em segundos   */
+    int pontuacao;
+    float tempoJogo;
 
 } GameWorld;

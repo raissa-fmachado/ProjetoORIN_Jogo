@@ -15,6 +15,7 @@
 #include "Inimigo.h"
 #include "InimigoMotobug.h"
 #include "InimigoSpikes.h"
+#include "InimigoBallHog.h"
 #include "Item.h"
 #include "ItemAnel.h"
 #include "Macros.h"
@@ -629,7 +630,7 @@ static void resolverColisaoJogadorInimigosMapa( Jogador *j, Mapa *mapa, GameWorl
                 if ( j->estado >= ESTADO_JOGADOR_PULANDO && j->estado <= ESTADO_JOGADOR_PULANDO_CORRENDO ) {
                     j->vel.y = j->velPulo;
                     motobug->estado = ESTADO_INIMIGO_MOTOBUG_MORRENDO;
-                    gw->pontuacao += 100; /* +100 pontos por inimigo derrotado */
+                    gw->pontuacao += 100;
                     PlaySound( rm.somHitInimigo );
                 } else if ( !j->invulneravel ) {
                     if ( j->quantidadeAneis > 0 ) {
@@ -641,7 +642,7 @@ static void resolverColisaoJogadorInimigosMapa( Jogador *j, Mapa *mapa, GameWorl
                     }
                     j->invulneravel = true;
                 }
-                return; // um inimigo de cada vez!
+                return;
             }
 
         } else if ( inimigo->tipo == TIPO_INIMIGO_SPIKES ) {
@@ -673,7 +674,7 @@ static void resolverColisaoJogadorInimigosMapa( Jogador *j, Mapa *mapa, GameWorl
                 if ( j->estado >= ESTADO_JOGADOR_PULANDO && j->estado <= ESTADO_JOGADOR_PULANDO_CORRENDO ) {
                     j->vel.y = j->velPulo;
                     spikes->estado = ESTADO_INIMIGO_SPIKES_MORRENDO;
-                    gw->pontuacao += 100; /* +100 pontos por inimigo derrotado */
+                    gw->pontuacao += 100;
                     PlaySound( rm.somHitInimigo );
                 } else if ( !j->invulneravel ) {
                     if ( j->quantidadeAneis > 0 ) {
@@ -685,7 +686,51 @@ static void resolverColisaoJogadorInimigosMapa( Jogador *j, Mapa *mapa, GameWorl
                     }
                     j->invulneravel = true;
                 }
-                return; // um inimigo de cada vez!
+                return;
+            }
+
+        } else if ( inimigo->tipo == TIPO_INIMIGO_BALLHOG ) {
+
+            InimigoBallHog *ballhog = (InimigoBallHog*) inimigo->objeto;
+
+            if ( !ballhog->ativo || ballhog->estado == ESTADO_INIMIGO_BALLHOG_MORRENDO ) {
+                el = el->proximo;
+                continue;
+            }
+
+            qaInimigo = getQuadroAnimacaoAtualInimigoBallHog( ballhog );
+            olhandoParaDireita = &ballhog->olhandoParaDireita;
+            ret = &ballhog->ret;
+
+            float deslocXIni = *olhandoParaDireita
+                ? ret->width - qaInimigo->retColisao.x - qaInimigo->retColisao.width
+                : qaInimigo->retColisao.x;
+            float deslocYIni = qaInimigo->retColisao.y;
+
+            Rectangle retColInimigoCalculado = {
+                ret->x + deslocXIni,
+                ret->y + deslocYIni,
+                qaInimigo->retColisao.width,
+                qaInimigo->retColisao.height
+            };
+
+            if ( CheckCollisionRecs( retColCalculado, retColInimigoCalculado ) ) {
+                if ( j->estado >= ESTADO_JOGADOR_PULANDO && j->estado <= ESTADO_JOGADOR_PULANDO_CORRENDO ) {
+                    j->vel.y = j->velPulo;
+                    ballhog->estado = ESTADO_INIMIGO_BALLHOG_MORRENDO;
+                    gw->pontuacao += 100;
+                    PlaySound( rm.somHitInimigo );
+                } else if ( !j->invulneravel ) {
+                    if ( j->quantidadeAneis > 0 ) {
+                        j->quantidadeAneis = 0;
+                        PlaySound( rm.somHitComAnel );
+                    } else {
+                        j->quantidadeVidas--;
+                        PlaySound( rm.somMorte );
+                    }
+                    j->invulneravel = true;
+                }
+                return;
             }
 
         }
