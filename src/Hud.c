@@ -170,16 +170,74 @@ static void desenharNumeroPequeno(int numero, int x, int y)
 
 static void desenharTempo(float tempo, int x, int y)
 {
-    /* Limita a 9:59 (599 segundos) */
-    if (tempo > 599.0f) tempo = 599.0f;
-
     int minutos = (int)tempo / 60;
     int segundos = (int)tempo % 60;
+
+    /* Limite máximo */
+    if (minutos > 9)
+    {
+        minutos = 9;
+        segundos = 59;
+    }
 
     char texto[20];
     sprintf(texto, "%01d:%02d", minutos, segundos);
 
-    desenharTextoSprite(texto, x, y);
+    Color cor = WHITE;
+
+    /* Pisca vermelho a partir de 9:50 */
+    if (minutos == 9 && segundos >= 50)
+    {
+        /* alterna vermelho/branco */
+        if (((int)(GetTime() * 6)) % 2 == 0)
+            cor = RED;
+        else
+            cor = WHITE;
+    }
+
+    int tamanho = strlen(texto);
+
+    for (int i = 0; texto[i] != '\0'; i++)
+    {
+        Rectangle source;
+
+        if (texto[i] >= '0' && texto[i] <= '9')
+        {
+            int digito = texto[i] - '0';
+
+            source = (Rectangle){
+                HUD_NUM_G_X + (digito * (HUD_NUM_G_W + HUD_NUM_G_SPACING)),
+                HUD_NUM_G_Y,
+                HUD_NUM_G_W,
+                HUD_NUM_G_H};
+        }
+        else if (texto[i] == ':')
+        {
+            source = (Rectangle){
+                HUD_COLON_X,
+                HUD_COLON_Y,
+                HUD_NUM_G_W,
+                HUD_NUM_G_H};
+        }
+        else
+        {
+            continue;
+        }
+
+        Rectangle dest = {
+            x - ((tamanho - 1 - i) * (HUD_NUM_G_W * HUD_SCALE)),
+            y,
+            HUD_NUM_G_W * HUD_SCALE,
+            HUD_NUM_G_H * HUD_SCALE};
+
+        DrawTexturePro(
+            rm.texturaHud,
+            source,
+            dest,
+            (Vector2){0},
+            0.0f,
+            cor);
+    }
 }
 
 static void desenharTextoSprite(const char *texto, int x, int y)

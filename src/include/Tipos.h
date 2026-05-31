@@ -329,6 +329,17 @@ typedef struct Mapa
 } Mapa;
 
 /**
+ * @brief Estado global da "tela" do jogo.
+ */
+typedef enum EstadoTela
+{
+    TELA_JOGANDO,       /* jogo normal                               */
+    TELA_CARD_FASE,     /* card estilo Sonic "MARBLE ZONE / ACT 1"   */
+    TELA_VITORIA,       /* tela de vitória após matar todos inimigos */
+    TELA_GAME_OVER,     /* tela de game over ao perder todas as vidas*/
+} EstadoTela;
+
+/**
  * @brief Representa o mundo do jogo e seus elementos.
  */
 typedef struct GameWorld
@@ -347,6 +358,27 @@ typedef struct GameWorld
     /* ── Fases ── */
     int faseAtual;           /* 1 ou 2                                    */
     bool faseCompleta;       /* true quando o jogador chega ao fim        */
+
+    /* ── Estado de tela ── */
+    EstadoTela estadoTela;
+
+    /* ── Card de fase ── */
+    float cardContador;      /* tempo exibindo o card (seg)               */
+    float cardDuracao;       /* duração total do card                     */
+    float cardSlide;         /* posição Y do slide (0=dentro, <0=saindo)  */
+
+    /* ── Tela de vitória ── */
+    float vitoriaContador;   /* tempo na tela de vitória                  */
+    int   bonusTempo;        /* bônus calculado pelo tempo restante       */
+    int   bonusAnel;         /* bônus calculado pelos anéis coletados     */
+    int   pontuacaoFinal;    /* pontuação total + bônus                   */
+    float vitoriaAnimTimer;  /* timer para animar a contagem de bônus     */
+    int   bonusTempoExibido; /* valor animado do bônus de tempo           */
+    int   bonusAnelExibido;  /* valor animado do bônus de anel            */
+    bool  bonusContando;     /* true enquanto a contagem está em curso    */
+
+    /* ── Tela de Game Over ── */
+    float gameOverContador;  /* tempo na tela de game over                */
 
     /* ── Transição (fade) ── */
     float fadeDuracao;       /* duração total de cada fade (seg)          */
