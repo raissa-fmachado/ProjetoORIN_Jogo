@@ -18,6 +18,7 @@
 #include "InimigoSpikes.h"
 #include "Item.h"
 #include "ItemAnel.h"
+#include "BlocoInterrogacao.h"
 #include "Obstaculo.h"
 #include "Tipos.h"
 #include "ResourceManager.h"
@@ -128,6 +129,22 @@ Mapa *carregarMapaFase( const char *caminhoArquivo, int fase ) {
 
                             break;
 
+                        case 'b': {
+                            item = criarItem( TIPO_ITEM_BLOCO_INTERROGACAO );
+                            BlocoInterrogacao *bloco = criarBlocoInterrogacao(
+                                (Rectangle) {
+                                    .x = novoMapa->dimensaoPadraoElementos * colunaAtual,
+                                    .y = novoMapa->dimensaoPadraoElementos * linhaAtual,
+                                    .width  = novoMapa->dimensaoPadraoElementos,
+                                    .height = novoMapa->dimensaoPadraoElementos
+                                },
+                                3  /* 3 aneis por bloco */
+                            );
+                            item->objeto = bloco;
+                            el->objeto = item;
+                            el->tipo = TIPO_ELEMENTO_MAPA_ITEM;
+                            break;
+                        }
                         default:
                             TraceLog( LOG_ERROR, "Tipo de item desconhecido." );
                             abort();

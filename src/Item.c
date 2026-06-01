@@ -12,6 +12,7 @@
 
 #include "Item.h"
 #include "ItemAnel.h"
+#include "BlocoInterrogacao.h"
 #include "Tipos.h"
 
 /**
@@ -36,6 +37,9 @@ void destruirItem( Item *item ) {
             case TIPO_ITEM_ANEL:
                 destruirItemAnel( (ItemAnel*) item->objeto );
                 break;
+            case TIPO_ITEM_BLOCO_INTERROGACAO:
+                destruirBlocoInterrogacao( (BlocoInterrogacao*) item->objeto );
+                break;
             default:
                 break;
         }
@@ -52,6 +56,9 @@ void atualizarItem( Item *item, float delta ) {
         case TIPO_ITEM_ANEL:
             atualizarItemAnel( (ItemAnel*) item->objeto, delta );
             break;
+        case TIPO_ITEM_BLOCO_INTERROGACAO:
+            atualizarBlocoInterrogacao( (BlocoInterrogacao*) item->objeto, delta );
+            break;
         default:
             return;
     }
@@ -66,6 +73,9 @@ void desenharItem( Item *item ) {
     switch ( item->tipo ) {
         case TIPO_ITEM_ANEL:
             desenharItemAnel( (ItemAnel*) item->objeto );
+            break;
+        case TIPO_ITEM_BLOCO_INTERROGACAO:
+            desenharBlocoInterrogacao( (BlocoInterrogacao*) item->objeto );
             break;
         default:
             return;

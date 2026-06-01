@@ -72,11 +72,22 @@ typedef enum EstadoItemAnel
 } EstadoItemAnel;
 
 /**
+ * @brief Estado do bloco de interrogação.
+ */
+typedef enum EstadoBlocoInterrogacao
+{
+    ESTADO_BLOCO_INT_INTACTO,
+    ESTADO_BLOCO_INT_ATIVADO,
+    ESTADO_BLOCO_INT_ABERTO,
+} EstadoBlocoInterrogacao;
+
+/**
  * @brief Representa o tipo de um item.
  */
 typedef enum TipoItem
 {
     TIPO_ITEM_ANEL,
+    TIPO_ITEM_BLOCO_INTERROGACAO,
 } TipoItem;
 
 /**
@@ -273,6 +284,23 @@ typedef struct ItemAnel
     Animacao animacaoColetando;
 
 } ItemAnel;
+
+/**
+ * @brief Bloco de interrogação - bata por baixo para soltar anéis.
+ */
+typedef struct BlocoInterrogacao
+{
+    Rectangle ret;
+    EstadoBlocoInterrogacao estado;
+    bool ativo;
+
+    float animTimer;
+    float pulsTimer;
+    float saltY;
+    bool  saltSubindo;
+    int   aneisParaSoltar;
+
+} BlocoInterrogacao;
 
 /**
  * @brief Representa um item estático do mapa.

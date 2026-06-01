@@ -1,15 +1,17 @@
-I                                                           L
-C                                                           E
-C                                    a                      E
-C                               a   aaa                     E
-C                    a         aaa aaaaa  a                 E
-C         a         aaa       aaaaaaaaaaaaaa                E
-C        aLa       aLLLa     aLLLLLLLLLLLLLL     aaaaa      E
-C       LLDLI     aLDDDI    aLDDDDDDDDDDDDDD    LBI LBI     E
-C                aD        aD                               E
-C               aD        aD                                E
-C               D         D                  aaaa           E
-C                                                           E
-C 2   0    D         D          2  1      0     1   0 2  2  E
-FBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBG
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+I                                                          L
+C                                                          E
+C   b                              a                       E
+C              b         a   aaa        b                  E
+C         a         a   aaa aaaaa            a             E
+C        aaa   b   aaa aaaaaaaaaa   b    b  aaa            E
+C       aLa   aLa aLLLaLLLLLLLLLLa aLa aLa aLLLa  aaaaa    E
+C      LDDD   DDILDDDDDDDDDDDDDDDDDILDDILDDILDDDDIL LBI LBIE
+C            aD      a                                     E
+C       b   aD                  b                b         E
+C           D          aaaaa           aaaa           b    E
+C                                                          E
+C2               D      2  1    0   1   0    2  2     1    E
+FBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBG
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA

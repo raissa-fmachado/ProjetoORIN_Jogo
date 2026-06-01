@@ -18,6 +18,7 @@
 #include "InimigoBallHog.h"
 #include "Item.h"
 #include "ItemAnel.h"
+#include "BlocoInterrogacao.h"
 #include "Macros.h"
 #include "Jogador.h"
 #include "ResourceManager.h"
@@ -484,6 +485,7 @@ static void resolverColisaoJogadorObstaculosMapaX( Jogador *j, Mapa *mapa ) {
  */
 static void resolverColisaoJogadorObstaculosMapaY( Jogador *j, Mapa *mapa ) {
 
+    /* ── obstáculos normais ─────────────────────────────────────────── */
     ElementoMapa *el = mapa->obstaculos;
 
     while ( el != NULL ) {
@@ -516,6 +518,53 @@ static void resolverColisaoJogadorObstaculosMapaY( Jogador *j, Mapa *mapa ) {
 
         el = el->proximo;
 
+    }
+
+    /* ── blocos de interrogação (sólidos pelo topo) ─────────────────── */
+    el = mapa->itens;
+    while ( el != NULL ) {
+
+        Item *item = (Item*) el->objeto;
+
+        if ( item->tipo == TIPO_ITEM_BLOCO_INTERROGACAO ) {
+
+            BlocoInterrogacao *bloco = (BlocoInterrogacao*) item->objeto;
+
+            Rectangle retBloco = {
+                bloco->ret.x,
+                bloco->ret.y + bloco->saltY,
+                bloco->ret.width,
+                bloco->ret.height
+            };
+
+            QuadroAnimacao *qa = getQuadroAnimacaoAtualJogador( j );
+            float deslocamentoX = j->olhandoParaDireita
+                ? qa->retColisao.x
+                : j->ret.width - qa->retColisao.x - qa->retColisao.width;
+            float deslocamentoY = qa->retColisao.y;
+
+            Rectangle retColCalculado = {
+                j->ret.x + deslocamentoX,
+                j->ret.y + deslocamentoY,
+                qa->retColisao.width,
+                qa->retColisao.height
+            };
+
+            if ( CheckCollisionRecs( retColCalculado, retBloco ) ) {
+                float centroJogadorY = retColCalculado.y + retColCalculado.height / 2.0f;
+                float centroBlocoY   = retBloco.y + retBloco.height / 2.0f;
+
+                if ( centroJogadorY < centroBlocoY ) {
+                    /* jogador em cima: pousa sobre o bloco */
+                    j->ret.y = retBloco.y - qa->retColisao.height - deslocamentoY;
+                    j->quantidadePulos = 0;
+                    j->vel.y = 0;
+                }
+                /* colisão por baixo é tratada em resolverColisaoJogadorItensMapa */
+            }
+        }
+
+        el = el->proximo;
     }
 
 }
@@ -565,6 +614,44 @@ static void resolverColisaoJogadorItensMapa( Jogador *j, Mapa *mapa, GameWorld *
                 j->quantidadeAneis++;
                 gw->pontuacao += 100; /* +100 pontos por anel coletado */
                 PlaySound( rm.somAnel );
+            }
+
+        }
+
+        if ( item->tipo == TIPO_ITEM_BLOCO_INTERROGACAO ) {
+
+            BlocoInterrogacao *bloco = (BlocoInterrogacao*) item->objeto;
+
+            if ( bloco->estado != ESTADO_BLOCO_INT_INTACTO ) {
+                el = el->proximo;
+                continue;
+            }
+
+            /* retângulo de colisão do bloco (com saltY aplicado) */
+            Rectangle retBloco = {
+                bloco->ret.x,
+                bloco->ret.y + bloco->saltY,
+                bloco->ret.width,
+                bloco->ret.height
+            };
+
+            if ( CheckCollisionRecs( retColCalculado, retBloco ) ) {
+                /* só ativa se o jogador está subindo e bate na parte de baixo */
+                float centroJogadorY = retColCalculado.y + retColCalculado.height / 2.0f;
+                float centroBlocoY   = retBloco.y + retBloco.height / 2.0f;
+
+                if ( j->vel.y < 0 && centroJogadorY > centroBlocoY ) {
+                    ativarBlocoInterrogacao( bloco );
+
+                    /* solta os anéis: cria novos itens no mundo */
+                    j->quantidadeAneis += bloco->aneisParaSoltar;
+                    gw->pontuacao += bloco->aneisParaSoltar * 100;
+                    PlaySound( rm.somAnel );
+
+                    /* empurra o jogador para baixo */
+                    j->vel.y = 100.0f;
+                    j->ret.y = retBloco.y + retBloco.height - deslocamentoY;
+                }
             }
 
         }
