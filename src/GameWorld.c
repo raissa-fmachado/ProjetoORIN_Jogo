@@ -31,10 +31,9 @@
 #define FADE_DURACAO        1.2f   /* segundos de cada fade              */
 #define CARD_DURACAO        3.0f   /* segundos do card de fase           */
 #define CARD_SLIDE_VEL      600.0f /* px/s da animação de slide          */
-#define VITORIA_DURACAO     8.0f   /* segundos antes de reiniciar        */
-#define BONUS_ANIM_STEP     100    /* pontos adicionados por frame       */
-#define BONUS_TEMPO_POR_SEG 100    /* pontos por segundo restante        */
-#define BONUS_ANEL          100    /* pontos por anel coletado           */
+#define BONUS_ANIM_DURACAO  3.0f   /* segundos que a contagem animada leva */
+#define BONUS_TEMPO_POR_SEG  10    /* pontos por segundo restante          */
+#define BONUS_ANEL           50    /* pontos por anel coletado             */
 
 /* ─────────────────────────────────────────────────────────────────────────── */
 /*  Cores de fundo                                                             */
@@ -400,48 +399,35 @@ static void calcularBonusVitoria(GameWorld *gw)
 
     gw->bonusTempoExibido = 0;
     gw->bonusAnelExibido  = 0;
-    gw->bonusContando     = (gw->bonusTempo > 0 || gw->bonusAnel > 0);
+    /* sempre conta (mesmo se zero, t chegará a 1.0 e bonusContando = false) */
+    gw->bonusContando = true;
     gw->vitoriaAnimTimer  = 0.0f;
     gw->vitoriaContador   = 0.0f;
 }
 
 static void updateTelaVitoria(GameWorld *gw, float delta)
 {
-    gw->vitoriaContador += delta;
+    gw->vitoriaContador  += delta;
+    gw->vitoriaAnimTimer += delta;
 
     if (gw->bonusContando)
     {
-        gw->vitoriaAnimTimer += delta;
-        if (gw->vitoriaAnimTimer >= 0.04f)
+        /* progresso linear de 0.0 → 1.0 ao longo de BONUS_ANIM_DURACAO segundos */
+        float t = gw->vitoriaAnimTimer / BONUS_ANIM_DURACAO;
+        if (t > 1.0f) t = 1.0f;
+
+        gw->bonusTempoExibido = (int)(t * (float)gw->bonusTempo);
+        gw->bonusAnelExibido  = (int)(t * (float)gw->bonusAnel);
+
+        if (t >= 1.0f)
         {
-            gw->vitoriaAnimTimer = 0.0f;
-
-            if (gw->bonusTempoExibido < gw->bonusTempo)
-            {
-                gw->bonusTempoExibido += BONUS_ANIM_STEP;
-                if (gw->bonusTempoExibido > gw->bonusTempo)
-                    gw->bonusTempoExibido = gw->bonusTempo;
-            }
-
-            if (gw->bonusAnelExibido < gw->bonusAnel)
-            {
-                gw->bonusAnelExibido += BONUS_ANIM_STEP;
-                if (gw->bonusAnelExibido > gw->bonusAnel)
-                    gw->bonusAnelExibido = gw->bonusAnel;
-            }
-
-            /* para exatamente quando os dois chegam ao valor final */
-            if (gw->bonusTempoExibido >= gw->bonusTempo &&
-                gw->bonusAnelExibido  >= gw->bonusAnel)
-            {
-                gw->bonusTempoExibido = gw->bonusTempo;
-                gw->bonusAnelExibido  = gw->bonusAnel;
-                gw->bonusContando     = false;
-            }
+            gw->bonusTempoExibido = gw->bonusTempo;
+            gw->bonusAnelExibido  = gw->bonusAnel;
+            gw->bonusContando     = false;
         }
     }
 
-    /* só reinicia quando o jogador pressionar ENTER, após a contagem terminar */
+    /* reinicia só quando o jogador pressionar ENTER, após a contagem terminar */
     if (!gw->bonusContando && IsKeyPressed(KEY_ENTER))
         reiniciar(gw);
 }
@@ -584,10 +570,8 @@ static void updateTelaGameOver(GameWorld *gw, float delta)
 {
     gw->gameOverContador += delta;
 
-    bool tecla = IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE) ||
-                 IsKeyPressed(KEY_Z)     || IsKeyPressed(KEY_X);
-
-    if (gw->gameOverContador >= 6.0f || tecla)
+    /* reinicia só ao pressionar ENTER */
+    if (IsKeyPressed(KEY_ENTER))
         reiniciar(gw);
 }
 
