@@ -21,6 +21,7 @@
 #include "InimigoMotobug.h"
 #include "InimigoSpikes.h"
 #include "InimigoBallHog.h"
+#include "InimigoBatbrain.h"
 
 #include "raylib/raylib.h"
 
@@ -644,6 +645,8 @@ static bool todosInimigosMortos(GameWorld *gw)
             ativo = ((InimigoSpikes *)inimigo->objeto)->ativo;
         else if (inimigo->tipo == TIPO_INIMIGO_BALLHOG)
             ativo = ((InimigoBallHog *)inimigo->objeto)->ativo;
+        else if (inimigo->tipo == TIPO_INIMIGO_BATBRAIN)
+            ativo = ((InimigoBatbrain *)inimigo->objeto)->ativo;
 
         if (ativo) return false;
         el = el->proximo;

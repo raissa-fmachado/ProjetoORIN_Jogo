@@ -53,6 +53,15 @@ typedef enum EstadoInimigoBallHog
 } EstadoInimigoBallHog;
 
 /**
+ * @brief Representa o estado do inimigo do tipo Batbrain.
+ */
+typedef enum EstadoInimigoBatbrain
+{
+    ESTADO_INIMIGO_BATBRAIN_ANDANDO,
+    ESTADO_INIMIGO_BATBRAIN_MORRENDO,
+} EstadoInimigoBatbrain;
+
+/**
  * @brief Representa o tipo de um inimigo.
  */
 typedef enum TipoInimigo
@@ -60,6 +69,7 @@ typedef enum TipoInimigo
     TIPO_INIMIGO_MOTOBUG,
     TIPO_INIMIGO_SPIKES,
     TIPO_INIMIGO_BALLHOG,
+    TIPO_INIMIGO_BATBRAIN,
 } TipoInimigo;
 
 /**
@@ -256,6 +266,30 @@ typedef struct InimigoBallHog
 } InimigoBallHog;
 
 /**
+ * @brief Representa um inimigo do tipo Batbrain.
+ */
+typedef struct InimigoBatbrain
+{
+    Rectangle ret;
+    Vector2 vel;
+    Color cor;
+
+    float velAndando;
+    float velMaxQueda;
+
+    EstadoInimigoBatbrain estado;
+    bool ativo;
+    bool olhandoParaDireita;
+
+    Animacao *animacoes[2];
+    int quantidadeAnimacoes;
+
+    Animacao animacaoAndando;
+    Animacao animacaoMorrendo;
+
+} InimigoBatbrain;
+
+/**
  * @brief Representa um inimigo.
  * O inimigo de fato é endereçado via membro "objeto".
  */
@@ -297,8 +331,8 @@ typedef struct BlocoInterrogacao
     float animTimer;
     float pulsTimer;
     float saltY;
-    bool  saltSubindo;
-    int   aneisParaSoltar;
+    bool saltSubindo;
+    int aneisParaSoltar;
 
 } BlocoInterrogacao;
 
@@ -361,10 +395,10 @@ typedef struct Mapa
  */
 typedef enum EstadoTela
 {
-    TELA_JOGANDO,       /* jogo normal                               */
-    TELA_CARD_FASE,     /* card estilo Sonic "MARBLE ZONE / ACT 1"   */
-    TELA_VITORIA,       /* tela de vitória após matar todos inimigos */
-    TELA_GAME_OVER,     /* tela de game over ao perder todas as vidas*/
+    TELA_JOGANDO,   /* jogo normal                               */
+    TELA_CARD_FASE, /* card estilo Sonic "MARBLE ZONE / ACT 1"   */
+    TELA_VITORIA,   /* tela de vitória após matar todos inimigos */
+    TELA_GAME_OVER, /* tela de game over ao perder todas as vidas*/
 } EstadoTela;
 
 /**
@@ -384,36 +418,36 @@ typedef struct GameWorld
     float tempoJogo;
 
     /* ── Fases ── */
-    int faseAtual;           /* 1 ou 2                                    */
-    bool faseCompleta;       /* true quando o jogador chega ao fim        */
+    int faseAtual;     /* 1 ou 2                                    */
+    bool faseCompleta; /* true quando o jogador chega ao fim        */
 
     /* ── Estado de tela ── */
     EstadoTela estadoTela;
 
     /* ── Card de fase ── */
-    float cardContador;      /* tempo exibindo o card (seg)               */
-    float cardDuracao;       /* duração total do card                     */
-    float cardSlide;         /* posição Y do slide (0=dentro, <0=saindo)  */
+    float cardContador; /* tempo exibindo o card (seg)               */
+    float cardDuracao;  /* duração total do card                     */
+    float cardSlide;    /* posição Y do slide (0=dentro, <0=saindo)  */
 
     /* ── Tela de vitória ── */
-    float vitoriaContador;   /* tempo na tela de vitória                  */
-    int   bonusTempo;        /* bônus calculado pelo tempo restante       */
-    int   bonusAnel;         /* bônus calculado pelos anéis coletados     */
-    int   pontuacaoFinal;    /* pontuação total + bônus                   */
-    float vitoriaAnimTimer;  /* timer para animar a contagem de bônus     */
-    int   bonusTempoExibido; /* valor animado do bônus de tempo           */
-    int   bonusAnelExibido;  /* valor animado do bônus de anel            */
-    bool  bonusContando;     /* true enquanto a contagem está em curso    */
+    float vitoriaContador;  /* tempo na tela de vitória                  */
+    int bonusTempo;         /* bônus calculado pelo tempo restante       */
+    int bonusAnel;          /* bônus calculado pelos anéis coletados     */
+    int pontuacaoFinal;     /* pontuação total + bônus                   */
+    float vitoriaAnimTimer; /* timer para animar a contagem de bônus     */
+    int bonusTempoExibido;  /* valor animado do bônus de tempo           */
+    int bonusAnelExibido;   /* valor animado do bônus de anel            */
+    bool bonusContando;     /* true enquanto a contagem está em curso    */
 
     /* ── Tela de Game Over ── */
-    float gameOverContador;  /* tempo na tela de game over                */
+    float gameOverContador; /* tempo na tela de game over                */
 
     /* ── Transição (fade) ── */
-    float fadeDuracao;       /* duração total de cada fade (seg)          */
-    float fadeContador;      /* contador de tempo do fade atual           */
-    float fadeAlpha;         /* 0.0 = transparente, 1.0 = preto total     */
-    bool  fadeEntrada;       /* true = fade-in (preto→jogo)               */
-    bool  fadeSaida;         /* true = fade-out (jogo→preto)              */
-    bool  trocandoFase;      /* flag interna: fade-out concluído, trocar  */
+    float fadeDuracao;  /* duração total de cada fade (seg)          */
+    float fadeContador; /* contador de tempo do fade atual           */
+    float fadeAlpha;    /* 0.0 = transparente, 1.0 = preto total     */
+    bool fadeEntrada;   /* true = fade-in (preto→jogo)               */
+    bool fadeSaida;     /* true = fade-out (jogo→preto)              */
+    bool trocandoFase;  /* flag interna: fade-out concluído, trocar  */
 
 } GameWorld;
