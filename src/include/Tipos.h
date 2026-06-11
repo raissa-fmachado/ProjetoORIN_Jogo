@@ -92,8 +92,13 @@ typedef enum EstadoItemEscudo
 {
     ESTADO_ITEM_ESCUDO_PARADO,
     ESTADO_ITEM_ESCUDO_COLETADO,
-} EstadoItemEscudo
-;
+} EstadoItemEscudo;
+
+typedef enum EstadoItemAnelGigante
+{
+    ESTADO_ITEM_ANEL_GIGANTE_PARADO,
+    ESTADO_ITEM_ANEL_GIGANTE_COLETADO,
+} EstadoItemAnelGigante;
 
 /**
  * @brief Estado do bloco de interrogação.
@@ -113,6 +118,7 @@ typedef enum TipoItem
     TIPO_ITEM_ANEL,
     TIPO_ITEM_BLOCO_INTERROGACAO,
     TIPO_ITEM_ESCUDO,
+    TIPO_ITEM_ANEL_GIGANTE,
 } TipoItem;
 
 /**
@@ -347,6 +353,21 @@ typedef struct ItemAnel
 
 } ItemAnel;
 
+typedef struct ItemAnelGigante
+{
+    Rectangle ret;
+    Color cor;
+
+    EstadoItemAnelGigante estado;
+    bool ativo;
+
+    Animacao *animacoes[1];
+    int quantidadeAnimacoes;
+
+    Animacao animacaoParado;
+    Animacao animacaoColetando;
+} ItemAnelGigante;
+
 /**
  * @brief Representa um item do tipo escudo.
  */
@@ -357,7 +378,7 @@ typedef struct ItemEscudo
     Color cor;
 
     EstadoItemEscudo
-     estado;
+        estado;
     bool ativo;
 
     Animacao *animacoes[2];
@@ -366,8 +387,7 @@ typedef struct ItemEscudo
     Animacao animacaoParado;
     Animacao animacaoColetando;
 
-} ItemEscudo
-;
+} ItemEscudo;
 
 /**
  * @brief Bloco de interrogação - bata por baixo para soltar anéis.

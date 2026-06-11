@@ -745,6 +745,29 @@ static void resolverColisaoJogadorItensMapa(Jogador *j, Mapa *mapa, GameWorld *g
             }
         }
 
+        if (item->tipo == TIPO_ITEM_ANEL_GIGANTE)
+        {
+            ItemAnelGigante *anelG = (ItemAnelGigante *)item->objeto;
+
+            if (!anelG->ativo || anelG->estado == ESTADO_ITEM_ANEL_GIGANTE_COLETADO)
+            {
+                el = el->proximo;
+                continue;
+            }
+
+            Rectangle retItem = anelG->ret;
+
+            if (CheckCollisionRecs(retColCalculado, retItem))
+            {
+                anelG->estado = ESTADO_ITEM_ANEL_GIGANTE_COLETADO;
+
+                j->quantidadeAneis += 10; 
+                gw->pontuacao += 1000;
+
+                PlaySound(rm.somAnel);
+            }
+        }
+
         if (item->tipo == TIPO_ITEM_BLOCO_INTERROGACAO)
         {
 

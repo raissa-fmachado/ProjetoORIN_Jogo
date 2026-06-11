@@ -19,6 +19,7 @@
 #include "InimigoBatbrain.h"
 #include "Item.h"
 #include "ItemAnel.h"
+#include "ItemAnelGigante.h"
 #include "ItemEscudo.h"
 #include "BlocoInterrogacao.h"
 #include "Obstaculo.h"
@@ -150,7 +151,7 @@ Mapa *carregarMapaFase(const char *caminhoArquivo, int fase)
                         el->objeto = item;
                         el->tipo = TIPO_ELEMENTO_MAPA_ITEM;
                         break;
-
+                    }
                     case 'c':
 
                         item = criarItem(TIPO_ITEM_ESCUDO);
@@ -167,15 +168,32 @@ Mapa *carregarMapaFase(const char *caminhoArquivo, int fase)
                         el->tipo = TIPO_ELEMENTO_MAPA_ITEM;
 
                         break;
-                    }
+
+                    case 'd':
+
+                        item = criarItem(TIPO_ITEM_ANEL_GIGANTE);
+
+                        float offset = (novoMapa->dimensaoPadraoElementos - 100) / 2.0f;
+
+                        item->objeto = criarItemAnelGigante(
+                            (Rectangle){
+                                .x = novoMapa->dimensaoPadraoElementos * colunaAtual + offset,
+                                .y = novoMapa->dimensaoPadraoElementos * linhaAtual + offset,
+                                .width = 64,
+                                .height = 64},
+                            GOLD);
+
+                        el->objeto = item;
+                        el->tipo = TIPO_ELEMENTO_MAPA_ITEM;
+                        break;
                     default:
                         TraceLog(LOG_ERROR, "Tipo de item desconhecido.");
                         abort();
                         break;
                     }
-
                     inserirItem(novoMapa, el);
                 }
+
                 else if (c >= '0' && c <= '9')
                 {
 
