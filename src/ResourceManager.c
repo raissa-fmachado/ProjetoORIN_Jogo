@@ -77,7 +77,7 @@ void loadResourcesResourceManager(void)
 
     /* ── Tiles ─────────────────────────────────────────────────────────── */
     rm.texturaTerreno = LoadTexture("resources/imagens/tiles/terreno.png");
-    rm.texturaTerreno2 = LoadTexture("resources/imagens/tiles/marble.png");
+    rm.texturaTerreno2 = LoadTexture("resources/imagens/tiles/marble_tileset_final.png");
 
     /* ── Fundos ─────────────────────────────────────────────────────────── */
     rm.texturaFundo = LoadTexture("resources/imagens/fundo/fundo.png");
@@ -101,7 +101,6 @@ void loadResourcesResourceManager(void)
     rm.somPulo = LoadSound("resources/sons/efeitos/pulo.wav");
 
     rm.musicaFase01 = LoadMusicStream("resources/sons/musicas/green-hill-zone.mp3");
-    /* Troque pelo arquivo da Marble Zone quando tiver o .mp3 */
     rm.musicaFase02 = LoadMusicStream("resources/sons/musicas/marble-zone.mp3");
 }
 

@@ -1,17 +1,17 @@
-I                                                          L
-C                                                          E
-C   b                              a                       E
-C              b         a   aaa        b                  E
-C         a         a   aaa aaaaa            a             E
-C        aaa   b   aaa aaaaaaaaaa   b    b  aaa            E
-C       aLa   aLa aLLLaLLLLLLLLLLa aLa aLa aLLLa  aaaaa    E
-C      LDDD   DDILDDDDDDDDDDDDDDDDDILDDILDDILDDDDIL LBI LBIE
-C            aD      a                                     E
-C       b   aD                  b                b         E
-C           D          aaaaa           aaaa           b    E
-C                                                          E
-C2               D      2  1    0   1   0    2  2     1    E
-FBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBG
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+I                                                                                                    L
+A                   a                                                                                E
+A                  aA                                                                                E
+A                 aA                         a                                                       E
+A                aA                         aaa                                                      E
+A               aA          aaa            aaaaa                                                     E
+A         a    aA          aAAa          aaaaaaa                                      aaaa           E
+A         aA   A    a    aaAAAAaa       aaaaaaaaa             3                    AAAAAAAA        E
+A          aA      aA   AAAAAAAAAa    AAAAAAAAAAAAAa        aaaaaaaa              aA         aA     E
+A           aA    aA    AAAAAAAAAA    AAAAAAAAAAAAA     AAAAAAAAAAAAAAAAA        aA           aA    E
+A            A   aA                                                             aA             aA   E
+A               aA                                                             aA               A   E
+A               A                     3                                        A           3        E
+A                                             3                           3                         E
+A     3   A          A     3                                   3                                    E
+KMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMG
+KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK
