@@ -18,7 +18,7 @@ static void desenharQuadroAnimacaoItemAnelGigante(ItemAnel *item, QuadroAnimacao
 static Animacao *getAnimacaoAtualItemAnelGigante(ItemAnel *item);
 static QuadroAnimacao *getQuadroAnimacaoAtualItemAnelGigante(ItemAnel *item);
 
-static const bool MOSTRAR_RETANGULOS = true;
+static const bool MOSTRAR_RETANGULOS = false;
 
 ItemAnel *criarItemAnelGigante(Rectangle ret, Color cor)
 {
