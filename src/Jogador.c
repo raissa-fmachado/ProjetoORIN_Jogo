@@ -19,6 +19,7 @@
 #include "InimigoBatbrain.h"
 #include "Item.h"
 #include "ItemAnel.h"
+#include "ItemEscudo.h"
 #include "BlocoInterrogacao.h"
 #include "Macros.h"
 #include "Jogador.h"
@@ -81,6 +82,8 @@ Jogador *criarJogador(float x, float y, float w, float h)
 
     novoJogador->estado = ESTADO_JOGADOR_PARADO;
     novoJogador->olhandoParaDireita = true;
+
+    novoJogador->possuiEscudo = false;
 
     int quantidadeAnimacoes = 0;
 
@@ -209,6 +212,25 @@ Jogador *criarJogador(float x, float y, float w, float h)
         false,      // de trás para frente
         (Rectangle){// retângulo de colisão padrão para cada quadro
                     32, 46, 42, 50});
+
+    novoJogador->animacaoEscudo.quantidadeQuadros = 2;
+    novoJogador->animacaoEscudo.quadroAtual = 0;
+    novoJogador->animacaoEscudo.contadorTempoQuadro = 0.0f;
+    novoJogador->animacaoEscudo.pararNoUltimoQuadro = false;
+    novoJogador->animacaoEscudo.executarUmaVez = false;
+    novoJogador->animacaoEscudo.finalizada = false;
+
+    criarQuadrosAnimacao(&novoJogador->animacaoEscudo, 4);
+
+    inicializarQuadrosAnimacao(
+        novoJogador->animacaoEscudo.quadros,
+        novoJogador->animacaoEscudo.quantidadeQuadros,
+        80,
+        1, 35, // origem do escudo no spritesheet (ajuste se necessário)
+        48, 48,
+        1,
+        false,
+        (Rectangle){0});
 
     novoJogador->animacoes[ESTADO_JOGADOR_PARADO] = &novoJogador->animacaoParado;
     quantidadeAnimacoes++;
@@ -405,6 +427,11 @@ void atualizarJogador(Jogador *j, GameWorld *gw, float delta)
         }
     }
 
+    if (j->possuiEscudo)
+    {
+        atualizarAnimacao(&j->animacaoEscudo, delta);
+    }
+
     Animacao *animacaoAtual = getAnimacaoAtualJogador(j);
     atualizarAnimacao(animacaoAtual, delta);
 
@@ -430,11 +457,24 @@ void atualizarJogador(Jogador *j, GameWorld *gw, float delta)
  */
 void desenharJogador(Jogador *j)
 {
-
     if (!j->piscaPisca)
     {
         QuadroAnimacao *qa = getQuadroAnimacaoAtualJogador(j);
         desenharQuadroAnimacaoJogador(j, qa, WHITE);
+    }
+
+    if (j->possuiEscudo)
+    {
+        QuadroAnimacao *qaEscudo =
+            getQuadroAtualAnimacao(&j->animacaoEscudo);
+
+        DrawTexturePro(
+            rm.texturaItens,
+            qaEscudo->fonte,
+            j->ret,
+            (Vector2){0},
+            0.0f,
+            WHITE);
     }
 
     if (MOSTRAR_RETANGULOS)
@@ -671,6 +711,40 @@ static void resolverColisaoJogadorItensMapa(Jogador *j, Mapa *mapa, GameWorld *g
             }
         }
 
+        if (item->tipo == TIPO_ITEM_ESCUDO)
+        {
+            ItemEscudo *itemEscudo = (ItemEscudo *)item->objeto;
+
+            if (!itemEscudo->ativo ||
+                itemEscudo->estado == ESTADO_ITEM_ESCUDO_COLETADO)
+            {
+                el = el->proximo;
+                continue;
+            }
+
+            QuadroAnimacao *qaItem =
+                getQuadroAnimacaoAtualItemEscudo(itemEscudo);
+
+            Rectangle retColItemCalculado = {
+                itemEscudo->ret.x + qaItem->retColisao.x,
+                itemEscudo->ret.y + qaItem->retColisao.y,
+                qaItem->retColisao.width,
+                qaItem->retColisao.height};
+
+            if (CheckCollisionRecs(retColCalculado, retColItemCalculado))
+            {
+                itemEscudo->estado = ESTADO_ITEM_ESCUDO_COLETADO;
+
+                j->possuiEscudo = true;
+
+                gw->pontuacao += 500;
+
+                // PlaySound(rm.somEscudo);
+
+                // PlaySound(rm.somAnel);
+            }
+        }
+
         if (item->tipo == TIPO_ITEM_BLOCO_INTERROGACAO)
         {
 
@@ -779,16 +853,29 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
                 }
                 else if (!j->invulneravel)
                 {
-                    if (j->quantidadeAneis > 0)
+                    if (j->possuiEscudo)
                     {
-                        j->quantidadeAneis = 0;
-                        PlaySound(rm.somHitComAnel);
+
+                        j->possuiEscudo = false;
+
+                        j->animacaoEscudo.quadroAtual = 0;
+
+                        PlaySound(rm.somHitInimigo);
                     }
                     else
                     {
-                        j->quantidadeVidas--;
-                        PlaySound(rm.somMorte);
+                        if (j->quantidadeAneis > 0)
+                        {
+                            j->quantidadeAneis = 0;
+                            PlaySound(rm.somHitComAnel);
+                        }
+                        else
+                        {
+                            j->quantidadeVidas--;
+                            PlaySound(rm.somMorte);
+                        }
                     }
+
                     j->invulneravel = true;
                 }
                 return;
@@ -831,16 +918,29 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
                 }
                 else if (!j->invulneravel)
                 {
-                    if (j->quantidadeAneis > 0)
+                    if (j->possuiEscudo)
                     {
-                        j->quantidadeAneis = 0;
-                        PlaySound(rm.somHitComAnel);
+
+                        j->possuiEscudo = false;
+
+                        j->animacaoEscudo.quadroAtual = 0;
+
+                        PlaySound(rm.somHitInimigo);
                     }
                     else
                     {
-                        j->quantidadeVidas--;
-                        PlaySound(rm.somMorte);
+                        if (j->quantidadeAneis > 0)
+                        {
+                            j->quantidadeAneis = 0;
+                            PlaySound(rm.somHitComAnel);
+                        }
+                        else
+                        {
+                            j->quantidadeVidas--;
+                            PlaySound(rm.somMorte);
+                        }
                     }
+
                     j->invulneravel = true;
                 }
                 return;
@@ -883,16 +983,29 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
                 }
                 else if (!j->invulneravel)
                 {
-                    if (j->quantidadeAneis > 0)
+                    if (j->possuiEscudo)
                     {
-                        j->quantidadeAneis = 0;
-                        PlaySound(rm.somHitComAnel);
+
+                        j->possuiEscudo = false;
+
+                        j->animacaoEscudo.quadroAtual = 0;
+
+                        PlaySound(rm.somHitInimigo);
                     }
                     else
                     {
-                        j->quantidadeVidas--;
-                        PlaySound(rm.somMorte);
+                        if (j->quantidadeAneis > 0)
+                        {
+                            j->quantidadeAneis = 0;
+                            PlaySound(rm.somHitComAnel);
+                        }
+                        else
+                        {
+                            j->quantidadeVidas--;
+                            PlaySound(rm.somMorte);
+                        }
                     }
+
                     j->invulneravel = true;
                 }
                 return;
@@ -938,16 +1051,27 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
                 }
                 else if (!j->invulneravel)
                 {
-
-                    if (j->quantidadeAneis > 0)
+                    if (j->possuiEscudo)
                     {
-                        j->quantidadeAneis = 0;
-                        PlaySound(rm.somHitComAnel);
+
+                        j->possuiEscudo = false;
+
+                        j->animacaoEscudo.quadroAtual = 0;
+
+                        PlaySound(rm.somHitInimigo);
                     }
                     else
                     {
-                        j->quantidadeVidas--;
-                        PlaySound(rm.somMorte);
+                        if (j->quantidadeAneis > 0)
+                        {
+                            j->quantidadeAneis = 0;
+                            PlaySound(rm.somHitComAnel);
+                        }
+                        else
+                        {
+                            j->quantidadeVidas--;
+                            PlaySound(rm.somMorte);
+                        }
                     }
 
                     j->invulneravel = true;

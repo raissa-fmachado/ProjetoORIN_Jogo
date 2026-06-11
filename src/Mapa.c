@@ -19,6 +19,7 @@
 #include "InimigoBatbrain.h"
 #include "Item.h"
 #include "ItemAnel.h"
+#include "ItemEscudo.h"
 #include "BlocoInterrogacao.h"
 #include "Obstaculo.h"
 #include "Tipos.h"
@@ -148,6 +149,23 @@ Mapa *carregarMapaFase(const char *caminhoArquivo, int fase)
                         item->objeto = bloco;
                         el->objeto = item;
                         el->tipo = TIPO_ELEMENTO_MAPA_ITEM;
+                        break;
+
+                    case 'c':
+
+                        item = criarItem(TIPO_ITEM_ESCUDO);
+
+                        item->objeto = criarItemEscudo(
+                            (Rectangle){
+                                .x = novoMapa->dimensaoPadraoElementos * colunaAtual,
+                                .y = novoMapa->dimensaoPadraoElementos * linhaAtual,
+                                .width = 48,
+                                .height = 48},
+                            BLUE);
+
+                        el->objeto = item;
+                        el->tipo = TIPO_ELEMENTO_MAPA_ITEM;
+
                         break;
                     }
                     default:

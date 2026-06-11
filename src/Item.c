@@ -12,73 +12,88 @@
 
 #include "Item.h"
 #include "ItemAnel.h"
+#include "ItemEscudo.h"
 #include "BlocoInterrogacao.h"
 #include "Tipos.h"
 
 /**
  * @brief Cria um novo Item.
  */
-Item *criarItem( TipoItem tipo ) {
+Item *criarItem(TipoItem tipo)
+{
 
-    Item *novoItem = (Item*) malloc( sizeof( Item ) );
+    Item *novoItem = (Item *)malloc(sizeof(Item));
     novoItem->objeto = NULL;
     novoItem->tipo = tipo;
 
     return novoItem;
-
 }
 
 /**
  * @brief Destroi um item.
  */
-void destruirItem( Item *item ) {
-    if ( item != NULL ) {
-        switch ( item->tipo ) {
-            case TIPO_ITEM_ANEL:
-                destruirItemAnel( (ItemAnel*) item->objeto );
-                break;
-            case TIPO_ITEM_BLOCO_INTERROGACAO:
-                destruirBlocoInterrogacao( (BlocoInterrogacao*) item->objeto );
-                break;
-            default:
-                break;
+void destruirItem(Item *item)
+{
+    if (item != NULL)
+    {
+        switch (item->tipo)
+        {
+        case TIPO_ITEM_ANEL:
+            destruirItemAnel((ItemAnel *)item->objeto);
+            break;
+        case TIPO_ITEM_ESCUDO:
+            destruirItemEscudo((ItemEscudo *)item->objeto);
+            break;
+        case TIPO_ITEM_BLOCO_INTERROGACAO:
+            destruirBlocoInterrogacao((BlocoInterrogacao *)item->objeto);
+            break;
+        default:
+            break;
         }
-        free( item );
+        free(item);
     }
 }
 
 /**
  * @brief Atualiza um item.
  */
-void atualizarItem( Item *item, float delta ) {
+void atualizarItem(Item *item, float delta)
+{
 
-    switch ( item->tipo ) {
-        case TIPO_ITEM_ANEL:
-            atualizarItemAnel( (ItemAnel*) item->objeto, delta );
-            break;
-        case TIPO_ITEM_BLOCO_INTERROGACAO:
-            atualizarBlocoInterrogacao( (BlocoInterrogacao*) item->objeto, delta );
-            break;
-        default:
-            return;
+    switch (item->tipo)
+    {
+    case TIPO_ITEM_ANEL:
+        atualizarItemAnel((ItemAnel *)item->objeto, delta);
+        break;
+    case TIPO_ITEM_ESCUDO:
+        atualizarItemEscudo((ItemEscudo *)item->objeto, delta);
+        break;
+    case TIPO_ITEM_BLOCO_INTERROGACAO:
+        atualizarBlocoInterrogacao((BlocoInterrogacao *)item->objeto, delta);
+        break;
+    default:
+        return;
     }
-
 }
 
 /**
  * @brief Desenha um item.
  */
-void desenharItem( Item *item ) {
+void desenharItem(Item *item)
+{
 
-    switch ( item->tipo ) {
-        case TIPO_ITEM_ANEL:
-            desenharItemAnel( (ItemAnel*) item->objeto );
-            break;
-        case TIPO_ITEM_BLOCO_INTERROGACAO:
-            desenharBlocoInterrogacao( (BlocoInterrogacao*) item->objeto );
-            break;
-        default:
-            return;
+    switch (item->tipo)
+    {
+    case TIPO_ITEM_ANEL:
+        desenharItemAnel((ItemAnel *)item->objeto);
+        break;
+    case TIPO_ITEM_ESCUDO:
+        desenharItemEscudo((ItemEscudo *)item->objeto);
+        break;
+    case TIPO_ITEM_BLOCO_INTERROGACAO:
+        desenharBlocoInterrogacao((BlocoInterrogacao *)item->objeto);
+        break;
+    default:
+        return;
     }
-
 }
