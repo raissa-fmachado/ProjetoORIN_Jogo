@@ -76,29 +76,29 @@ void loadResourcesResourceManager(void)
         1);
 
     /* ── Tiles ─────────────────────────────────────────────────────────── */
-    rm.texturaTerreno  = LoadTexture("resources/imagens/tiles/terreno.png");
+    rm.texturaTerreno = LoadTexture("resources/imagens/tiles/terreno.png");
     rm.texturaTerreno2 = LoadTexture("resources/imagens/tiles/marble.png");
 
     /* ── Fundos ─────────────────────────────────────────────────────────── */
-    rm.texturaFundo    = LoadTexture("resources/imagens/fundo/fundo.png");
-    rm.texturaFundo2   = LoadTexture("resources/imagens/fundo/fundo2.png");
+    rm.texturaFundo = LoadTexture("resources/imagens/fundo/fundo.png");
+    rm.texturaFundo2 = LoadTexture("resources/imagens/fundo/fundo2.png");
 
-    SetTextureFilter(rm.texturaJogador,     TEXTURE_FILTER_POINT);
-    SetTextureFilter(rm.texturaBadniks,     TEXTURE_FILTER_POINT);
-    SetTextureFilter(rm.texturaItens,       TEXTURE_FILTER_POINT);
-    SetTextureFilter(rm.texturaTerreno,     TEXTURE_FILTER_POINT);
-    SetTextureFilter(rm.texturaTerreno2,    TEXTURE_FILTER_POINT);
-    SetTextureFilter(rm.texturaFundo,       TEXTURE_FILTER_POINT);
-    SetTextureFilter(rm.texturaFundo2,      TEXTURE_FILTER_POINT);
-    SetTextureFilter(rm.texturaHud,         TEXTURE_FILTER_POINT);
+    SetTextureFilter(rm.texturaJogador, TEXTURE_FILTER_POINT);
+    SetTextureFilter(rm.texturaBadniks, TEXTURE_FILTER_POINT);
+    SetTextureFilter(rm.texturaItens, TEXTURE_FILTER_POINT);
+    SetTextureFilter(rm.texturaTerreno, TEXTURE_FILTER_POINT);
+    SetTextureFilter(rm.texturaTerreno2, TEXTURE_FILTER_POINT);
+    SetTextureFilter(rm.texturaFundo, TEXTURE_FILTER_POINT);
+    SetTextureFilter(rm.texturaFundo2, TEXTURE_FILTER_POINT);
+    SetTextureFilter(rm.texturaHud, TEXTURE_FILTER_POINT);
     SetTextureFilter(rm.texturaHudNumerosP, TEXTURE_FILTER_POINT);
 
-    rm.somAnel       = LoadSound("resources/sons/efeitos/anel.wav");
-    rm.somFrenagem   = LoadSound("resources/sons/efeitos/frenagem.wav");
+    rm.somAnel = LoadSound("resources/sons/efeitos/anel.wav");
+    rm.somFrenagem = LoadSound("resources/sons/efeitos/frenagem.wav");
     rm.somHitComAnel = LoadSound("resources/sons/efeitos/hit-com-anel.wav");
     rm.somHitInimigo = LoadSound("resources/sons/efeitos/hit-inimigo.wav");
-    rm.somMorte      = LoadSound("resources/sons/efeitos/morte.wav");
-    rm.somPulo       = LoadSound("resources/sons/efeitos/pulo.wav");
+    rm.somMorte = LoadSound("resources/sons/efeitos/morte.wav");
+    rm.somPulo = LoadSound("resources/sons/efeitos/pulo.wav");
 
     rm.musicaFase01 = LoadMusicStream("resources/sons/musicas/green-hill-zone.mp3");
     /* Troque pelo arquivo da Marble Zone quando tiver o .mp3 */

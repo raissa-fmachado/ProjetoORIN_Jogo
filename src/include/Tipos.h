@@ -57,7 +57,9 @@ typedef enum EstadoInimigoBallHog
  */
 typedef enum EstadoInimigoBatbrain
 {
-    ESTADO_INIMIGO_BATBRAIN_ANDANDO,
+    ESTADO_INIMIGO_BATBRAIN_PARADO,
+    ESTADO_INIMIGO_BATBRAIN_MERGULHANDO,
+    ESTADO_INIMIGO_BATBRAIN_SUBINDO,
     ESTADO_INIMIGO_BATBRAIN_MORRENDO,
 } EstadoInimigoBatbrain;
 
@@ -272,18 +274,28 @@ typedef struct InimigoBatbrain
 {
     Rectangle ret;
     Vector2 vel;
+
+    Vector2 posInicial;
+
     Color cor;
 
     float velAndando;
     float velMaxQueda;
 
-    EstadoInimigoBatbrain estado;
+    bool mergulhando;
+    float velocidadeMergulho;
+    float distanciaAtivacao;
+    float alturaRetorno;
+
     bool ativo;
     bool olhandoParaDireita;
 
-    Animacao *animacoes[2];
+    EstadoInimigoBatbrain estado;
+
+    Animacao *animacoes[4];
     int quantidadeAnimacoes;
 
+    Animacao animacaoParado;
     Animacao animacaoAndando;
     Animacao animacaoMorrendo;
 

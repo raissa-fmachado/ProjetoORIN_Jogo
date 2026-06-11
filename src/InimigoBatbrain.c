@@ -7,6 +7,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "raylib/raylib.h"
 
@@ -32,35 +33,77 @@ InimigoBatbrain *criarInimigoBatbrain(Rectangle ret, Color cor)
     InimigoBatbrain *novoInimigo = (InimigoBatbrain *)malloc(sizeof(InimigoBatbrain));
 
     novoInimigo->ret = ret;
+    novoInimigo->posInicial = (Vector2){
+        ret.x,
+        ret.y};
+    novoInimigo->mergulhando = false;
+    novoInimigo->velocidadeMergulho = 180.0f;
+    novoInimigo->distanciaAtivacao = 140.0f;
+    novoInimigo->alturaRetorno = ret.y;
+
     novoInimigo->vel = (Vector2){0};
     novoInimigo->cor = cor;
 
-    novoInimigo->velAndando = 100;
+    novoInimigo->velAndando = 60;
     novoInimigo->velMaxQueda = 600;
 
-    novoInimigo->estado = ESTADO_INIMIGO_BATBRAIN_ANDANDO;
+    novoInimigo->estado = ESTADO_INIMIGO_BATBRAIN_PARADO;
     novoInimigo->ativo = true;
     novoInimigo->olhandoParaDireita = false;
 
-    int quantidadeAnimacoes = 0;
+    int quantidadeAnimacoes = 4;
 
-    novoInimigo->animacaoAndando.quantidadeQuadros = 6;
+    novoInimigo->animacaoParado.quantidadeQuadros = 1;
+    novoInimigo->animacaoParado.quadroAtual = 0;
+    novoInimigo->animacaoParado.contadorTempoQuadro = 0;
+    novoInimigo->animacaoParado.pararNoUltimoQuadro = false;
+    novoInimigo->animacaoParado.executarUmaVez = false;
+    novoInimigo->animacaoParado.finalizada = false;
+    novoInimigo->animacaoAndando.quantidadeQuadros = 3;
     novoInimigo->animacaoAndando.quadroAtual = 0;
     novoInimigo->animacaoAndando.contadorTempoQuadro = 0.0f;
     novoInimigo->animacaoAndando.pararNoUltimoQuadro = false;
     novoInimigo->animacaoAndando.executarUmaVez = false;
     novoInimigo->animacaoAndando.finalizada = false;
+
+    criarQuadrosAnimacao(
+        &novoInimigo->animacaoParado,
+        1);
+
+    novoInimigo->animacaoParado.quadros[0].fonte =
+        (Rectangle){1, 113, 16, 24};
+
+    novoInimigo->animacaoParado.quadros[0].duracao = 1000;
+
+    novoInimigo->animacaoParado.quadros[0].retColisao =
+        (Rectangle){2, 2, 16, 24};
+
     criarQuadrosAnimacao(&novoInimigo->animacaoAndando, novoInimigo->animacaoAndando.quantidadeQuadros);
     inicializarQuadrosAnimacao(
         novoInimigo->animacaoAndando.quadros,
         novoInimigo->animacaoAndando.quantidadeQuadros,
         250,        // duração padrão para todos os quadros
         1, 113,     // início
-        32, 32,     // dimensões
+        16, 24,     // dimensões
         1,          // separação
         false,      // de trás para frente
         (Rectangle){// retângulo de colisão padrão para cada quadro
                     2, 2, 28, 28});
+
+    novoInimigo->animacaoAndando.quadros[0].fonte =
+        (Rectangle){18, 113, 32, 32};
+
+    novoInimigo->animacaoAndando.quadros[1].fonte =
+        (Rectangle){51, 113, 32, 24};
+
+    novoInimigo->animacaoAndando.quadros[2].fonte =
+        (Rectangle){84, 113, 24, 32};
+
+    for (int i = 0; i < novoInimigo->animacaoAndando.quantidadeQuadros; i++)
+    {
+        novoInimigo->animacaoAndando.quadros[i].retColisao =
+            (Rectangle){2, 2, 44, 30};
+    }
 
     novoInimigo->animacaoMorrendo.quantidadeQuadros = 4;
     novoInimigo->animacaoMorrendo.quadroAtual = 0;
@@ -80,10 +123,19 @@ InimigoBatbrain *criarInimigoBatbrain(Rectangle ret, Color cor)
         (Rectangle){0} // retângulo de colisão padrão para cada quadro
     );
 
-    novoInimigo->animacoes[ESTADO_INIMIGO_BATBRAIN_ANDANDO] = &novoInimigo->animacaoAndando;
+    novoInimigo->animacoes[ESTADO_INIMIGO_BATBRAIN_PARADO] =
+        &novoInimigo->animacaoParado;
+
+    novoInimigo->animacoes[ESTADO_INIMIGO_BATBRAIN_MERGULHANDO] =
+        &novoInimigo->animacaoAndando;
+
+    novoInimigo->animacoes[ESTADO_INIMIGO_BATBRAIN_SUBINDO] =
+        &novoInimigo->animacaoAndando;
+
+    novoInimigo->animacoes[ESTADO_INIMIGO_BATBRAIN_MORRENDO] =
+        &novoInimigo->animacaoMorrendo;
     quantidadeAnimacoes++;
-    novoInimigo->animacoes[ESTADO_INIMIGO_BATBRAIN_MORRENDO] = &novoInimigo->animacaoMorrendo;
-    quantidadeAnimacoes++;
+
     novoInimigo->quantidadeAnimacoes = quantidadeAnimacoes;
 
     return novoInimigo;
@@ -96,10 +148,10 @@ void destruirInimigoBatbrain(InimigoBatbrain *inimigo)
 {
     if (inimigo != NULL)
     {
-        for (int i = 0; i < inimigo->quantidadeAnimacoes; i++)
-        {
-            destruirQuadrosAnimacao(inimigo->animacoes[i]);
-        }
+        destruirQuadrosAnimacao(&inimigo->animacaoParado);
+        destruirQuadrosAnimacao(&inimigo->animacaoAndando);
+        destruirQuadrosAnimacao(&inimigo->animacaoMorrendo);
+
         free(inimigo);
     }
 }
@@ -109,53 +161,61 @@ void destruirInimigoBatbrain(InimigoBatbrain *inimigo)
  */
 void atualizarInimigoBatbrain(InimigoBatbrain *inimigo, GameWorld *gw, float delta)
 {
+    if (!inimigo->ativo)
+        return;
 
-    if (inimigo->ativo)
+    atualizarAnimacao(
+        getAnimacaoAtualInimigoBatbrain(inimigo),
+        delta);
+
+    switch (inimigo->estado)
     {
+    case ESTADO_INIMIGO_BATBRAIN_PARADO:
+    {
+        float dx = gw->jogador->ret.x - inimigo->ret.x;
 
-        if (inimigo->estado == ESTADO_INIMIGO_BATBRAIN_ANDANDO)
+        if (fabsf(dx) < inimigo->distanciaAtivacao)
         {
-
-            Animacao *animacaoAtual = getAnimacaoAtualInimigoBatbrain(inimigo);
-            atualizarAnimacao(animacaoAtual, delta);
-
-            Inimigo ini = {
-                .objeto = inimigo,
-                .tipo = TIPO_INIMIGO_BATBRAIN};
-
-            if (inimigo->olhandoParaDireita)
-            {
-                inimigo->vel.x = inimigo->velAndando;
-            }
-            else
-            {
-                inimigo->vel.x = -inimigo->velAndando;
-            }
-
-            // fase X
-            inimigo->ret.x += inimigo->vel.x * delta;
-            resolverColisaoInimigoObstaculosMapaX(&ini, gw->mapa);
-
-            inimigo->vel.y += gw->gravidade * delta;
-            if (inimigo->vel.y > inimigo->velMaxQueda)
-            {
-                inimigo->vel.y = inimigo->velMaxQueda;
-            }
-
-            // fase Y
-            inimigo->ret.y += inimigo->vel.y * delta;
-            resolverColisaoInimigoObstaculosMapaY(&ini, gw->mapa);
+            inimigo->olhandoParaDireita = dx > 0;
+            inimigo->estado = ESTADO_INIMIGO_BATBRAIN_MERGULHANDO;
         }
-        else if (inimigo->estado == ESTADO_INIMIGO_BATBRAIN_MORRENDO)
+
+        break;
+    }
+
+    case ESTADO_INIMIGO_BATBRAIN_MERGULHANDO:
+
+        inimigo->ret.x +=
+            (inimigo->olhandoParaDireita ? 1 : -1) *
+            inimigo->velocidadeMergulho * delta;
+
+        inimigo->ret.y += 120.0f * delta;
+
+        if (inimigo->ret.y >= inimigo->posInicial.y + 80)
         {
-
-            atualizarAnimacao(&inimigo->animacaoMorrendo, delta);
-
-            if (inimigo->animacaoMorrendo.finalizada)
-            {
-                inimigo->ativo = false;
-            }
+            inimigo->estado = ESTADO_INIMIGO_BATBRAIN_SUBINDO;
         }
+
+        break;
+
+    case ESTADO_INIMIGO_BATBRAIN_SUBINDO:
+
+        inimigo->ret.y -= 80.0f * delta;
+
+        if (inimigo->ret.y <= inimigo->posInicial.y)
+        {
+            inimigo->ret.y = inimigo->posInicial.y;
+            inimigo->estado = ESTADO_INIMIGO_BATBRAIN_PARADO;
+        }
+
+        break;
+
+    case ESTADO_INIMIGO_BATBRAIN_MORRENDO:
+
+        if (inimigo->animacaoMorrendo.finalizada)
+            inimigo->ativo = false;
+
+        break;
     }
 }
 
@@ -164,25 +224,37 @@ void atualizarInimigoBatbrain(InimigoBatbrain *inimigo, GameWorld *gw, float del
  */
 void desenharInimigoBatbrain(InimigoBatbrain *inimigo)
 {
+    if (!inimigo->ativo)
+        return;
 
-    if (inimigo->ativo)
+    if (inimigo->estado == ESTADO_INIMIGO_BATBRAIN_MORRENDO)
     {
+        desenharQuadroAnimacaoInimigoBatbrainMorrendo(
+            inimigo,
+            getQuadroAtualAnimacao(&inimigo->animacaoMorrendo),
+            2.0f,
+            WHITE);
+    }
+    else
+    {
+        QuadroAnimacao *qa =
+            getQuadroAnimacaoAtualInimigoBatbrain(inimigo);
 
-        if (inimigo->estado == ESTADO_INIMIGO_BATBRAIN_ANDANDO)
-        {
-            QuadroAnimacao *qa = getQuadroAnimacaoAtualInimigoBatbrain(inimigo);
-            desenharQuadroAnimacaoInimigoBatbrain(inimigo, qa, WHITE);
-        }
-        else if (inimigo->estado == ESTADO_INIMIGO_BATBRAIN_MORRENDO)
-        {
-            desenharQuadroAnimacaoInimigoBatbrainMorrendo(inimigo, getQuadroAtualAnimacao(&inimigo->animacaoMorrendo), 2.0f, WHITE);
-        }
+        desenharQuadroAnimacaoInimigoBatbrain(
+            inimigo,
+            qa,
+            WHITE);
+    }
 
-        if (MOSTRAR_RETANGULOS)
-        {
-            DrawRectangleRec(inimigo->ret, Fade(inimigo->cor, 0.5f));
-            DrawRectangleLines(inimigo->ret.x, inimigo->ret.y, inimigo->ret.width, inimigo->ret.height, BLACK);
-        }
+    if (MOSTRAR_RETANGULOS)
+    {
+        DrawRectangleRec(inimigo->ret, Fade(inimigo->cor, 0.5f));
+        DrawRectangleLines(
+            inimigo->ret.x,
+            inimigo->ret.y,
+            inimigo->ret.width,
+            inimigo->ret.height,
+            BLACK);
     }
 }
 
@@ -199,16 +271,17 @@ static void desenharQuadroAnimacaoInimigoBatbrain(InimigoBatbrain *inimigo, Quad
 
     if (qa != NULL)
     {
-
         DrawTexturePro(
             rm.texturaBadniks,
             (Rectangle){
                 qa->fonte.x,
                 qa->fonte.y,
-                inimigo->olhandoParaDireita ? -qa->fonte.width : qa->fonte.width,
+                inimigo->olhandoParaDireita
+                    ? -qa->fonte.width
+                    : qa->fonte.width,
                 qa->fonte.height},
             inimigo->ret,
-            (Vector2){0},
+            (Vector2){0, 0},
             0.0f,
             tonalidade);
 
