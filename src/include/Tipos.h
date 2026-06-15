@@ -155,6 +155,18 @@ typedef struct Animacao
     bool finalizada;
 } Animacao;
 
+typedef struct TelaInicial
+{
+    Rectangle ret;
+    bool ativo;
+
+    Animacao *animacoes[1];
+    int quantidadeAnimacoes;
+
+    Animacao animacaoSonic;
+
+} TelaInicial;
+
 /**
  * @brief Representa o jogador controlado pelo usuário.
  */
@@ -465,6 +477,7 @@ typedef struct Mapa
  */
 typedef enum EstadoTela
 {
+    TELA_INICIAL,
     TELA_JOGANDO,   /* jogo normal                               */
     TELA_CARD_FASE, /* card estilo Sonic "MARBLE ZONE / ACT 1"   */
     TELA_VITORIA,   /* tela de vitória após matar todos inimigos */
@@ -478,6 +491,7 @@ typedef struct GameWorld
 {
     Mapa *mapa;
     Jogador *jogador;
+    TelaInicial *telaInicial;
 
     Camera2D camera;
 
@@ -493,6 +507,10 @@ typedef struct GameWorld
 
     /* ── Estado de tela ── */
     EstadoTela estadoTela;
+
+    /* ── Tela Inicial ── */
+    float telaInicialContador;
+    bool iniciarJogo;
 
     /* ── Card de fase ── */
     float cardContador; /* tempo exibindo o card (seg)               */

@@ -22,6 +22,7 @@
 #include "InimigoSpikes.h"
 #include "InimigoBallHog.h"
 #include "InimigoBatbrain.h"
+#include "TelaInicial.h"
 
 #include "raylib/raylib.h"
 
@@ -29,18 +30,18 @@
 /*  Constantes de configuração                                                 */
 /* ─────────────────────────────────────────────────────────────────────────── */
 
-#define FADE_DURACAO        1.2f   /* segundos de cada fade              */
-#define CARD_DURACAO        3.0f   /* segundos do card de fase           */
-#define CARD_SLIDE_VEL      600.0f /* px/s da animação de slide          */
-#define BONUS_ANIM_DURACAO  3.0f   /* segundos que a contagem animada leva */
-#define BONUS_TEMPO_POR_SEG  10    /* pontos por segundo restante          */
-#define BONUS_ANEL           50    /* pontos por anel coletado             */
+#define FADE_DURACAO 1.2f       /* segundos de cada fade              */
+#define CARD_DURACAO 3.0f       /* segundos do card de fase           */
+#define CARD_SLIDE_VEL 600.0f   /* px/s da animação de slide          */
+#define BONUS_ANIM_DURACAO 3.0f /* segundos que a contagem animada leva */
+#define BONUS_TEMPO_POR_SEG 10  /* pontos por segundo restante          */
+#define BONUS_ANEL 50           /* pontos por anel coletado             */
 
 /* ─────────────────────────────────────────────────────────────────────────── */
 /*  Cores de fundo                                                             */
 /* ─────────────────────────────────────────────────────────────────────────── */
-static const Color COR_FUNDO_FASE1 = {36,  0, 180, 255};
-static const Color COR_FUNDO_FASE2 = {80, 20,  20, 255};
+static const Color COR_FUNDO_FASE1 = {36, 0, 180, 255};
+static const Color COR_FUNDO_FASE2 = {80, 20, 20, 255};
 
 /* ─────────────────────────────────────────────────────────────────────────── */
 /*  Protótipos internos                                                        */
@@ -64,6 +65,9 @@ static void calcularBonusVitoria(GameWorld *gw);
 static bool todosInimigosMortos(GameWorld *gw);
 static bool jogadorSemVidas(GameWorld *gw);
 
+static void updateTelaInicial(GameWorld *gw, float delta);
+static void drawTelaInicial(GameWorld *gw);
+
 /* ═══════════════════════════════════════════════════════════════════════════ */
 /*  API pública                                                                */
 /* ═══════════════════════════════════════════════════════════════════════════ */
@@ -71,8 +75,10 @@ static bool jogadorSemVidas(GameWorld *gw);
 GameWorld *createGameWorld(void)
 {
     GameWorld *gw = (GameWorld *)malloc(sizeof(GameWorld));
-    gw->mapa    = NULL;
+    gw->mapa = NULL;
     gw->jogador = NULL;
+    gw->telaInicial = criarTelaInicial();
+    gw->estadoTela = TELA_INICIAL;
     inicializar(gw);
     return gw;
 }
@@ -81,6 +87,7 @@ void destroyGameWorld(GameWorld *gw)
 {
     if (gw != NULL)
     {
+        destruirTelaInicial(gw->telaInicial);
         destruirFaseAtual(gw);
         free(gw);
     }
@@ -100,6 +107,18 @@ void updateGameWorld(GameWorld *gw, float delta)
     }
 
     /* ── despacha para a tela certa ──────────────────────────────────── */
+    if (gw->estadoTela == TELA_INICIAL)
+    {
+        atualizarTelaInicial(gw->telaInicial, delta);
+
+        if (IsKeyPressed(KEY_ENTER))
+        {
+            gw->estadoTela = TELA_CARD_FASE;
+        }
+
+        return;
+    }
+
     if (gw->estadoTela == TELA_CARD_FASE)
     {
         updateTelaCard(gw, delta);
@@ -169,14 +188,14 @@ void updateGameWorld(GameWorld *gw, float delta)
         carregarFase(gw, proximaFase);
 
         /* mostra card da nova fase */
-        gw->estadoTela   = TELA_CARD_FASE;
+        gw->estadoTela = TELA_CARD_FASE;
         gw->cardContador = 0.0f;
-        gw->cardSlide    = -(float)GetScreenHeight(); /* entra vindo de cima */
+        gw->cardSlide = -(float)GetScreenHeight(); /* entra vindo de cima */
 
         /* fade-in começa junto com o card */
-        gw->fadeEntrada  = true;
+        gw->fadeEntrada = true;
         gw->fadeContador = 0.0f;
-        gw->fadeAlpha    = 1.0f;
+        gw->fadeAlpha = 1.0f;
         return;
     }
 
@@ -187,7 +206,7 @@ void updateGameWorld(GameWorld *gw, float delta)
         gw->fadeAlpha = 1.0f - (gw->fadeContador / gw->fadeDuracao);
         if (gw->fadeAlpha <= 0.0f)
         {
-            gw->fadeAlpha   = 0.0f;
+            gw->fadeAlpha = 0.0f;
             gw->fadeEntrada = false;
         }
     }
@@ -214,16 +233,16 @@ void updateGameWorld(GameWorld *gw, float delta)
         {
             /* Fase final: vai para tela de vitória */
             calcularBonusVitoria(gw);
-            gw->fadeSaida    = true;
+            gw->fadeSaida = true;
             gw->fadeContador = 0.0f;
-            gw->fadeAlpha    = 0.0f;
+            gw->fadeAlpha = 0.0f;
         }
         else
         {
             /* Vai para próxima fase */
-            gw->fadeSaida    = true;
+            gw->fadeSaida = true;
             gw->fadeContador = 0.0f;
-            gw->fadeAlpha    = 0.0f;
+            gw->fadeAlpha = 0.0f;
         }
     }
 
@@ -232,19 +251,19 @@ void updateGameWorld(GameWorld *gw, float delta)
     {
         gw->faseCompleta = true;
         calcularBonusVitoria(gw);
-        gw->fadeSaida    = true;
+        gw->fadeSaida = true;
         gw->fadeContador = 0.0f;
-        gw->fadeAlpha    = 0.0f;
+        gw->fadeAlpha = 0.0f;
     }
 
     /* ── game over: jogador sem vidas ───────────────────────────────── */
     if (!gw->fadeSaida && jogadorSemVidas(gw))
     {
-        gw->fadeSaida    = true;
+        gw->fadeSaida = true;
         gw->fadeContador = 0.0f;
-        gw->fadeAlpha    = 0.0f;
+        gw->fadeAlpha = 0.0f;
         /* sinaliza game over via estadoTela antes do fade terminar */
-        gw->estadoTela   = TELA_GAME_OVER;
+        gw->estadoTela = TELA_GAME_OVER;
     }
 }
 
@@ -254,6 +273,17 @@ void updateGameWorld(GameWorld *gw, float delta)
 
 void drawGameWorld(GameWorld *gw)
 {
+    if (gw->estadoTela == TELA_INICIAL)
+    {
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        desenharTelaInicial(gw->telaInicial);
+
+        EndDrawing();
+        return;
+    }
+
     if (gw->estadoTela == TELA_CARD_FASE)
     {
         drawTelaCard(gw);
@@ -320,7 +350,7 @@ static void updateTelaCard(GameWorld *gw, float delta)
         gw->fadeAlpha = 1.0f - (gw->fadeContador / gw->fadeDuracao);
         if (gw->fadeAlpha <= 0.0f)
         {
-            gw->fadeAlpha   = 0.0f;
+            gw->fadeAlpha = 0.0f;
             gw->fadeEntrada = false;
         }
     }
@@ -392,39 +422,41 @@ static void drawTelaCard(GameWorld *gw)
 static void calcularBonusVitoria(GameWorld *gw)
 {
     float tempoRestante = 599.0f - gw->tempoJogo;
-    if (tempoRestante < 0.0f) tempoRestante = 0.0f;
+    if (tempoRestante < 0.0f)
+        tempoRestante = 0.0f;
 
-    gw->bonusTempo     = (int)tempoRestante * BONUS_TEMPO_POR_SEG;
-    gw->bonusAnel      = gw->jogador->quantidadeAneis * BONUS_ANEL;
+    gw->bonusTempo = (int)tempoRestante * BONUS_TEMPO_POR_SEG;
+    gw->bonusAnel = gw->jogador->quantidadeAneis * BONUS_ANEL;
     gw->pontuacaoFinal = gw->pontuacao + gw->bonusTempo + gw->bonusAnel;
 
     gw->bonusTempoExibido = 0;
-    gw->bonusAnelExibido  = 0;
+    gw->bonusAnelExibido = 0;
     /* sempre conta (mesmo se zero, t chegará a 1.0 e bonusContando = false) */
     gw->bonusContando = true;
-    gw->vitoriaAnimTimer  = 0.0f;
-    gw->vitoriaContador   = 0.0f;
+    gw->vitoriaAnimTimer = 0.0f;
+    gw->vitoriaContador = 0.0f;
 }
 
 static void updateTelaVitoria(GameWorld *gw, float delta)
 {
-    gw->vitoriaContador  += delta;
+    gw->vitoriaContador += delta;
     gw->vitoriaAnimTimer += delta;
 
     if (gw->bonusContando)
     {
         /* progresso linear de 0.0 → 1.0 ao longo de BONUS_ANIM_DURACAO segundos */
         float t = gw->vitoriaAnimTimer / BONUS_ANIM_DURACAO;
-        if (t > 1.0f) t = 1.0f;
+        if (t > 1.0f)
+            t = 1.0f;
 
         gw->bonusTempoExibido = (int)(t * (float)gw->bonusTempo);
-        gw->bonusAnelExibido  = (int)(t * (float)gw->bonusAnel);
+        gw->bonusAnelExibido = (int)(t * (float)gw->bonusAnel);
 
         if (t >= 1.0f)
         {
             gw->bonusTempoExibido = gw->bonusTempo;
-            gw->bonusAnelExibido  = gw->bonusAnel;
-            gw->bonusContando     = false;
+            gw->bonusAnelExibido = gw->bonusAnel;
+            gw->bonusContando = false;
         }
     }
 
@@ -446,7 +478,7 @@ static void drawTelaVitoria(GameWorld *gw)
     for (int i = 0; i < 60; i++)
     {
         int sx = (i * 137 + 11) % sw;
-        int sy = (i * 89  + 7)  % sh;
+        int sy = (i * 89 + 7) % sh;
         DrawPixel(sx, sy, (Color){200 + (i % 55), 200 + (i % 55), 255, 255});
     }
 
@@ -462,9 +494,8 @@ static void drawTelaVitoria(GameWorld *gw)
     Color corTitulo = {
         (unsigned char)(255 * pulso),
         (unsigned char)(220 * pulso),
-        (unsigned char)(50  * pulso),
-        255
-    };
+        (unsigned char)(50 * pulso),
+        255};
     DrawText(titulo, (sw - tW) / 2, 40, tSize, corTitulo);
 
     /* ── Subtítulo ──────────────────────────────────────────────────── */
@@ -482,10 +513,10 @@ static void drawTelaVitoria(GameWorld *gw)
     DrawRectangle(panelX, panelY, panelW, panelH, (Color){20, 20, 70, 230});
     DrawRectangleLinesEx((Rectangle){(float)panelX, (float)panelY, (float)panelW, (float)panelH}, 2, (Color){100, 160, 255, 200});
 
-    int ly  = panelY + 18;
+    int ly = panelY + 18;
     int lGap = 38;
     int xLabel = panelX + 18;
-    int xVal   = panelX + panelW - 18;
+    int xVal = panelX + panelW - 18;
     int fS = 22;
 
     /* Pontuação base */
@@ -503,7 +534,7 @@ static void drawTelaVitoria(GameWorld *gw)
     sprintf(buf, "%d", gw->bonusTempoExibido);
     bW = MeasureText(buf, fS);
     DrawText(buf, xVal - bW, ly, fS,
-        gw->bonusTempoExibido < gw->bonusTempo ? (Color){255, 200, 0, 255} : WHITE);
+             gw->bonusTempoExibido < gw->bonusTempo ? (Color){255, 200, 0, 255} : WHITE);
     ly += lGap;
 
     /* Bônus de anéis */
@@ -511,7 +542,7 @@ static void drawTelaVitoria(GameWorld *gw)
     sprintf(buf, "%d", gw->bonusAnelExibido);
     bW = MeasureText(buf, fS);
     DrawText(buf, xVal - bW, ly, fS,
-        gw->bonusAnelExibido < gw->bonusAnel ? (Color){255, 200, 0, 255} : WHITE);
+             gw->bonusAnelExibido < gw->bonusAnel ? (Color){255, 200, 0, 255} : WHITE);
     ly += lGap;
 
     /* Divisória */
@@ -519,8 +550,7 @@ static void drawTelaVitoria(GameWorld *gw)
     ly += 10;
 
     /* Total — usa os valores animados mas limitado ao final congelado */
-    int totalExibido = (gw->pontuacaoFinal - gw->bonusTempo - gw->bonusAnel)
-                       + gw->bonusTempoExibido + gw->bonusAnelExibido;
+    int totalExibido = (gw->pontuacaoFinal - gw->bonusTempo - gw->bonusAnel) + gw->bonusTempoExibido + gw->bonusAnelExibido;
     DrawText("TOTAL", xLabel, ly, fS + 2, (Color){255, 240, 60, 255});
     sprintf(buf, "%d", totalExibido);
     bW = MeasureText(buf, fS + 2);
@@ -537,15 +567,15 @@ static void drawTelaVitoria(GameWorld *gw)
         /* destaque pulsante na borda */
         float pulsoBtn = 0.5f + 0.5f * sinf(gw->vitoriaContador * 3.5f);
         Color corBorda = {
-            (unsigned char)(80  + 175 * pulsoBtn),
-            (unsigned char)(160 + 95  * pulsoBtn),
+            (unsigned char)(80 + 175 * pulsoBtn),
+            (unsigned char)(160 + 95 * pulsoBtn),
             255,
-            255
-        };
+            255};
 
         DrawRectangle(btnX, btnY, btnW, btnH, (Color){20, 20, 80, 220});
         DrawRectangleLinesEx((Rectangle){(float)btnX, (float)btnY,
-                              (float)btnW, (float)btnH}, 2, corBorda);
+                                         (float)btnW, (float)btnH},
+                             2, corBorda);
 
         const char *btnTxt = "[ ENTER ]  JOGAR NOVAMENTE";
         int tW2 = MeasureText(btnTxt, 16);
@@ -588,7 +618,7 @@ static void drawTelaGameOver(GameWorld *gw)
     for (int i = 0; i < 60; i++)
     {
         int sx = (i * 137 + 11) % sw;
-        int sy = (i * 89  + 7)  % sh;
+        int sy = (i * 89 + 7) % sh;
         DrawPixel(sx, sy, (Color){180, 180, 255, 255});
     }
 
@@ -599,13 +629,12 @@ static void drawTelaGameOver(GameWorld *gw)
     float pulso = 0.80f + 0.20f * sinf(gw->gameOverContador * 3.5f);
     Color corTitulo = {
         (unsigned char)(255 * pulso),
-        (unsigned char)(30  * pulso),
-        (unsigned char)(30  * pulso),
-        255
-    };
+        (unsigned char)(30 * pulso),
+        (unsigned char)(30 * pulso),
+        255};
     /* Sombra */
     DrawText(titulo, (sw - tW) / 2 + 4, sh / 2 - 60 + 4, tSize, (Color){80, 0, 0, 200});
-    DrawText(titulo, (sw - tW) / 2,     sh / 2 - 60,     tSize, corTitulo);
+    DrawText(titulo, (sw - tW) / 2, sh / 2 - 60, tSize, corTitulo);
 
     /* Pontuação */
     char buf[64];
@@ -648,7 +677,8 @@ static bool todosInimigosMortos(GameWorld *gw)
         else if (inimigo->tipo == TIPO_INIMIGO_BATBRAIN)
             ativo = ((InimigoBatbrain *)inimigo->objeto)->ativo;
 
-        if (ativo) return false;
+        if (ativo)
+            return false;
         el = el->proximo;
     }
     return true;
@@ -677,9 +707,9 @@ static void desenharFundo(GameWorld *gw)
     Texture2D fundo = (gw->faseAtual == 1) ? rm.texturaFundo : rm.texturaFundo2;
 
     int larguraFundo = fundo.width;
-    int larguraMapa  = calcularLarguraMapa(gw->mapa);
-    int alturaMapa   = calcularAlturaMapa(gw->mapa);
-    int repeticoes   = larguraMapa / larguraFundo;
+    int larguraMapa = calcularLarguraMapa(gw->mapa);
+    int alturaMapa = calcularAlturaMapa(gw->mapa);
+    int repeticoes = larguraMapa / larguraFundo;
 
     int deslocamentoParallax =
         (int)((gw->camera.target.x / (float)larguraMapa) * 200);
@@ -695,36 +725,39 @@ static void desenharFundo(GameWorld *gw)
 
 static void atualizarCamera(GameWorld *gw)
 {
-    Jogador  *j = gw->jogador;
+    Jogador *j = gw->jogador;
     Camera2D *c = &gw->camera;
 
-    c->offset.x = GetScreenWidth()  / 2;
+    c->offset.x = GetScreenWidth() / 2;
     c->offset.y = GetScreenHeight() / 2;
 
-    c->target.x = roundf(j->ret.x + j->ret.width  / 2.0f);
+    c->target.x = roundf(j->ret.x + j->ret.width / 2.0f);
     c->target.y = roundf(j->ret.y + j->ret.height / 2.0f);
 
-    int minX = GetScreenWidth()  / 2;
-    int maxX = calcularLarguraMapa(gw->mapa) - GetScreenWidth()  / 2;
-    int maxY = calcularAlturaMapa(gw->mapa)  - GetScreenHeight() / 2;
+    int minX = GetScreenWidth() / 2;
+    int maxX = calcularLarguraMapa(gw->mapa) - GetScreenWidth() / 2;
+    int maxY = calcularAlturaMapa(gw->mapa) - GetScreenHeight() / 2;
 
-    if      (c->target.x < minX) c->target.x = minX;
-    else if (c->target.x > maxX) c->target.x = maxX;
+    if (c->target.x < minX)
+        c->target.x = minX;
+    else if (c->target.x > maxX)
+        c->target.x = maxX;
 
-    if (c->target.y > maxY) c->target.y = maxY;
+    if (c->target.y > maxY)
+        c->target.y = maxY;
 }
 
 static void carregarFase(GameWorld *gw, int fase)
 {
     destruirFaseAtual(gw);
 
-    gw->faseAtual    = fase;
+    gw->faseAtual = fase;
     gw->faseCompleta = false;
-    gw->tempoJogo    = 0.0f;
+    gw->tempoJogo = 0.0f;
 
     const char *caminhoMapa = (fase == 1)
-        ? "resources/mapas/mapa01.txt"
-        : "resources/mapas/mapa02.txt";
+                                  ? "resources/mapas/mapa01.txt"
+                                  : "resources/mapas/mapa02.txt";
 
     gw->mapa = carregarMapaFase(caminhoMapa, fase);
 
@@ -734,49 +767,59 @@ static void carregarFase(GameWorld *gw, int fase)
         96, 96);
 
     gw->camera = (Camera2D){
-        .offset   = {0},
-        .target   = {0},
+        .offset = {0},
+        .target = {0},
         .rotation = 0.0f,
-        .zoom     = 1.0f
-    };
+        .zoom = 1.0f};
 }
 
 static void destruirFaseAtual(GameWorld *gw)
 {
-    if (gw->mapa)    { destruirMapa(gw->mapa);       gw->mapa    = NULL; }
-    if (gw->jogador) { destruirJogador(gw->jogador); gw->jogador = NULL; }
+    if (gw->mapa)
+    {
+        destruirMapa(gw->mapa);
+        gw->mapa = NULL;
+    }
+    if (gw->jogador)
+    {
+        destruirJogador(gw->jogador);
+        gw->jogador = NULL;
+    }
 }
 
 static void inicializar(GameWorld *gw)
 {
     gw->gravidade = 900;
     gw->pontuacao = 0;
-    gw->estadoTela = TELA_JOGANDO;
+    gw->estadoTela = TELA_INICIAL;
+
+    gw->telaInicialContador = 0.0f;
+    gw->iniciarJogo = false;
 
     /* card */
     gw->cardContador = 0.0f;
-    gw->cardDuracao  = CARD_DURACAO;
-    gw->cardSlide    = 0.0f;
+    gw->cardDuracao = CARD_DURACAO;
+    gw->cardSlide = 0.0f;
 
     /* vitória */
-    gw->vitoriaContador   = 0.0f;
-    gw->bonusTempo        = 0;
-    gw->bonusAnel         = 0;
-    gw->pontuacaoFinal    = 0;
-    gw->vitoriaAnimTimer  = 0.0f;
+    gw->vitoriaContador = 0.0f;
+    gw->bonusTempo = 0;
+    gw->bonusAnel = 0;
+    gw->pontuacaoFinal = 0;
+    gw->vitoriaAnimTimer = 0.0f;
     gw->bonusTempoExibido = 0;
-    gw->bonusAnelExibido  = 0;
-    gw->bonusContando     = false;
+    gw->bonusAnelExibido = 0;
+    gw->bonusContando = false;
 
     /* game over */
-    gw->gameOverContador  = 0.0f;
+    gw->gameOverContador = 0.0f;
 
     /* fade */
-    gw->fadeDuracao  = FADE_DURACAO;
+    gw->fadeDuracao = FADE_DURACAO;
     gw->fadeContador = 0.0f;
-    gw->fadeAlpha    = 1.0f;
-    gw->fadeEntrada  = true;
-    gw->fadeSaida    = false;
+    gw->fadeAlpha = 1.0f;
+    gw->fadeEntrada = true;
+    gw->fadeSaida = false;
     gw->trocandoFase = false;
     gw->faseCompleta = false;
 
@@ -789,22 +832,28 @@ static void reiniciar(GameWorld *gw)
     if (IsMusicStreamPlaying(*musicaAtual))
         StopMusicStream(*musicaAtual);
 
-    gw->pontuacao  = 0;
-    gw->estadoTela = TELA_JOGANDO;
+    gw->pontuacao = 0;
+    gw->estadoTela = TELA_INICIAL;
 
-    gw->fadeAlpha    = 1.0f;
-    gw->fadeEntrada  = true;
-    gw->fadeSaida    = false;
+    gw->telaInicialContador = 0.0f;
+    gw->iniciarJogo = false;
+
+    gw->fadeAlpha = 1.0f;
+    gw->fadeEntrada = true;
+    gw->fadeSaida = false;
     gw->trocandoFase = false;
     gw->fadeContador = 0.0f;
     gw->faseCompleta = false;
 
-    gw->bonusContando     = false;
-    gw->vitoriaContador   = 0.0f;
+    gw->bonusContando = false;
+    gw->vitoriaContador = 0.0f;
     gw->bonusTempoExibido = 0;
-    gw->bonusAnelExibido  = 0;
-    gw->gameOverContador  = 0.0f;
-    gw->estadoTela        = TELA_JOGANDO;
+    gw->bonusAnelExibido = 0;
+    gw->gameOverContador = 0.0f;
+
+    gw->estadoTela = TELA_INICIAL;
+    gw->telaInicialContador = 0.0f;
+    gw->iniciarJogo = false;
 
     carregarFase(gw, 1);
 }

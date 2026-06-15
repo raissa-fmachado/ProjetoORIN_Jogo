@@ -1,5 +1,5 @@
-I                                                                        E
-C                   a                                          d         L
+I                                                                        L
+C                   a                                          d         E
 C                  aM                                        aLBIa       E
 C                 aM                                       aaLGAFIaa     E
 C                aM          a               b        a   LBBGAAAFBBI    E

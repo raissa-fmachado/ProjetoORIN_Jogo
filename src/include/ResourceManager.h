@@ -17,6 +17,9 @@ typedef struct ResourceManager {
     Texture2D texturaHud;
     Texture2D texturaHudNumerosP;
 
+    Texture2D texturaTelaInicial;
+    Texture2D texturaAnimacaoMenu;
+
     Texture2D texturaTerreno;    /* tiles da fase 1 (Green Hill)  */
     Texture2D texturaTerreno2;   /* tiles da fase 2 (Marble Zone) */
     Texture2D texturaFundo;      /* fundo da fase 1               */
