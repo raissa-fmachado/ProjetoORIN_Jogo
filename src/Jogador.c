@@ -78,12 +78,16 @@ Jogador *criarJogador(float x, float y, float w, float h)
     novoJogador->tempoPiscaPisca = 0.05f;
     novoJogador->contadorTempoPiscaPisca = 0.0f;
 
-    novoJogador->freando = false;
-
-    novoJogador->estado = ESTADO_JOGADOR_PARADO;
-    novoJogador->olhandoParaDireita = true;
-
     novoJogador->possuiEscudo = false;
+    novoJogador->tipoEscudo = TIPO_ESCUDO_NENHUM;
+
+    /* Inicializar sistema de spin */
+    novoJogador->emSpin = false;
+    novoJogador->contadorTempoSpin = 0.0f;
+    novoJogador->tempoMaxSpin = 0.5f;  /* Spin dura 0.5 segundos */
+    novoJogador->velSpinHorizontal = 0.0f;
+
+    novoJogador->freando = false;
 
     int quantidadeAnimacoes = 0;
 
@@ -232,6 +236,25 @@ Jogador *criarJogador(float x, float y, float w, float h)
         false,
         (Rectangle){0});
 
+    /* Inicializar animação de SPIN (usa a animação de corrida) */
+    novoJogador->animacaoSpin.quantidadeQuadros = 4;
+    novoJogador->animacaoSpin.quadroAtual = 0;
+    novoJogador->animacaoSpin.contadorTempoQuadro = 0.0f;
+    novoJogador->animacaoSpin.pararNoUltimoQuadro = false;
+    novoJogador->animacaoSpin.executarUmaVez = false;
+    novoJogador->animacaoSpin.finalizada = false;
+    criarQuadrosAnimacao(&novoJogador->animacaoSpin, novoJogador->animacaoSpin.quantidadeQuadros);
+    inicializarQuadrosAnimacao(
+        novoJogador->animacaoSpin.quadros,
+        novoJogador->animacaoSpin.quantidadeQuadros,
+        15,         // duração rápida para efeito de rotação */
+        24, 397,    // início (mesma da corrida)
+        48, 48,     // dimensões
+        4,          // separação
+        false,      // de trás para frente
+        (Rectangle){// retângulo de colisão durante spin
+                    32, 20, 42, 76});
+
     novoJogador->animacoes[ESTADO_JOGADOR_PARADO] = &novoJogador->animacaoParado;
     quantidadeAnimacoes++;
     novoJogador->animacoes[ESTADO_JOGADOR_ANDANDO] = &novoJogador->animacaoAndando;
@@ -245,6 +268,8 @@ Jogador *criarJogador(float x, float y, float w, float h)
     novoJogador->animacoes[ESTADO_JOGADOR_PULANDO_RAPIDO] = &novoJogador->animacaoPulandoRapido;
     quantidadeAnimacoes++;
     novoJogador->animacoes[ESTADO_JOGADOR_PULANDO_CORRENDO] = &novoJogador->animacaoPulandoCorrendo;
+    quantidadeAnimacoes++;
+    novoJogador->animacoes[ESTADO_JOGADOR_SPIN] = &novoJogador->animacaoSpin;
     quantidadeAnimacoes++;
     novoJogador->quantidadeAnimacoes = quantidadeAnimacoes;
 
@@ -277,81 +302,149 @@ void entradaJogador(Jogador *j, float delta)
     bool direitaDown = IsKeyDown(KEY_RIGHT) || (IsGamepadAvailable(0) && IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_RIGHT));
     bool esquerdaDown = IsKeyDown(KEY_LEFT) || (IsGamepadAvailable(0) && IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_LEFT));
     bool puloPressed = IsKeyPressed(KEY_SPACE) || (IsGamepadAvailable(0) && IsGamepadButtonDown(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN));
+    bool baixoDown = IsKeyDown(KEY_DOWN) || (IsGamepadAvailable(0) && IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN));
 
-    if (direitaDown)
+    /* ─────────────────── Sistema de SPIN ──────────────────────── */
+    if (j->emSpin)
     {
-        if (j->vel.x < 0)
+        j->contadorTempoSpin += delta;
+        if (j->contadorTempoSpin >= j->tempoMaxSpin)
         {
-            j->vel.x += j->frenagem * delta;
-            if (!j->freando && j->estado == ESTADO_JOGADOR_CORRENDO)
-            {
-                PlaySound(rm.somFrenagem);
-                j->freando = true;
-            }
-            if (j->vel.x > 0)
-            {
-                j->vel.x = 0;
-                j->freando = false;
-            }
+            j->emSpin = false;
+            j->contadorTempoSpin = 0.0f;
+        }
+
+        /* Mantém a velocidade do spin (com direção) */
+        if (j->olhandoParaDireita)
+        {
+            j->vel.x = j->velSpinHorizontal;
         }
         else
         {
-            j->vel.x += j->aceleracao * delta;
-            if (j->vel.x > j->velCorrendo)
-            {
-                j->vel.x = j->velCorrendo;
-            }
+            j->vel.x = -j->velSpinHorizontal;
         }
-        j->olhandoParaDireita = true;
-    }
-    else if (esquerdaDown)
-    {
-        if (j->vel.x > 0)
+
+        /* Só sai do spin se soltar DOWN e não estiver pulando */
+        if (!baixoDown && j->quantidadePulos == 0)
         {
-            j->vel.x -= j->frenagem * delta;
-            if (!j->freando && j->estado == ESTADO_JOGADOR_CORRENDO)
-            {
-                PlaySound(rm.somFrenagem);
-                j->freando = true;
-            }
-            if (j->vel.x < 0)
-            {
-                j->vel.x = 0;
-                j->freando = false;
-            }
+            j->emSpin = false;
+            j->contadorTempoSpin = 0.0f;
         }
-        else
-        {
-            j->vel.x -= j->aceleracao * delta;
-            if (j->vel.x < -j->velCorrendo)
-            {
-                j->vel.x = -j->velCorrendo;
-            }
-        }
-        j->olhandoParaDireita = false;
     }
     else
     {
-        if (j->vel.x > 0)
+        /* Iniciando SPIN """""""""""""""""""""""""""""""""""""""
+           - Se estiver andando e apertar DOWN
+           - Se estiver parado, apertar DOWN + PULO
+        */
+        if (baixoDown)
         {
-            j->vel.x -= j->desaceleracao * delta;
-            if (j->vel.x < 0)
+            /* Caso 1: Andando e apertar DOWN - entra em spin */
+            float absVelX = fabsf(j->vel.x);
+            if (absVelX >= j->velAndando && j->quantidadePulos == 0)
             {
-                j->vel.x = 0;
+                j->emSpin = true;
+                j->contadorTempoSpin = 0.0f;
+                j->velSpinHorizontal = 400.0f;  /* Velocidade do spin */
+                PlaySound(rm.somPulo);  /* Som do spin */
+            }
+            /* Caso 2: Parado + Pulo - entra em spin e pula */
+            else if (puloPressed && j->quantidadePulos == 0)
+            {
+                j->emSpin = true;
+                j->contadorTempoSpin = 0.0f;
+                j->velSpinHorizontal = 250.0f;  /* Velocidade mais baixa para spin parado */
+                j->vel.y = j->velPulo;
+                j->quantidadePulos++;
+                PlaySound(rm.somPulo);
             }
         }
-        else if (j->vel.x < 0)
+    }
+
+    /* Se está em spin, não processa input normal de movimento */
+    if (!j->emSpin)
+    {
+        if (direitaDown)
         {
-            j->vel.x += j->desaceleracao * delta;
+            if (j->vel.x < 0)
+            {
+                j->vel.x += j->frenagem * delta;
+                if (!j->freando && j->estado == ESTADO_JOGADOR_CORRENDO)
+                {
+                    PlaySound(rm.somFrenagem);
+                    j->freando = true;
+                }
+                if (j->vel.x > 0)
+                {
+                    j->vel.x = 0;
+                    j->freando = false;
+                }
+            }
+            else
+            {
+                j->vel.x += j->aceleracao * delta;
+                if (j->vel.x > j->velCorrendo)
+                {
+                    j->vel.x = j->velCorrendo;
+                }
+            }
+            j->olhandoParaDireita = true;
+        }
+        else if (esquerdaDown)
+        {
             if (j->vel.x > 0)
             {
-                j->vel.x = 0;
+                j->vel.x -= j->frenagem * delta;
+                if (!j->freando && j->estado == ESTADO_JOGADOR_CORRENDO)
+                {
+                    PlaySound(rm.somFrenagem);
+                    j->freando = true;
+                }
+                if (j->vel.x < 0)
+                {
+                    j->vel.x = 0;
+                    j->freando = false;
+                }
+            }
+            else
+            {
+                j->vel.x -= j->aceleracao * delta;
+                if (j->vel.x < -j->velCorrendo)
+                {
+                    j->vel.x = -j->velCorrendo;
+                }
+            }
+            j->olhandoParaDireita = false;
+        }
+        else
+        {
+            if (j->vel.x > 0)
+            {
+                j->vel.x -= j->desaceleracao * delta;
+                if (j->vel.x < 0)
+                {
+                    j->vel.x = 0;
+                }
+            }
+            else if (j->vel.x < 0)
+            {
+                j->vel.x += j->desaceleracao * delta;
+                if (j->vel.x > 0)
+                {
+                    j->vel.x = 0;
+                }
             }
         }
     }
 
     float absVelX = fabsf(j->vel.x);
-    if (j->quantidadePulos > 0)
+
+    /* ─────────────────── Estados do jogador ──────────────────────── */
+    if (j->emSpin)
+    {
+        j->estado = ESTADO_JOGADOR_SPIN;
+    }
+    else if (j->quantidadePulos > 0)
     {
         if (absVelX <= j->velAndando)
         {
@@ -383,8 +476,43 @@ void entradaJogador(Jogador *j, float delta)
         j->estado = ESTADO_JOGADOR_CORRENDO;
     }
 
-    if (puloPressed && j->quantidadePulos < j->quantidadeMaxPulos)
+    /* ─────────────────── Pulo duplo com escudo ──────────────────────── */
+    if (puloPressed && j->quantidadePulos > 0 && j->quantidadePulos < j->quantidadeMaxPulos)
     {
+        /* Pulo duplo baseado no tipo de escudo */
+        if (j->possuiEscudo)
+        {
+            j->vel.y = j->velPulo;
+            j->quantidadePulos++;
+
+            switch (j->tipoEscudo)
+            {
+            case TIPO_ESCUDO_AGUA:
+                /* Escudo de água: pulo mais alto */
+                j->vel.y *= 1.15f;
+                break;
+            case TIPO_ESCUDO_FOGO:
+                /* Escudo de fogo: velocidade horizontal aumentada */
+                if (j->olhandoParaDireita)
+                    j->vel.x = j->velCorrendo;
+                else
+                    j->vel.x = -j->velCorrendo;
+                break;
+            case TIPO_ESCUDO_RAIO:
+                /* Escudo de raio: pulo muito rápido */
+                j->vel.y *= 1.25f;
+                j->quantidadeMaxPulos = 2; /* Permite até 2 pulos */
+                break;
+            default:
+                break;
+            }
+
+            PlaySound(rm.somPulo);
+        }
+    }
+    else if (puloPressed && j->quantidadePulos < j->quantidadeMaxPulos && !j->possuiEscudo)
+    {
+        /* Pulo normal sem escudo */
         j->vel.y = j->velPulo;
         j->quantidadePulos++;
         PlaySound(rm.somPulo);

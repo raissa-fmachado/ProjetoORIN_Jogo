@@ -23,7 +23,20 @@ typedef enum EstadoJogador
     ESTADO_JOGADOR_PULANDO,
     ESTADO_JOGADOR_PULANDO_RAPIDO,
     ESTADO_JOGADOR_PULANDO_CORRENDO,
+    ESTADO_JOGADOR_SPIN,           /* Rolamento (movimento de spin) */
+    ESTADO_JOGADOR_SPIN_PULANDO,   /* Pulo duplo enquanto está em spin */
 } EstadoJogador;
+
+/**
+ * @brief Representa o tipo de escudo que o jogador possui.
+ */
+typedef enum TipoEscudo
+{
+    TIPO_ESCUDO_NENHUM,
+    TIPO_ESCUDO_AGUA,   /* Escudo de água - pulo duplo com proteção contra fogo */
+    TIPO_ESCUDO_FOGO,   /* Escudo de fogo - pulo duplo com proteção contra gelo */
+    TIPO_ESCUDO_RAIO,   /* Escudo de raio - pulo duplo com aceleração */
+} TipoEscudo;
 
 /**
  * @brief Representa o estado do inimigo do tipo Motobug.
@@ -202,6 +215,13 @@ typedef struct Jogador
     float contadorTempoPiscaPisca;
 
     bool possuiEscudo;
+    TipoEscudo tipoEscudo;  /* Tipo de escudo (água, fogo, raio) */
+
+    /* Sistema de Spin */
+    bool emSpin;                /* True quando o jogador está em movimento de spin */
+    float contadorTempoSpin;    /* Contador de tempo do spin */
+    float tempoMaxSpin;         /* Tempo máximo de duração do spin */
+    float velSpinHorizontal;    /* Velocidade horizontal durante o spin */
 
     bool freando;
 
@@ -219,6 +239,7 @@ typedef struct Jogador
     Animacao animacaoPulandoRapido;
     Animacao animacaoPulandoCorrendo;
     Animacao animacaoEscudo;
+    Animacao animacaoSpin;  /* Animação de spin/rolamento */
 
 } Jogador;
 
@@ -481,6 +502,7 @@ typedef enum EstadoTela
     TELA_JOGANDO,   /* jogo normal                               */
     TELA_CARD_FASE, /* card estilo Sonic "MARBLE ZONE / ACT 1"   */
     TELA_VITORIA,   /* tela de vitória após matar todos inimigos */
+    TELA_CONTINUE,  /* tela de continue ao perder todas as vidas */
     TELA_GAME_OVER, /* tela de game over ao perder todas as vidas*/
 } EstadoTela;
 
@@ -529,6 +551,11 @@ typedef struct GameWorld
 
     /* ── Tela de Game Over ── */
     float gameOverContador; /* tempo na tela de game over                */
+
+    /* ── Tela de Continue ── */
+    float continueContador;  /* tempo na tela de continue                 */
+    float continueDuracao;   /* duração do timeout da tela de continue    */
+    int continueOpcao;       /* 0 = continue, 1 = sair                    */
 
     /* ── Transição (fade) ── */
     float fadeDuracao;  /* duração total de cada fade (seg)          */

@@ -56,9 +56,11 @@ static bool jogadorChegouAoFim(GameWorld *gw);
 
 static void updateTelaCard(GameWorld *gw, float delta);
 static void updateTelaVitoria(GameWorld *gw, float delta);
+static void updateTelaContinue(GameWorld *gw, float delta);
 static void updateTelaGameOver(GameWorld *gw, float delta);
 static void drawTelaCard(GameWorld *gw);
 static void drawTelaVitoria(GameWorld *gw);
+static void drawTelaContinue(GameWorld *gw);
 static void drawTelaGameOver(GameWorld *gw);
 static void drawFadeOverlay(float alpha);
 static void calcularBonusVitoria(GameWorld *gw);
@@ -128,6 +130,12 @@ void updateGameWorld(GameWorld *gw, float delta)
     if (gw->estadoTela == TELA_VITORIA)
     {
         updateTelaVitoria(gw, delta);
+        return;
+    }
+
+    if (gw->estadoTela == TELA_CONTINUE)
+    {
+        updateTelaContinue(gw, delta);
         return;
     }
 
@@ -262,8 +270,10 @@ void updateGameWorld(GameWorld *gw, float delta)
         gw->fadeSaida = true;
         gw->fadeContador = 0.0f;
         gw->fadeAlpha = 0.0f;
-        /* sinaliza game over via estadoTela antes do fade terminar */
-        gw->estadoTela = TELA_GAME_OVER;
+        /* sinaliza continue via estadoTela antes do fade terminar */
+        gw->estadoTela = TELA_CONTINUE;
+        gw->continueContador = 0.0f;
+        gw->continueOpcao = 0;  /* Começa com Continue selecionado */
     }
 }
 
@@ -293,6 +303,12 @@ void drawGameWorld(GameWorld *gw)
     if (gw->estadoTela == TELA_VITORIA)
     {
         drawTelaVitoria(gw);
+        return;
+    }
+
+    if (gw->estadoTela == TELA_CONTINUE)
+    {
+        drawTelaContinue(gw);
         return;
     }
 
@@ -592,6 +608,141 @@ static void drawTelaVitoria(GameWorld *gw)
 
     EndDrawing();
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/*  Tela: Continue estilo Sonic                                                */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+static void updateTelaContinue(GameWorld *gw, float delta)
+{
+    gw->continueContador += delta;
+
+    /* Navegar com UP/DOWN */
+    if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))
+    {
+        gw->continueOpcao = 0;
+    }
+    if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))
+    {
+        gw->continueOpcao = 1;
+    }
+
+    /* ENTER para confirmar */
+    if (IsKeyPressed(KEY_ENTER))
+    {
+        if (gw->continueOpcao == 0)
+        {
+            /* Continue: reinicia a fase com uma vida de graça */
+            gw->jogador->quantidadeVidas = 1;
+            gw->jogador->quantidadeAneis = 0;
+            reiniciar(gw);
+        }
+        else
+        {
+            /* Game Over: reinicia o jogo do zero */
+            gw->estadoTela = TELA_GAME_OVER;
+            gw->gameOverContador = 0.0f;
+            gw->fadeEntrada = false;
+            gw->fadeSaida = false;
+        }
+    }
+
+    /* Timeout: após 30 segundos, vai para Game Over automaticamente */
+    if (gw->continueContador >= 30.0f)
+    {
+        gw->estadoTela = TELA_GAME_OVER;
+        gw->gameOverContador = 0.0f;
+    }
+}
+
+static void drawTelaContinue(GameWorld *gw)
+{
+    int sw = GetScreenWidth();
+    int sh = GetScreenHeight();
+
+    BeginDrawing();
+    ClearBackground(BLACK);
+
+    /* Estrelas de fundo */
+    for (int i = 0; i < 60; i++)
+    {
+        int sx = (i * 137 + 11) % sw;
+        int sy = (i * 89 + 7) % sh;
+        DrawPixel(sx, sy, (Color){100, 150, 255, 255});
+    }
+
+    /* ── Contador CONTINUE ──────────────────────────────────────────── */
+    const char *titulo = "CONTINUE";
+    int tSize = 52;
+    int tW = MeasureText(titulo, tSize);
+
+    float pulso = 0.85f + 0.15f * sinf(gw->continueContador * 2.0f);
+    Color corTitulo = {
+        (unsigned char)(100 * pulso),
+        (unsigned char)(200 * pulso),
+        255,
+        255};
+
+    DrawText(titulo, (sw - tW) / 2, 80, tSize, corTitulo);
+
+    /* ── Contador regressivo (30 a 0) ────────────────────────────── */
+    int tempoRestante = (int)(30.0f - gw->continueContador);
+    if (tempoRestante < 0)
+        tempoRestante = 0;
+
+    char bufTempo[16];
+    sprintf(bufTempo, "%02d", tempoRestante);
+    int tW2 = MeasureText(bufTempo, 120);
+
+    /* Pulsação do número */
+    float pulsoDig = 0.7f + 0.3f * sinf(gw->continueContador * 3.0f);
+    Color corDigito = {
+        (unsigned char)(255 * pulsoDig),
+        (unsigned char)(220 * pulsoDig),
+        (unsigned char)(100 * pulsoDig),
+        255};
+
+    DrawText(bufTempo, (sw - tW2) / 2, 160, 120, corDigito);
+
+    /* ── Opções (Continue / Game Over) ──────────────────────────── */
+    int optY = 320;
+    int optGap = 60;
+
+    /* Opção 1: Continue */
+    Color corOpt1 = gw->continueOpcao == 0 ? (Color){255, 255, 100, 255} : (Color){150, 150, 150, 255};
+    const char *opt1 = "CONTINUE";
+    int opt1W = MeasureText(opt1, 28);
+    DrawText(opt1, (sw - opt1W) / 2, optY, 28, corOpt1);
+
+    if (gw->continueOpcao == 0)
+    {
+        /* Seta indicadora */
+        DrawText(">", (sw - opt1W) / 2 - 40, optY, 28, (Color){255, 200, 0, 255});
+        DrawText("<", (sw - opt1W) / 2 + opt1W + 20, optY, 28, (Color){255, 200, 0, 255});
+    }
+
+    /* Opção 2: Game Over */
+    Color corOpt2 = gw->continueOpcao == 1 ? (Color){255, 255, 100, 255} : (Color){150, 150, 150, 255};
+    const char *opt2 = "GAME OVER";
+    int opt2W = MeasureText(opt2, 28);
+    DrawText(opt2, (sw - opt2W) / 2, optY + optGap, 28, corOpt2);
+
+    if (gw->continueOpcao == 1)
+    {
+        /* Seta indicadora */
+        DrawText(">", (sw - opt2W) / 2 - 40, optY + optGap, 28, (Color){255, 200, 0, 255});
+        DrawText("<", (sw - opt2W) / 2 + opt2W + 20, optY + optGap, 28, (Color){255, 200, 0, 255});
+    }
+
+    /* ── Instrução ──────────────────────────────────────────────── */
+    const char *hint = "USE ARROW KEYS TO SELECT";
+    int hW = MeasureText(hint, 16);
+    DrawText(hint, (sw - hW) / 2, sh - 60, 16, (Color){180, 180, 200, 180});
+
+    EndDrawing();
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
 /*  Tela: Game Over estilo Sonic                                               */
