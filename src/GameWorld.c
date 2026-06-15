@@ -113,9 +113,15 @@ void updateGameWorld(GameWorld *gw, float delta)
     {
         atualizarTelaInicial(gw->telaInicial, delta);
 
-        if (IsKeyPressed(KEY_ENTER))
+        /* Qualquer hora que apertar ENTER, entra */
+        if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE))
         {
             gw->estadoTela = TELA_CARD_FASE;
+            gw->cardContador = 0.0f;
+            gw->cardSlide = -(float)GetScreenHeight();
+            gw->fadeEntrada = true;
+            gw->fadeContador = 0.0f;
+            gw->fadeAlpha = 1.0f;
         }
 
         return;
@@ -164,6 +170,15 @@ void updateGameWorld(GameWorld *gw, float delta)
         {
             gw->fadeAlpha = 1.0f;
             gw->fadeSaida = false;
+
+            /* Verifica se é Game Over e ativa Continue */
+            if (jogadorSemVidas(gw))
+            {
+                gw->estadoTela = TELA_CONTINUE;
+                gw->continueContador = 0.0f;
+                gw->continueOpcao = 0;
+                return;
+            }
 
             /* Game over tem prioridade */
             if (gw->estadoTela == TELA_GAME_OVER)
@@ -270,10 +285,9 @@ void updateGameWorld(GameWorld *gw, float delta)
         gw->fadeSaida = true;
         gw->fadeContador = 0.0f;
         gw->fadeAlpha = 0.0f;
-        /* sinaliza continue via estadoTela antes do fade terminar */
-        gw->estadoTela = TELA_CONTINUE;
+        /* Inicializa contadores de continue */
         gw->continueContador = 0.0f;
-        gw->continueOpcao = 0;  /* Começa com Continue selecionado */
+        gw->continueOpcao = 0;
     }
 }
 
@@ -671,7 +685,7 @@ static void drawTelaContinue(GameWorld *gw)
         DrawPixel(sx, sy, (Color){100, 150, 255, 255});
     }
 
-    /* ── Contador CONTINUE ──────────────────────────────────────────── */
+    /* ── Título CONTINUE ──────────────────────────────────────────── */
     const char *titulo = "CONTINUE";
     int tSize = 52;
     int tW = MeasureText(titulo, tSize);
@@ -683,7 +697,7 @@ static void drawTelaContinue(GameWorld *gw)
         255,
         255};
 
-    DrawText(titulo, (sw - tW) / 2, 80, tSize, corTitulo);
+    DrawText(titulo, (sw - tW) / 2, 50, tSize, corTitulo);
 
     /* ── Contador regressivo (30 a 0) ────────────────────────────── */
     int tempoRestante = (int)(30.0f - gw->continueContador);
@@ -702,42 +716,28 @@ static void drawTelaContinue(GameWorld *gw)
         (unsigned char)(100 * pulsoDig),
         255};
 
-    DrawText(bufTempo, (sw - tW2) / 2, 160, 120, corDigito);
+    DrawText(bufTempo, (sw - tW2) / 2, 140, 120, corDigito);
 
     /* ── Opções (Continue / Game Over) ──────────────────────────── */
-    int optY = 320;
-    int optGap = 60;
+    int optY = 310;
+    int optGap = 70;
 
     /* Opção 1: Continue */
     Color corOpt1 = gw->continueOpcao == 0 ? (Color){255, 255, 100, 255} : (Color){150, 150, 150, 255};
-    const char *opt1 = "CONTINUE";
-    int opt1W = MeasureText(opt1, 28);
-    DrawText(opt1, (sw - opt1W) / 2, optY, 28, corOpt1);
-
-    if (gw->continueOpcao == 0)
-    {
-        /* Seta indicadora */
-        DrawText(">", (sw - opt1W) / 2 - 40, optY, 28, (Color){255, 200, 0, 255});
-        DrawText("<", (sw - opt1W) / 2 + opt1W + 20, optY, 28, (Color){255, 200, 0, 255});
-    }
+    const char *opt1 = "> CONTINUE <";
+    int opt1W = MeasureText(opt1, 32);
+    DrawText(opt1, (sw - opt1W) / 2, optY, 32, corOpt1);
 
     /* Opção 2: Game Over */
     Color corOpt2 = gw->continueOpcao == 1 ? (Color){255, 255, 100, 255} : (Color){150, 150, 150, 255};
-    const char *opt2 = "GAME OVER";
-    int opt2W = MeasureText(opt2, 28);
-    DrawText(opt2, (sw - opt2W) / 2, optY + optGap, 28, corOpt2);
-
-    if (gw->continueOpcao == 1)
-    {
-        /* Seta indicadora */
-        DrawText(">", (sw - opt2W) / 2 - 40, optY + optGap, 28, (Color){255, 200, 0, 255});
-        DrawText("<", (sw - opt2W) / 2 + opt2W + 20, optY + optGap, 28, (Color){255, 200, 0, 255});
-    }
+    const char *opt2 = "> GAME OVER <";
+    int opt2W = MeasureText(opt2, 32);
+    DrawText(opt2, (sw - opt2W) / 2, optY + optGap, 32, corOpt2);
 
     /* ── Instrução ──────────────────────────────────────────────── */
-    const char *hint = "USE ARROW KEYS TO SELECT";
-    int hW = MeasureText(hint, 16);
-    DrawText(hint, (sw - hW) / 2, sh - 60, 16, (Color){180, 180, 200, 180});
+    const char *hint = "USE ARROWS TO SELECT - PRESS ENTER";
+    int hW = MeasureText(hint, 14);
+    DrawText(hint, (sw - hW) / 2, sh - 35, 14, (Color){200, 200, 220, 220});
 
     EndDrawing();
 }
@@ -837,7 +837,7 @@ static bool todosInimigosMortos(GameWorld *gw)
 
 static bool jogadorSemVidas(GameWorld *gw)
 {
-    return gw->jogador->quantidadeVidas < 0;
+    return gw->jogador->quantidadeVidas <= 0;
 }
 
 static void drawFadeOverlay(float alpha)
@@ -962,6 +962,11 @@ static void inicializar(GameWorld *gw)
     gw->bonusAnelExibido = 0;
     gw->bonusContando = false;
 
+    /* continue */
+    gw->continueContador = 0.0f;
+    gw->continueDuracao = 30.0f;
+    gw->continueOpcao = 0;
+
     /* game over */
     gw->gameOverContador = 0.0f;
 
@@ -1001,6 +1006,7 @@ static void reiniciar(GameWorld *gw)
     gw->bonusTempoExibido = 0;
     gw->bonusAnelExibido = 0;
     gw->gameOverContador = 0.0f;
+    gw->continueContador = 0.0f;
 
     gw->estadoTela = TELA_INICIAL;
     gw->telaInicialContador = 0.0f;
