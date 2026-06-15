@@ -1,10 +1,11 @@
 /**
  * @file BlocoInterrogacao.c
  * @brief Bloco de interrogação estilo Sonic/Mario.
- *        Bata por baixo para ativar: o bloco salta para cima e solta anéis.
+ *        Bata por baixo para ativar: o bloco salta para cima e solta itens.
  */
 #include <math.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "raylib/raylib.h"
 
@@ -27,6 +28,7 @@ BlocoInterrogacao *criarBlocoInterrogacao( Rectangle ret, int aneisParaSoltar )
     b->saltY           = 0.0f;
     b->saltSubindo     = true;
     b->aneisParaSoltar = aneisParaSoltar;
+    b->itemGerado      = false;  /* Flag para gerar item apenas uma vez */
 
     return b;
 }
@@ -34,6 +36,46 @@ BlocoInterrogacao *criarBlocoInterrogacao( Rectangle ret, int aneisParaSoltar )
 void destruirBlocoInterrogacao( BlocoInterrogacao *b )
 {
     if ( b != NULL ) free( b );
+}
+
+/**
+ * @brief Retorna um tipo de item aleatório
+ * Distribuição:
+ *  - 40% Anéis (40)
+ *  - 20% Estrelinha (invulnerabilidade)
+ *  - 20% Botinha (velocidade)
+ *  - 10% Escudo Água
+ *  - 5% Escudo Fogo
+ *  - 5% Escudo Raio
+ */
+static int gerarTipoItemAleatorio()
+{
+    int aleatorio = rand() % 100;
+    
+    if (aleatorio < 40)
+    {
+        return TIPO_ITEM_ANEL;          /* 40% */
+    }
+    else if (aleatorio < 60)
+    {
+        return TIPO_ITEM_ESTRELINHA;    /* 20% */
+    }
+    else if (aleatorio < 80)
+    {
+        return TIPO_ITEM_BOTINHA;       /* 20% */
+    }
+    else if (aleatorio < 90)
+    {
+        return TIPO_ITEM_ESCUDO_AGUA;   /* 10% */
+    }
+    else if (aleatorio < 95)
+    {
+        return TIPO_ITEM_ESCUDO_FOGO;   /* 5% */
+    }
+    else
+    {
+        return TIPO_ITEM_ESCUDO_RAIO;   /* 5% */
+    }
 }
 
 void ativarBlocoInterrogacao( BlocoInterrogacao *b )
@@ -44,6 +86,7 @@ void ativarBlocoInterrogacao( BlocoInterrogacao *b )
     b->animTimer   = 0.0f;
     b->saltY       = 0.0f;
     b->saltSubindo = true;
+    b->itemGerado  = false;  /* Reset para gerar novo item */
 }
 
 void atualizarBlocoInterrogacao( BlocoInterrogacao *b, float delta )
@@ -61,6 +104,14 @@ void atualizarBlocoInterrogacao( BlocoInterrogacao *b, float delta )
         /* arco suave: sobe até metade, desce na segunda metade */
         float arco = sinf( t * 3.14159f );
         b->saltY = -SALT_ALTURA * arco;
+
+        /* Gera o item uma única vez, no meio da animação */
+        if (!b->itemGerado && t >= 0.5f)
+        {
+            b->itemGerado = true;
+            b->tipoItemGerado = gerarTipoItemAleatorio();
+            /* Item será criado pelo Mapa quando processar colisões */
+        }
 
         if ( t >= 1.0f )
         {
@@ -130,4 +181,20 @@ void desenharBlocoInterrogacao( BlocoInterrogacao *b )
                   fs,
                   WHITE );
     }
+}
+
+/* Funções auxiliares para verificar estado */
+bool estaAberto( BlocoInterrogacao *b )
+{
+    return b->estado == ESTADO_BLOCO_INT_ABERTO;
+}
+
+bool gerarItemNow( BlocoInterrogacao *b )
+{
+    return b->itemGerado;
+}
+
+int getTipoItemGerado( BlocoInterrogacao *b )
+{
+    return b->tipoItemGerado;
 }

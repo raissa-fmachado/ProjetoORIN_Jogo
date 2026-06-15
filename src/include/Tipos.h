@@ -132,6 +132,11 @@ typedef enum TipoItem
     TIPO_ITEM_BLOCO_INTERROGACAO,
     TIPO_ITEM_ESCUDO,
     TIPO_ITEM_ANEL_GIGANTE,
+    TIPO_ITEM_ESTRELINHA,       /* Invulnerabilidade */
+    TIPO_ITEM_BOTINHA,          /* Velocidade */
+    TIPO_ITEM_ESCUDO_AGUA,      /* Escudo especial água */
+    TIPO_ITEM_ESCUDO_FOGO,      /* Escudo especial fogo */
+    TIPO_ITEM_ESCUDO_RAIO,      /* Escudo especial raio */
 } TipoItem;
 
 /**
@@ -423,7 +428,7 @@ typedef struct ItemEscudo
 } ItemEscudo;
 
 /**
- * @brief Bloco de interrogação - bata por baixo para soltar anéis.
+ * @brief Bloco de interrogação - bata por baixo para soltar itens.
  */
 typedef struct BlocoInterrogacao
 {
@@ -436,6 +441,10 @@ typedef struct BlocoInterrogacao
     float saltY;
     bool saltSubindo;
     int aneisParaSoltar;
+    
+    /* Sistema de geração de itens */
+    bool itemGerado;        /* Flag para gerar item apenas uma vez */
+    int tipoItemGerado;     /* Tipo de item que foi gerado */
 
 } BlocoInterrogacao;
 
