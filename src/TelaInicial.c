@@ -12,6 +12,8 @@
 #include "ResourceManager.h"
 #include "Tipos.h"
 
+bool terminouAnimacao;
+
 static void desenharQuadroAnimacaoTelaInicial(
     TelaInicial *tela,
     QuadroAnimacao *qa,
@@ -39,7 +41,7 @@ TelaInicial *criarTelaInicial(void)
     novaTela->animacaoSonic.quantidadeQuadros = 18;
     novaTela->animacaoSonic.quadroAtual = 0;
     novaTela->animacaoSonic.contadorTempoQuadro = 0;
-    novaTela->animacaoSonic.pararNoUltimoQuadro = true;
+    novaTela->animacaoSonic.pararNoUltimoQuadro = false;
     novaTela->animacaoSonic.executarUmaVez = false;
     novaTela->animacaoSonic.finalizada = false;
 
@@ -99,9 +101,22 @@ void atualizarTelaInicial(
 
     if (tela->ativo)
     {
-        atualizarAnimacao(
-            &tela->animacaoSonic,
-            delta);
+        atualizarAnimacao(&tela->animacaoSonic, delta);
+
+        if (terminouAnimacao)
+        {
+            if (tela->animacaoSonic.quadroAtual == 0)
+            {
+                tela->animacaoSonic.quadroAtual = 16;
+            }
+        }
+        else
+        {
+            if (tela->animacaoSonic.quadroAtual == 17)
+            {
+                terminouAnimacao = true;
+            }
+        }
     }
 }
 
