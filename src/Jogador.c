@@ -179,7 +179,7 @@ Jogador *criarJogador(float x, float y, float w, float h)
         4,          // separação
         false,      // de trás para frente
         (Rectangle){// retângulo de colisão padrão para cada quadro
-                    32, 46, 42, 50});
+                    32, 36, 42, 60});
 
     novoJogador->animacaoPulandoRapido.quantidadeQuadros = 4;
     novoJogador->animacaoPulandoRapido.quadroAtual = 0;
@@ -197,7 +197,7 @@ Jogador *criarJogador(float x, float y, float w, float h)
         4,          // separação
         false,      // de trás para frente
         (Rectangle){// retângulo de colisão padrão para cada quadro
-                    32, 46, 42, 50});
+                    32, 36, 42, 60});
 
     novoJogador->animacaoPulandoCorrendo.quantidadeQuadros = 4;
     novoJogador->animacaoPulandoCorrendo.quadroAtual = 0;
@@ -215,7 +215,7 @@ Jogador *criarJogador(float x, float y, float w, float h)
         4,          // separação
         false,      // de trás para frente
         (Rectangle){// retângulo de colisão padrão para cada quadro
-                    32, 46, 42, 50});
+                    32, 36, 42, 60});
 
     novoJogador->animacaoEscudo.quantidadeQuadros = 2;
     novoJogador->animacaoEscudo.quadroAtual = 0;
