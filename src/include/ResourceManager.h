@@ -25,6 +25,7 @@ typedef struct ResourceManager {
     Texture2D texturaTerreno2;   /* tiles da fase 2 (Marble Zone) */
     Texture2D texturaFundo;      /* fundo da fase 1               */
     Texture2D texturaFundo2;     /* fundo da fase 2               */
+    Texture2D texturaParedeArena;          
 
     Sound somAnel;
     Sound somFrenagem;

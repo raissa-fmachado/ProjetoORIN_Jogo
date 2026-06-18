@@ -396,6 +396,10 @@ typedef struct InimigoEggMobile
 
     Rectangle retParteInferior;
 
+    bool arenaAtivada;
+    float limiteEsquerdoArena;
+    float limiteDireitoArena;
+
 } InimigoEggMobile;
 
 /**
@@ -610,5 +614,10 @@ typedef struct GameWorld
     bool fadeEntrada;   /* true = fade-in (preto→jogo)               */
     bool fadeSaida;     /* true = fade-out (jogo→preto)              */
     bool trocandoFase;  /* flag interna: fade-out concluído, trocar  */
+
+    bool arenaBossAtivada;
+    Obstaculo *paredeArena;
+    float limiteEsquerdoArena;
+    float limiteDireitoArena;
 
 } GameWorld;

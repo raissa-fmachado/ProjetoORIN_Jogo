@@ -111,6 +111,8 @@ void loadResourcesResourceManager(void)
     rm.texturaTerreno = LoadTexture("resources/imagens/tiles/terreno.png");
     rm.texturaTerreno2 = LoadTexture("resources/imagens/tiles/marble_tileset_final.png");
 
+    rm.texturaParedeArena = LoadTexture("resources/imagens/tiles/parede_arena.png");
+
     /* ── Fundos ─────────────────────────────────────────────────────────── */
     rm.texturaFundo = LoadTexture("resources/imagens/fundo/fundo.png");
     rm.texturaFundo2 = LoadTexture("resources/imagens/fundo/fundo2.png");
@@ -121,6 +123,7 @@ void loadResourcesResourceManager(void)
     SetTextureFilter(rm.texturaItens, TEXTURE_FILTER_POINT);
     SetTextureFilter(rm.texturaTerreno, TEXTURE_FILTER_POINT);
     SetTextureFilter(rm.texturaTerreno2, TEXTURE_FILTER_POINT);
+    SetTextureFilter(rm.texturaParedeArena, TEXTURE_FILTER_POINT);
     SetTextureFilter(rm.texturaFundo, TEXTURE_FILTER_POINT);
     SetTextureFilter(rm.texturaFundo2, TEXTURE_FILTER_POINT);
     SetTextureFilter(rm.texturaHud, TEXTURE_FILTER_POINT);
@@ -147,6 +150,7 @@ void unloadResourcesResourceManager(void)
     UnloadTexture(rm.texturaItens);
     UnloadTexture(rm.texturaTerreno);
     UnloadTexture(rm.texturaTerreno2);
+    UnloadTexture(rm.texturaParedeArena);
     UnloadTexture(rm.texturaFundo);
     UnloadTexture(rm.texturaFundo2);
     UnloadTexture(rm.texturaHud);

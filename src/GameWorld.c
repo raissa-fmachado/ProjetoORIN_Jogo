@@ -82,6 +82,9 @@ GameWorld *createGameWorld(void)
     gw->jogador = NULL;
     gw->telaInicial = criarTelaInicial();
     gw->estadoTela = TELA_INICIAL;
+    gw->arenaBossAtivada = false;
+    gw->paredeArena = NULL;
+
     inicializar(gw);
     return gw;
 }
@@ -239,14 +242,78 @@ void updateGameWorld(GameWorld *gw, float delta)
     if (!gw->faseCompleta)
     {
         atualizarMapa(gw->mapa, gw, delta);
+
         entradaJogador(gw->jogador, delta);
         atualizarJogador(gw->jogador, gw, delta);
-        atualizarCamera(gw);
-
-        gw->tempoJogo += delta;
-        if (gw->tempoJogo > 599.0f)
-            gw->tempoJogo = 599.0f;
     }
+
+    atualizarCamera(gw);
+
+    /* ATIVA A ARENA DO CHEFE */
+    int fimMapa = calcularLarguraMapa(gw->mapa);
+    int maxX = fimMapa - GetScreenWidth() / 2;
+
+    if (!gw->arenaBossAtivada &&
+        gw->faseAtual == 1 &&
+        gw->camera.target.x >= maxX)
+    {
+        gw->arenaBossAtivada = true;
+
+        ElementoMapa *el =
+            (ElementoMapa *)malloc(sizeof(ElementoMapa));
+
+        el->proximo = gw->mapa->obstaculos;
+
+        gw->paredeArena = criarObstaculo(
+            (Rectangle){
+                fimMapa - GetScreenWidth(),
+                0,
+                48,
+                2000},
+            RED,
+            (Rectangle){1, 1, 48, 2016},
+            &rm.texturaParedeArena);
+
+        el->objeto = gw->paredeArena;
+        el->tipo = TIPO_ELEMENTO_MAPA_OBSTACULO;
+
+        gw->mapa->obstaculos = el;
+        gw->mapa->quantidadeObstaculos++;
+
+        /* AQUI */
+        ElementoMapa *elInimigo = gw->mapa->inimigos;
+
+        while (elInimigo != NULL)
+        {
+            Inimigo *inimigo =
+                (Inimigo *)elInimigo->objeto;
+
+            if (inimigo->tipo ==
+                TIPO_INIMIGO_EGGMOBILE)
+            {
+                InimigoEggMobile *eggmobile =
+                    (InimigoEggMobile *)inimigo->objeto;
+
+                eggmobile->arenaAtivada = true;
+
+                float padding = 64.0f;
+
+                eggmobile->limiteEsquerdoArena =
+                    fimMapa - GetScreenWidth() + padding;
+
+                eggmobile->limiteDireitoArena =
+                    fimMapa - padding;
+                    
+                break;
+            }
+
+            elInimigo = elInimigo->proximo;
+        }
+    }
+
+    gw->tempoJogo += delta;
+    if (gw->tempoJogo > 599.0f)
+        gw->tempoJogo = 599.0f;
 
     /* ── detecta chegada ao fim da fase ─────────────────────────────── */
     if (!gw->faseCompleta && !gw->fadeSaida && jogadorChegouAoFim(gw))
@@ -1014,6 +1081,8 @@ static void reiniciar(GameWorld *gw)
     gw->estadoTela = TELA_INICIAL;
     gw->telaInicialContador = 0.0f;
     gw->iniciarJogo = false;
+
+    gw->arenaBossAtivada = false;
 
     carregarFase(gw, 1);
 }

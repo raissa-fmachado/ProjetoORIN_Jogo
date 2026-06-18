@@ -46,6 +46,9 @@ InimigoEggMobile *criarInimigoEggMobile(
     novoInimigo->ativo = true;
     novoInimigo->olhandoParaDireita = false;
     novoInimigo->invulneravel = false;
+    novoInimigo->arenaAtivada = false;
+    novoInimigo->limiteEsquerdoArena = 0;
+    novoInimigo->limiteDireitoArena = 0;
 
     novoInimigo->contadorEstado = 0.0f;
     novoInimigo->contadorInvulnerabilidade = 0.0f;
@@ -188,16 +191,39 @@ void atualizarInimigoEggMobile(
         inimigo->ret.x +=
             inimigo->vel.x * delta;
 
-        if (inimigo->ret.x < 100)
+        if (inimigo->arenaAtivada)
         {
-            inimigo->vel.x = 120;
-            inimigo->olhandoParaDireita = true;
-        }
+            if (inimigo->ret.x <= inimigo->limiteEsquerdoArena)
+            {
+                inimigo->ret.x = inimigo->limiteEsquerdoArena;
+                inimigo->vel.x = 120;
+                inimigo->olhandoParaDireita = true;
+            }
 
-        if (inimigo->ret.x > 900)
+            if (inimigo->ret.x + inimigo->ret.width >=
+                inimigo->limiteDireitoArena)
+            {
+                inimigo->ret.x =
+                    inimigo->limiteDireitoArena -
+                    inimigo->ret.width;
+
+                inimigo->vel.x = -120;
+                inimigo->olhandoParaDireita = false;
+            }
+        }
+        else
         {
-            inimigo->vel.x = -120;
-            inimigo->olhandoParaDireita = false;
+            if (inimigo->ret.x < 100)
+            {
+                inimigo->vel.x = 120;
+                inimigo->olhandoParaDireita = true;
+            }
+
+            if (inimigo->ret.x > 900)
+            {
+                inimigo->vel.x = -120;
+                inimigo->olhandoParaDireita = false;
+            }
         }
 
         inimigo->retParteInferior = (Rectangle){
