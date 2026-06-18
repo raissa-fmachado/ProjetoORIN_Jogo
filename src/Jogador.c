@@ -1271,28 +1271,29 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
                     retColInimigoCalculado))
             {
 
-                bool acertouFrente = false;
+                bool pulando =
+                    (j->estado >= ESTADO_JOGADOR_PULANDO &&
+                     j->estado <= ESTADO_JOGADOR_PULANDO_CORRENDO);
 
-                if (eggmobile->olhandoParaDireita)
-                {
-                    /* Frente está à direita */
-                    acertouFrente =
-                        (j->ret.x > eggmobile->ret.x + eggmobile->ret.width * 0.7f);
-                }
-                else
-                {
-                    /* Frente está à esquerda */
-                    acertouFrente =
-                        (j->ret.x + j->ret.width <
-                         eggmobile->ret.x + eggmobile->ret.width * 0.3f);
-                }
+                bool acertouPorBaixo =
+                    pulando &&
+                    j->vel.y < 0 &&
+                    CheckCollisionRecs(
+                        retColCalculado,
+                        eggmobile->retParteInferior);
 
-                if ((j->estado >= ESTADO_JOGADOR_PULANDO &&
-                     j->estado <= ESTADO_JOGADOR_PULANDO_CORRENDO) &&
-                    acertouFrente)
+                if (pulando && !acertouPorBaixo)
                 {
+                    j->vel.y = -250;
 
-                    j->vel.y = j->velPulo;
+                    if (j->ret.x < eggmobile->ret.x)
+                    {
+                        j->vel.x = -200;
+                    }
+                    else
+                    {
+                        j->vel.x = 200;
+                    }
 
                     if (!eggmobile->invulneravel)
                     {
@@ -1317,6 +1318,10 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
                 }
                 else if (!j->invulneravel)
                 {
+                    if (acertouPorBaixo)
+                    {
+                        j->vel.y = 200;
+                    }
 
                     if (j->possuiEscudo)
                     {

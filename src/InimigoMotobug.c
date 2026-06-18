@@ -21,7 +21,7 @@ static void desenharQuadroAnimacaoInimigoMotobug( InimigoMotobug *inimigo, Quadr
 static void desenharQuadroAnimacaoInimigoMotobugMorrendo( InimigoMotobug *inimigo, QuadroAnimacao *qa, float escala, Color tonalidade );
 static Animacao *getAnimacaoAtualInimigoMotobug( InimigoMotobug *inimigo );
 
-static const bool MOSTRAR_RETANGULOS = false;
+static const bool MOSTRAR_RETANGULOS = true;
 
 /**
  * @brief Cria um novo Inimigo (motobug).
@@ -204,7 +204,7 @@ static void desenharQuadroAnimacaoInimigoMotobug( InimigoMotobug *inimigo, Quadr
                 ? inimigo->ret.x + inimigo->ret.width - qa->retColisao.x - qa->retColisao.width
                 : inimigo->ret.x + qa->retColisao.x;
             float yDesenho = inimigo->ret.y + qa->retColisao.y;
-            DrawRectangle( xDesenho, yDesenho, qa->retColisao.width, qa->retColisao.height, Fade( GREEN, 0.5f ) );
+            DrawRectangle( xDesenho, yDesenho, qa->retColisao.width, qa->retColisao.height, Fade( RED, 0.5f ) );
         }
 
     }

@@ -394,6 +394,8 @@ typedef struct InimigoEggMobile
     Animacao animacaoDano;
     Animacao animacaoDerrotado;
 
+    Rectangle retParteInferior;
+
 } InimigoEggMobile;
 
 /**

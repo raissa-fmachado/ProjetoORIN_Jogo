@@ -22,7 +22,7 @@ static void desenharQuadroAnimacaoInimigoEggMobile(
 static Animacao *getAnimacaoAtualInimigoEggMobile(
     InimigoEggMobile *inimigo);
 
-static const bool MOSTRAR_RETANGULOS = true;
+static const bool MOSTRAR_RETANGULOS = false;
 
 /**
  * @brief Cria um novo inimigo (Egg Mobile).
@@ -68,7 +68,6 @@ InimigoEggMobile *criarInimigoEggMobile(
         &novoInimigo->animacaoVoando,
         1);
 
-    /* AJUSTAR DEPOIS */
     novoInimigo->animacaoVoando.quadros[0].fonte =
         (Rectangle){1, 83, 64, 56};
 
@@ -76,7 +75,7 @@ InimigoEggMobile *criarInimigoEggMobile(
         1000;
 
     novoInimigo->animacaoVoando.quadros[0].retColisao =
-        (Rectangle){0, 0, 64, 56};
+        (Rectangle){0, 10, 115, 85};
 
     /* =========================
        ANIMAÇÃO DANO
@@ -94,13 +93,13 @@ InimigoEggMobile *criarInimigoEggMobile(
         1);
 
     novoInimigo->animacaoDano.quadros[0].fonte =
-        (Rectangle){0, 0, 64, 64};
+        (Rectangle){0, 0, 64, 56};
 
     novoInimigo->animacaoDano.quadros[0].duracao =
         100;
 
     novoInimigo->animacaoDano.quadros[0].retColisao =
-        (Rectangle){0, 0, 64, 64};
+        (Rectangle){0, 10, 128, 85};
 
     /* =========================
        ANIMAÇÃO DERROTADO
@@ -118,13 +117,13 @@ InimigoEggMobile *criarInimigoEggMobile(
         1);
 
     novoInimigo->animacaoDerrotado.quadros[0].fonte =
-        (Rectangle){0, 0, 64, 64};
+        (Rectangle){0, 0, 64, 56};
 
     novoInimigo->animacaoDerrotado.quadros[0].duracao =
         1000;
 
     novoInimigo->animacaoDerrotado.quadros[0].retColisao =
-        (Rectangle){0, 0, 64, 64};
+        (Rectangle){0, 10, 120, 85};
 
     /* =========================
        ESTADOS
@@ -201,15 +200,30 @@ void atualizarInimigoEggMobile(
             inimigo->olhandoParaDireita = false;
         }
 
+        inimigo->retParteInferior = (Rectangle){
+            inimigo->ret.x + 10,
+            inimigo->ret.y + inimigo->ret.height - 12,
+            inimigo->ret.width - 20,
+            12};
+
         break;
 
     case ESTADO_INIMIGO_EGGMOBILE_DANO:
 
         inimigo->contadorEstado += delta;
 
-        if (inimigo->contadorEstado >= 0.3f)
+        if (inimigo->contadorEstado >= 0.5f)
         {
             inimigo->contadorEstado = 0;
+
+            if (inimigo->olhandoParaDireita)
+            {
+                inimigo->vel.x = 120;
+            }
+            else
+            {
+                inimigo->vel.x = -120;
+            }
 
             if (inimigo->vida > 0)
             {
@@ -315,6 +329,15 @@ static void desenharQuadroAnimacaoInimigoEggMobile(
             (Vector2){0, 0},
             0.0f,
             tonalidade);
+
+        if (MOSTRAR_RETANGULOS)
+        {
+            float xDesenho = inimigo->olhandoParaDireita
+                                 ? inimigo->ret.x + inimigo->ret.width - qa->retColisao.x - qa->retColisao.width
+                                 : inimigo->ret.x + qa->retColisao.x;
+            float yDesenho = inimigo->ret.y + qa->retColisao.y;
+            DrawRectangle(xDesenho, yDesenho, qa->retColisao.width, qa->retColisao.height, Fade(RED, 0.5f));
+        }
     }
 }
 
