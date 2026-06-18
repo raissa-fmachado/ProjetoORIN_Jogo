@@ -489,45 +489,39 @@ void entradaJogador(Jogador *j, float delta)
         j->estado = ESTADO_JOGADOR_CORRENDO;
     }
 
-    /* ─────────────────── Pulo duplo com escudo ──────────────────────── */
-    if (puloPressed && j->quantidadePulos > 0 && j->quantidadePulos < j->quantidadeMaxPulos)
+    /* ─────────────────── Pulo (chão ou duplo com escudo) ──────────────────────── */
+    if (puloPressed && j->quantidadePulos == 0)
     {
-        /* Pulo duplo baseado no tipo de escudo */
-        if (j->possuiEscudo)
-        {
-            j->vel.y = j->velPulo;
-            j->quantidadePulos++;
-
-            switch (j->tipoEscudo)
-            {
-            case TIPO_ESCUDO_AGUA:
-                /* Escudo de água: pulo mais alto */
-                j->vel.y *= 1.15f;
-                break;
-            case TIPO_ESCUDO_FOGO:
-                /* Escudo de fogo: velocidade horizontal aumentada */
-                if (j->olhandoParaDireita)
-                    j->vel.x = j->velCorrendo;
-                else
-                    j->vel.x = -j->velCorrendo;
-                break;
-            case TIPO_ESCUDO_RAIO:
-                /* Escudo de raio: pulo muito rápido */
-                j->vel.y *= 1.25f;
-                j->quantidadeMaxPulos = 2; /* Permite até 2 pulos */
-                break;
-            default:
-                break;
-            }
-
-            PlaySound(rm.somPulo);
-        }
-    }
-    else if (puloPressed && j->quantidadePulos < j->quantidadeMaxPulos && !j->possuiEscudo && !j->emSpin)
-    {
-        /* Pulo normal sem escudo */
+        /* Pulo do chão: funciona com ou sem escudo */
         j->vel.y = j->velPulo;
         j->quantidadePulos++;
+        PlaySound(rm.somPulo);
+    }
+    else if (puloPressed && j->quantidadePulos > 0 && j->quantidadePulos < j->quantidadeMaxPulos && j->possuiEscudo && !j->emSpin)
+    {
+        /* Pulo duplo no ar — só com escudo */
+        j->vel.y = j->velPulo;
+        j->quantidadePulos++;
+
+        switch (j->tipoEscudo)
+        {
+        case TIPO_ESCUDO_AGUA:
+            j->vel.y *= 1.15f;
+            break;
+        case TIPO_ESCUDO_FOGO:
+            if (j->olhandoParaDireita)
+                j->vel.x = j->velCorrendo;
+            else
+                j->vel.x = -j->velCorrendo;
+            break;
+        case TIPO_ESCUDO_RAIO:
+            j->vel.y *= 1.25f;
+            j->quantidadeMaxPulos = 2;
+            break;
+        default:
+            break;
+        }
+
         PlaySound(rm.somPulo);
     }
 
