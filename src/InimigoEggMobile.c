@@ -22,7 +22,7 @@ static void desenharQuadroAnimacaoInimigoEggMobile(
 static Animacao *getAnimacaoAtualInimigoEggMobile(
     InimigoEggMobile *inimigo);
 
-static const bool MOSTRAR_RETANGULOS = false;
+static const bool MOSTRAR_RETANGULOS = true;
 
 /**
  * @brief Cria um novo inimigo (Egg Mobile).
@@ -210,8 +210,17 @@ void atualizarInimigoEggMobile(
         if (inimigo->contadorEstado >= 0.3f)
         {
             inimigo->contadorEstado = 0;
-            inimigo->estado =
-                ESTADO_INIMIGO_EGGMOBILE_VOANDO;
+
+            if (inimigo->vida > 0)
+            {
+                inimigo->estado =
+                    ESTADO_INIMIGO_EGGMOBILE_VOANDO;
+            }
+            else
+            {
+                inimigo->estado =
+                    ESTADO_INIMIGO_EGGMOBILE_DERROTADO;
+            }
         }
 
         break;

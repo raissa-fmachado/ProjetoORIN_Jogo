@@ -1271,18 +1271,49 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
                     retColInimigoCalculado))
             {
 
-                if (j->estado >= ESTADO_JOGADOR_PULANDO &&
-                    j->estado <= ESTADO_JOGADOR_PULANDO_CORRENDO)
+                bool acertouFrente = false;
+
+                if (eggmobile->olhandoParaDireita)
+                {
+                    /* Frente está à direita */
+                    acertouFrente =
+                        (j->ret.x > eggmobile->ret.x + eggmobile->ret.width * 0.7f);
+                }
+                else
+                {
+                    /* Frente está à esquerda */
+                    acertouFrente =
+                        (j->ret.x + j->ret.width <
+                         eggmobile->ret.x + eggmobile->ret.width * 0.3f);
+                }
+
+                if ((j->estado >= ESTADO_JOGADOR_PULANDO &&
+                     j->estado <= ESTADO_JOGADOR_PULANDO_CORRENDO) &&
+                    acertouFrente)
                 {
 
                     j->vel.y = j->velPulo;
 
-                    eggmobile->estado =
-                        ESTADO_INIMIGO_EGGMOBILE_DERROTADO;
+                    if (!eggmobile->invulneravel)
+                    {
+                        eggmobile->vida--;
 
-                    gw->pontuacao += 1000;
+                        eggmobile->invulneravel = true;
+                        eggmobile->contadorInvulnerabilidade = 0;
 
-                    PlaySound(rm.somHitInimigo);
+                        eggmobile->estado =
+                            ESTADO_INIMIGO_EGGMOBILE_DANO;
+
+                        PlaySound(rm.somHitInimigo);
+
+                        if (eggmobile->vida <= 0)
+                        {
+                            eggmobile->estado =
+                                ESTADO_INIMIGO_EGGMOBILE_DERROTADO;
+
+                            gw->pontuacao += 5000;
+                        }
+                    }
                 }
                 else if (!j->invulneravel)
                 {
