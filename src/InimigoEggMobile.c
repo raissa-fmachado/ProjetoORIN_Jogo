@@ -99,7 +99,7 @@ InimigoEggMobile *criarInimigoEggMobile(
         1);
 
     novoInimigo->animacaoDano.quadros[0].fonte =
-        (Rectangle){0, 0, 64, 56};
+        (Rectangle){66, 83, 64, 56};
 
     novoInimigo->animacaoDano.quadros[0].duracao =
         100;
