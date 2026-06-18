@@ -21,7 +21,7 @@ static void desenharQuadroAnimacaoInimigoMotobug( InimigoMotobug *inimigo, Quadr
 static void desenharQuadroAnimacaoInimigoMotobugMorrendo( InimigoMotobug *inimigo, QuadroAnimacao *qa, float escala, Color tonalidade );
 static Animacao *getAnimacaoAtualInimigoMotobug( InimigoMotobug *inimigo );
 
-static const bool MOSTRAR_RETANGULOS = true;
+static const bool MOSTRAR_RETANGULOS = false;
 
 /**
  * @brief Cria um novo Inimigo (motobug).

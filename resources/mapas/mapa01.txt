@@ -6,11 +6,11 @@ C                aM          a               b        a   LBBGAAAFBBI           
 C               aM          aaa                      aM   KDDDDDDDDDJ                                 E
 C   c     a    aM          aLBIa                    aM                                                E
 C  MMM    Ma   M    a    aaLGAFIaa     M     2     MM                                                 E
-C          Ma      aM   LBBGAAAFBBI    LBBBBBBBBBBBI                                                  E
+C          Ma      aM   LBBGAAAFBBI    LBBBBBBBBBBBI                                              4   E
 C           Ma    aM    KDDDDDDDDDJ    KDDDDDDDDDDDJ                                                  E
-C            M   aM                                                                              4    E
+C            M   aM                                                                                   E
 C               aM                                                                                    E
-C               M                a           a               b                                        E
+C               M                a           a               b                           LBI      LBI E
 C                               aaa         aMa                                                       E
 C  0   0  M          M      2  aaaaa  2     MMM    aaa   0      2   aaa                               E
 FBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBG
