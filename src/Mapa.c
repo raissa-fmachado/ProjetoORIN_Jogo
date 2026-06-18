@@ -18,6 +18,7 @@
 #include "InimigoSpikes.h"
 #include "InimigoBatbrain.h"
 #include "InimigoEggMobile.h"
+#include "Decoracao.h"
 #include "Item.h"
 #include "ItemAnel.h"
 #include "ItemAnelGigante.h"
@@ -30,6 +31,7 @@
 static void inserirObstaculo(Mapa *mapa, ElementoMapa *obstaculo);
 static void inserirItem(Mapa *mapa, ElementoMapa *item);
 static void inserirInimigo(Mapa *mapa, ElementoMapa *inimigo);
+static void inserirDecoracao(Mapa *mapa, ElementoMapa *decoracao);
 
 /**
  * @brief Carrega um mapa a partir de uma arquivo.
@@ -50,6 +52,9 @@ Mapa *carregarMapaFase(const char *caminhoArquivo, int fase)
 
     novoMapa->inimigos = NULL;
     novoMapa->quantidadeInimigos = 0;
+
+    novoMapa->decoracoes = NULL;
+    novoMapa->quantidadeDecoracoes = 0;
 
     novoMapa->dimensaoPadraoElementos = 48;
     novoMapa->linhas = 0;
@@ -295,6 +300,51 @@ Mapa *carregarMapaFase(const char *caminhoArquivo, int fase)
 
                     inserirInimigo(novoMapa, el);
                 }
+                else if (c == '!')
+                {
+                    Decoracao *decoracao = criarDecoracao(TIPO_DECORACAO_FLOR);
+
+                    decoracao->ret = (Rectangle){
+                        .x = novoMapa->dimensaoPadraoElementos * colunaAtual,
+                        .y = novoMapa->dimensaoPadraoElementos * linhaAtual,
+                        .width = 33,
+                        .height = 60};
+
+                    el->objeto = decoracao;
+                    el->tipo = TIPO_ELEMENTO_MAPA_DECORACAO;
+
+                    inserirDecoracao(novoMapa, el);
+                }
+                else if (c == '@')
+                {
+                    Decoracao *decoracao = criarDecoracao(TIPO_DECORACAO_PALMEIRA);
+
+                    decoracao->ret = (Rectangle){
+                        .x = novoMapa->dimensaoPadraoElementos * colunaAtual,
+                        .y = novoMapa->dimensaoPadraoElementos * linhaAtual,
+                        .width = 96,
+                        .height = 128};
+
+                    el->objeto = decoracao;
+                    el->tipo = TIPO_ELEMENTO_MAPA_DECORACAO;
+
+                    inserirDecoracao(novoMapa, el);
+                }
+                else if (c == '#')
+                {
+                    Decoracao *decoracao = criarDecoracao(TIPO_DECORACAO_ARBUSTO);
+
+                    decoracao->ret = (Rectangle){
+                        .x = novoMapa->dimensaoPadraoElementos * colunaAtual,
+                        .y = novoMapa->dimensaoPadraoElementos * linhaAtual,
+                        .width = 64,
+                        .height = 48};
+
+                    el->objeto = decoracao;
+                    el->tipo = TIPO_ELEMENTO_MAPA_DECORACAO;
+
+                    inserirDecoracao(novoMapa, el);
+                }
                 else
                 {
                     TraceLog(LOG_ERROR, "Entidade inválida no mapa.");
@@ -348,6 +398,17 @@ void destruirMapa(Mapa *m)
             free(t);
         }
 
+        el = m->decoracoes;
+        while (el != NULL)
+        {
+            destruirDecoracao((Decoracao *)el->objeto);
+
+            ElementoMapa *t = el;
+            el = el->proximo;
+
+            free(t);
+        }
+
         el = m->itens;
         while (el != NULL)
         {
@@ -376,6 +437,13 @@ void atualizarMapa(Mapa *m, GameWorld *gw, float delta)
 
     ElementoMapa *el = NULL;
 
+    el = m->decoracoes;
+    while (el != NULL)
+    {
+        atualizarDecoracao((Decoracao *)el->objeto, delta);
+        el = el->proximo;
+    }
+
     el = m->itens;
     while (el != NULL)
     {
@@ -403,6 +471,13 @@ void desenharMapa(Mapa *m)
     while (el != NULL)
     {
         desenharObstaculo((Obstaculo *)el->objeto);
+        el = el->proximo;
+    }
+
+    el = m->decoracoes;
+    while (el != NULL)
+    {
+        desenharDecoracao((Decoracao *)el->objeto);
         el = el->proximo;
     }
 
@@ -452,6 +527,21 @@ static void inserirObstaculo(Mapa *mapa, ElementoMapa *obstaculo)
         mapa->obstaculos = obstaculo;
     }
     mapa->quantidadeObstaculos++;
+}
+
+static void inserirDecoracao(Mapa *mapa, ElementoMapa *decoracao)
+{
+    if (mapa->decoracoes == NULL)
+    {
+        mapa->decoracoes = decoracao;
+    }
+    else
+    {
+        decoracao->proximo = mapa->decoracoes;
+        mapa->decoracoes = decoracao;
+    }
+
+    mapa->quantidadeDecoracoes++;
 }
 
 /**

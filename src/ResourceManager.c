@@ -107,6 +107,16 @@ void loadResourcesResourceManager(void)
         },
         2);
 
+    rm.texturaDecoracoes = carregarTexturaAlterandoCores(
+        "resources/imagens/sprites/decoracoes.png",
+        (Color[]){
+            {135, 16, 19, 255},
+        },
+        (Color[]){
+            BLANK,
+        },
+        1);
+
     /* ── Tiles ─────────────────────────────────────────────────────────── */
     rm.texturaTerreno = LoadTexture("resources/imagens/tiles/terreno.png");
     rm.texturaTerreno2 = LoadTexture("resources/imagens/tiles/marble_tileset_final.png");
@@ -130,6 +140,7 @@ void loadResourcesResourceManager(void)
     SetTextureFilter(rm.texturaHudNumerosP, TEXTURE_FILTER_POINT);
     SetTextureFilter(rm.texturaTelaInicial, TEXTURE_FILTER_POINT);
     SetTextureFilter(rm.texturaAnimacaoMenu, TEXTURE_FILTER_POINT);
+    SetTextureFilter(rm.texturaDecoracoes, TEXTURE_FILTER_POINT);
 
     rm.somAnel = LoadSound("resources/sons/efeitos/anel.wav");
     rm.somFrenagem = LoadSound("resources/sons/efeitos/frenagem.wav");
@@ -157,6 +168,7 @@ void unloadResourcesResourceManager(void)
     UnloadTexture(rm.texturaHudNumerosP);
     UnloadTexture(rm.texturaTelaInicial);
     UnloadTexture(rm.texturaAnimacaoMenu);
+    UnloadTexture(rm.texturaDecoracoes);
 
     UnloadSound(rm.somAnel);
     UnloadSound(rm.somFrenagem);

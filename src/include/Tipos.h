@@ -155,6 +155,7 @@ typedef enum TipoElementoMapa
     TIPO_ELEMENTO_MAPA_OBSTACULO,
     TIPO_ELEMENTO_MAPA_ITEM,
     TIPO_ELEMENTO_MAPA_INIMIGO,
+    TIPO_ELEMENTO_MAPA_DECORACAO,
 } TipoElementoMapa;
 
 /**
@@ -501,6 +502,27 @@ typedef struct Item
     TipoItem tipo;
 } Item;
 
+typedef enum TipoDecoracao
+{
+    TIPO_DECORACAO_FLOR,
+    TIPO_DECORACAO_PALMEIRA,
+    TIPO_DECORACAO_ARBUSTO,
+} TipoDecoracao;
+
+typedef struct Decoracao
+{
+    Rectangle ret;
+    Rectangle fonte;
+
+    Texture2D *textura;
+
+    TipoDecoracao tipo;
+
+    Animacao *animacoes[4];
+    int quantidadeAnimacoes;
+
+} Decoracao;
+
 /**
  * @brief Representa um obstáculo estático do mapa.
  */
@@ -538,6 +560,9 @@ typedef struct Mapa
 
     ElementoMapa *inimigos;
     int quantidadeInimigos;
+
+    ElementoMapa *decoracoes;
+    int quantidadeDecoracoes;
 
     float dimensaoPadraoElementos;
     int linhas;

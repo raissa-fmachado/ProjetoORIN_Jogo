@@ -12,6 +12,6 @@ C            M   aM                                                             
 C               aM                                                                                    E
 C               M                a           a               b                           LBI      LBI E
 C                               aaa         aMa                                                       E
-C  0   0  M          M      2  aaaaa  2     MMM    aaa   0      2   aaa                               E
+C  0   0  M      !   M      2  aaaaa  2     MMM    aaa   0      2   aaa                               E
 FBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBG
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
