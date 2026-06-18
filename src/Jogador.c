@@ -75,6 +75,8 @@ Jogador *criarJogador(float x, float y, float w, float h)
     novoJogador->tempoInvulnerabilidade = 3.0f;
     novoJogador->contadorTempoInvulnerabilidade = 0.0f;
 
+    novoJogador->olhandoParaDireita = true;
+
     novoJogador->piscaPisca = false;
     novoJogador->tempoPiscaPisca = 0.05f;
     novoJogador->contadorTempoPiscaPisca = 0.0f;
