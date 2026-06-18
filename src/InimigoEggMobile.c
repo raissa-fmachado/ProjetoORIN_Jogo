@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "raylib/raylib.h"
 
@@ -43,8 +44,10 @@ InimigoEggMobile *criarInimigoEggMobile(
 
     novoInimigo->vida = 8;
 
+    novoInimigo->batalhaIniciada = false;
+
     novoInimigo->ativo = true;
-    novoInimigo->olhandoParaDireita = false;
+    novoInimigo->olhandoParaDireita = true;
     novoInimigo->invulneravel = false;
     novoInimigo->arenaAtivada = false;
     novoInimigo->limiteEsquerdoArena = 0;
@@ -175,6 +178,14 @@ void atualizarInimigoEggMobile(
     GameWorld *gw,
     float delta)
 {
+    if (!inimigo->batalhaIniciada)
+    {
+        inimigo->ret.y +=
+            sinf(GetTime() * 2.0f) * 0.2f;
+
+        return;
+    }
+
     if (!inimigo->ativo)
         return;
 

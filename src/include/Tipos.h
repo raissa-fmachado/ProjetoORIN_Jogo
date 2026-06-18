@@ -400,6 +400,8 @@ typedef struct InimigoEggMobile
     float limiteEsquerdoArena;
     float limiteDireitoArena;
 
+    bool batalhaIniciada;
+
 } InimigoEggMobile;
 
 /**

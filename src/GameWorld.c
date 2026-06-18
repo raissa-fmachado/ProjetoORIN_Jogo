@@ -295,6 +295,7 @@ void updateGameWorld(GameWorld *gw, float delta)
                     (InimigoEggMobile *)inimigo->objeto;
 
                 eggmobile->arenaAtivada = true;
+                eggmobile->batalhaIniciada = true;
 
                 float padding = 64.0f;
 
@@ -303,7 +304,7 @@ void updateGameWorld(GameWorld *gw, float delta)
 
                 eggmobile->limiteDireitoArena =
                     fimMapa - padding;
-                    
+
                 break;
             }
 
