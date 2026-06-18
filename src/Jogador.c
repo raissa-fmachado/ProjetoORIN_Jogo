@@ -85,7 +85,7 @@ Jogador *criarJogador(float x, float y, float w, float h)
     /* Inicializar sistema de spin */
     novoJogador->emSpin = false;
     novoJogador->contadorTempoSpin = 0.0f;
-    novoJogador->tempoMaxSpin = 0.5f; /* Spin dura 0.5 segundos */
+    novoJogador->tempoMaxSpin = 999.0f; /* spin dura enquanto DOWN estiver pressionado */
     novoJogador->velSpinHorizontal = 0.0f;
 
     novoJogador->freando = false;
@@ -308,13 +308,6 @@ void entradaJogador(Jogador *j, float delta)
     /* ─────────────────── Sistema de SPIN ──────────────────────── */
     if (j->emSpin)
     {
-        j->contadorTempoSpin += delta;
-        if (j->contadorTempoSpin >= j->tempoMaxSpin)
-        {
-            j->emSpin = false;
-            j->contadorTempoSpin = 0.0f;
-        }
-
         /* Mantém a velocidade do spin (com direção) */
         if (j->olhandoParaDireita)
         {
@@ -325,11 +318,30 @@ void entradaJogador(Jogador *j, float delta)
             j->vel.x = -j->velSpinHorizontal;
         }
 
-        /* Só sai do spin se soltar DOWN e não estiver pulando */
-        if (!baixoDown && j->quantidadePulos == 0)
+        /* Pulo durante spin: verificado ANTES de qualquer saída do spin */
+        if (puloPressed && j->quantidadePulos == 0)
         {
-            j->emSpin = false;
+            /* pula independente de DOWN estar pressionado ou não */
+            j->vel.y = j->velPulo;
+            j->quantidadePulos++;
             j->contadorTempoSpin = 0.0f;
+            PlaySound(rm.somPulo);
+            /* NÃO sai do spin: bolinha continua no ar */
+        }
+        else
+        {
+            j->contadorTempoSpin += delta;
+            if (j->contadorTempoSpin >= j->tempoMaxSpin)
+            {
+                j->emSpin = false;
+                j->contadorTempoSpin = 0.0f;
+            }
+            /* só sai do spin se soltar DOWN E estiver no chão E não pulou */
+            else if (!baixoDown && j->quantidadePulos == 0)
+            {
+                j->emSpin = false;
+                j->contadorTempoSpin = 0.0f;
+            }
         }
     }
     else
@@ -511,7 +523,7 @@ void entradaJogador(Jogador *j, float delta)
             PlaySound(rm.somPulo);
         }
     }
-    else if (puloPressed && j->quantidadePulos < j->quantidadeMaxPulos && !j->possuiEscudo)
+    else if (puloPressed && j->quantidadePulos < j->quantidadeMaxPulos && !j->possuiEscudo && !j->emSpin)
     {
         /* Pulo normal sem escudo */
         j->vel.y = j->velPulo;
@@ -774,7 +786,7 @@ static void resolverColisaoJogadorObstaculosMapaY(Jogador *j, Mapa *mapa)
                 float centroJogadorY = retColCalculado.y + retColCalculado.height / 2.0f;
                 float centroBlocoY = retBloco.y + retBloco.height / 2.0f;
 
-                if (centroJogadorY < centroBlocoY)
+                if (centroJogadorY < centroBlocoY && j->vel.y >= 0)
                 {
                     /* jogador em cima: pousa sobre o bloco */
                     j->ret.y = retBloco.y - qa->retColisao.height - deslocamentoY;
