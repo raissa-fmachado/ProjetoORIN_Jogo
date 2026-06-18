@@ -507,19 +507,22 @@ typedef enum TipoDecoracao
     TIPO_DECORACAO_FLOR,
     TIPO_DECORACAO_PALMEIRA,
     TIPO_DECORACAO_ARBUSTO,
+    TIPO_DECORACAO_TOTEM,
+    TIPO_DECORACAO_GIRASSOL,
 } TipoDecoracao;
 
 typedef struct Decoracao
 {
     Rectangle ret;
-    Rectangle fonte;
 
     Texture2D *textura;
 
     TipoDecoracao tipo;
 
-    Animacao *animacoes[4];
+    Animacao *animacoes[1];
     int quantidadeAnimacoes;
+
+    Animacao animacaoPrincipal;
 
 } Decoracao;
 

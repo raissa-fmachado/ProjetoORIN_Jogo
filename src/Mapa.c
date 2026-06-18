@@ -304,11 +304,18 @@ Mapa *carregarMapaFase(const char *caminhoArquivo, int fase)
                 {
                     Decoracao *decoracao = criarDecoracao(TIPO_DECORACAO_FLOR);
 
+                    float escala = 2.0f;
+
+                    QuadroAnimacao *qa = &decoracao->animacaoPrincipal.quadros[0];
+
+                    float largura = qa->fonte.width * escala;
+                    float altura = qa->fonte.height * escala;
+
                     decoracao->ret = (Rectangle){
                         .x = novoMapa->dimensaoPadraoElementos * colunaAtual,
-                        .y = novoMapa->dimensaoPadraoElementos * linhaAtual,
-                        .width = 33,
-                        .height = 60};
+                        .y = novoMapa->dimensaoPadraoElementos * linhaAtual - (altura - novoMapa->dimensaoPadraoElementos),
+                        .width = largura,
+                        .height = altura};
 
                     el->objeto = decoracao;
                     el->tipo = TIPO_ELEMENTO_MAPA_DECORACAO;
@@ -319,11 +326,18 @@ Mapa *carregarMapaFase(const char *caminhoArquivo, int fase)
                 {
                     Decoracao *decoracao = criarDecoracao(TIPO_DECORACAO_PALMEIRA);
 
+                    float escala = 2.0f;
+
+                    QuadroAnimacao *qa = &decoracao->animacaoPrincipal.quadros[0];
+
+                    float largura = qa->fonte.width * escala;
+                    float altura = qa->fonte.height * escala;
+
                     decoracao->ret = (Rectangle){
                         .x = novoMapa->dimensaoPadraoElementos * colunaAtual,
-                        .y = novoMapa->dimensaoPadraoElementos * linhaAtual,
-                        .width = 96,
-                        .height = 128};
+                        .y = novoMapa->dimensaoPadraoElementos * linhaAtual - (altura - novoMapa->dimensaoPadraoElementos),
+                        .width = largura,
+                        .height = altura};
 
                     el->objeto = decoracao;
                     el->tipo = TIPO_ELEMENTO_MAPA_DECORACAO;
@@ -334,11 +348,62 @@ Mapa *carregarMapaFase(const char *caminhoArquivo, int fase)
                 {
                     Decoracao *decoracao = criarDecoracao(TIPO_DECORACAO_ARBUSTO);
 
+                    float escala = 2.0f;
+
+                    QuadroAnimacao *qa = &decoracao->animacaoPrincipal.quadros[0];
+
+                    float largura = qa->fonte.width * escala;
+                    float altura = qa->fonte.height * escala;
+
                     decoracao->ret = (Rectangle){
                         .x = novoMapa->dimensaoPadraoElementos * colunaAtual,
-                        .y = novoMapa->dimensaoPadraoElementos * linhaAtual,
-                        .width = 64,
-                        .height = 48};
+                        .y = novoMapa->dimensaoPadraoElementos * linhaAtual - (altura - novoMapa->dimensaoPadraoElementos),
+                        .width = largura,
+                        .height = altura};
+
+                    el->objeto = decoracao;
+                    el->tipo = TIPO_ELEMENTO_MAPA_DECORACAO;
+
+                    inserirDecoracao(novoMapa, el);
+                }
+                else if (c == '$')
+                {
+                    Decoracao *decoracao = criarDecoracao(TIPO_DECORACAO_TOTEM);
+
+                    float escala = 2.0f;
+
+                    QuadroAnimacao *qa = &decoracao->animacaoPrincipal.quadros[0];
+
+                    float largura = qa->fonte.width * escala;
+                    float altura = qa->fonte.height * escala;
+
+                    decoracao->ret = (Rectangle){
+                        .x = novoMapa->dimensaoPadraoElementos * colunaAtual,
+                        .y = novoMapa->dimensaoPadraoElementos * linhaAtual - (altura - novoMapa->dimensaoPadraoElementos),
+                        .width = largura,
+                        .height = altura};
+
+                    el->objeto = decoracao;
+                    el->tipo = TIPO_ELEMENTO_MAPA_DECORACAO;
+
+                    inserirDecoracao(novoMapa, el);
+                }
+                else if (c == '%')
+                {
+                    Decoracao *decoracao = criarDecoracao(TIPO_DECORACAO_GIRASSOL);
+
+                    float escala = 2.0f;
+
+                    QuadroAnimacao *qa = &decoracao->animacaoPrincipal.quadros[0];
+
+                    float largura = qa->fonte.width * escala;
+                    float altura = qa->fonte.height * escala;
+
+                    decoracao->ret = (Rectangle){
+                        .x = novoMapa->dimensaoPadraoElementos * colunaAtual,
+                        .y = novoMapa->dimensaoPadraoElementos * linhaAtual - (altura - novoMapa->dimensaoPadraoElementos),
+                        .width = largura,
+                        .height = altura};
 
                     el->objeto = decoracao;
                     el->tipo = TIPO_ELEMENTO_MAPA_DECORACAO;

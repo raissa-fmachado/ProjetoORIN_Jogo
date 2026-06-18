@@ -3,6 +3,7 @@
 #include "raylib/raylib.h"
 
 #include "Decoracao.h"
+#include "Animacao.h"
 #include "ResourceManager.h"
 
 extern ResourceManager rm;
@@ -13,28 +14,132 @@ Decoracao *criarDecoracao(TipoDecoracao tipo)
 
     decoracao->tipo = tipo;
     decoracao->ret = (Rectangle){0};
+
     decoracao->quantidadeAnimacoes = 0;
 
     switch (tipo)
     {
+
     case TIPO_DECORACAO_FLOR:
+
         decoracao->textura = &rm.texturaDecoracoes;
-        decoracao->fonte = (Rectangle){0, 0, 33, 60};
+
+        decoracao->animacaoPrincipal.quantidadeQuadros = 3;
+        decoracao->animacaoPrincipal.quadroAtual = 0;
+        decoracao->animacaoPrincipal.contadorTempoQuadro = 0;
+        decoracao->animacaoPrincipal.pararNoUltimoQuadro = false;
+        decoracao->animacaoPrincipal.executarUmaVez = false;
+        decoracao->animacaoPrincipal.finalizada = false;
+
+        criarQuadrosAnimacao(
+            &decoracao->animacaoPrincipal,
+            3
+        );
+
+        inicializarQuadrosAnimacao(
+            decoracao->animacaoPrincipal.quadros,
+            3,
+            250,
+            0, 0,
+            33, 60,
+            1,
+            false,
+            (Rectangle){0}
+        );
+
+        decoracao->animacoes[0] = &decoracao->animacaoPrincipal;
+        decoracao->quantidadeAnimacoes = 1;
+
+        break;
+
+    case TIPO_DECORACAO_GIRASSOL:
+
+        decoracao->textura = &rm.texturaDecoracoes;
+
+        decoracao->animacaoPrincipal.quantidadeQuadros = 2;
+        decoracao->animacaoPrincipal.quadroAtual = 0;
+        decoracao->animacaoPrincipal.contadorTempoQuadro = 0;
+        decoracao->animacaoPrincipal.pararNoUltimoQuadro = false;
+        decoracao->animacaoPrincipal.executarUmaVez = false;
+        decoracao->animacaoPrincipal.finalizada = false;
+
+        criarQuadrosAnimacao(
+            &decoracao->animacaoPrincipal,
+            2
+        );
+
+        inicializarQuadrosAnimacao(
+            decoracao->animacaoPrincipal.quadros,
+            2,
+            300,
+            0, 61,
+            34, 76,
+            1,
+            false,
+            (Rectangle){0}
+        );
+
+        decoracao->animacoes[0] = &decoracao->animacaoPrincipal;
+        decoracao->quantidadeAnimacoes = 1;
+
         break;
 
     case TIPO_DECORACAO_PALMEIRA:
+
         decoracao->textura = &rm.texturaDecoracoes;
-        decoracao->fonte = (Rectangle){48, 0, 96, 128};
+
+        decoracao->animacaoPrincipal.quantidadeQuadros = 1;
+        criarQuadrosAnimacao(
+            &decoracao->animacaoPrincipal,
+            1
+        );
+
+        decoracao->animacaoPrincipal.quadros[0].fonte =
+            (Rectangle){1, 226, 72, 125};
+
+        decoracao->animacoes[0] = &decoracao->animacaoPrincipal;
+        decoracao->quantidadeAnimacoes = 1;
+
         break;
 
     case TIPO_DECORACAO_ARBUSTO:
+
         decoracao->textura = &rm.texturaDecoracoes;
-        decoracao->fonte = (Rectangle){144, 0, 64, 48};
+
+        decoracao->animacaoPrincipal.quantidadeQuadros = 1;
+        criarQuadrosAnimacao(
+            &decoracao->animacaoPrincipal,
+            1
+        );
+
+        decoracao->animacaoPrincipal.quadros[0].fonte =
+            (Rectangle){1, 188, 50, 37};
+
+        decoracao->animacoes[0] = &decoracao->animacaoPrincipal;
+        decoracao->quantidadeAnimacoes = 1;
+
+        break;
+
+    case TIPO_DECORACAO_TOTEM:
+
+        decoracao->textura = &rm.texturaDecoracoes;
+
+        decoracao->animacaoPrincipal.quantidadeQuadros = 1;
+        criarQuadrosAnimacao(
+            &decoracao->animacaoPrincipal,
+            1
+        );
+
+        decoracao->animacaoPrincipal.quadros[0].fonte =
+            (Rectangle){1, 138, 50, 49};
+
+        decoracao->animacoes[0] = &decoracao->animacaoPrincipal;
+        decoracao->quantidadeAnimacoes = 1;
+
         break;
 
     default:
         decoracao->textura = NULL;
-        decoracao->fonte = (Rectangle){0};
         break;
     }
 
@@ -45,14 +150,31 @@ void destruirDecoracao(Decoracao *decoracao)
 {
     if (decoracao != NULL)
     {
+        for (int i = 0; i < decoracao->quantidadeAnimacoes; i++)
+        {
+            destruirQuadrosAnimacao(
+                decoracao->animacoes[i]
+            );
+        }
+
         free(decoracao);
     }
 }
 
 void atualizarDecoracao(Decoracao *decoracao, float delta)
 {
-    (void)decoracao;
-    (void)delta;
+    if (decoracao == NULL)
+    {
+        return;
+    }
+
+    if (decoracao->quantidadeAnimacoes > 0)
+    {
+        atualizarAnimacao(
+            decoracao->animacoes[0],
+            delta
+        );
+    }
 }
 
 void desenharDecoracao(Decoracao *decoracao)
@@ -62,11 +184,17 @@ void desenharDecoracao(Decoracao *decoracao)
         return;
     }
 
+    QuadroAnimacao *qa =
+        getQuadroAtualAnimacao(
+            decoracao->animacoes[0]
+        );
+
     DrawTexturePro(
         *decoracao->textura,
-        decoracao->fonte,
+        qa->fonte,
         decoracao->ret,
         (Vector2){0, 0},
         0.0f,
-        WHITE);
+        WHITE
+    );
 }
