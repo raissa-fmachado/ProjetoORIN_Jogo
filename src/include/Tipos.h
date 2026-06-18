@@ -23,8 +23,8 @@ typedef enum EstadoJogador
     ESTADO_JOGADOR_PULANDO,
     ESTADO_JOGADOR_PULANDO_RAPIDO,
     ESTADO_JOGADOR_PULANDO_CORRENDO,
-    ESTADO_JOGADOR_SPIN,           /* Rolamento (movimento de spin) */
-    ESTADO_JOGADOR_SPIN_PULANDO,   /* Pulo duplo enquanto está em spin */
+    ESTADO_JOGADOR_SPIN,         /* Rolamento (movimento de spin) */
+    ESTADO_JOGADOR_SPIN_PULANDO, /* Pulo duplo enquanto está em spin */
 } EstadoJogador;
 
 /**
@@ -33,9 +33,9 @@ typedef enum EstadoJogador
 typedef enum TipoEscudo
 {
     TIPO_ESCUDO_NENHUM,
-    TIPO_ESCUDO_AGUA,   /* Escudo de água - pulo duplo com proteção contra fogo */
-    TIPO_ESCUDO_FOGO,   /* Escudo de fogo - pulo duplo com proteção contra gelo */
-    TIPO_ESCUDO_RAIO,   /* Escudo de raio - pulo duplo com aceleração */
+    TIPO_ESCUDO_AGUA, /* Escudo de água - pulo duplo com proteção contra fogo */
+    TIPO_ESCUDO_FOGO, /* Escudo de fogo - pulo duplo com proteção contra gelo */
+    TIPO_ESCUDO_RAIO, /* Escudo de raio - pulo duplo com aceleração */
 } TipoEscudo;
 
 /**
@@ -76,6 +76,13 @@ typedef enum EstadoInimigoBatbrain
     ESTADO_INIMIGO_BATBRAIN_MORRENDO,
 } EstadoInimigoBatbrain;
 
+typedef enum EstadoInimigoEggMobile
+{
+    ESTADO_INIMIGO_EGGMOBILE_VOANDO,
+    ESTADO_INIMIGO_EGGMOBILE_DANO,
+    ESTADO_INIMIGO_EGGMOBILE_DERROTADO
+} EstadoInimigoEggMobile;
+
 /**
  * @brief Representa o tipo de um inimigo.
  */
@@ -85,6 +92,7 @@ typedef enum TipoInimigo
     TIPO_INIMIGO_SPIKES,
     TIPO_INIMIGO_BALLHOG,
     TIPO_INIMIGO_BATBRAIN,
+    TIPO_INIMIGO_EGGMOBILE,
 } TipoInimigo;
 
 /**
@@ -132,11 +140,11 @@ typedef enum TipoItem
     TIPO_ITEM_BLOCO_INTERROGACAO,
     TIPO_ITEM_ESCUDO,
     TIPO_ITEM_ANEL_GIGANTE,
-    TIPO_ITEM_ESTRELINHA,       /* Invulnerabilidade */
-    TIPO_ITEM_BOTINHA,          /* Velocidade */
-    TIPO_ITEM_ESCUDO_AGUA,      /* Escudo especial água */
-    TIPO_ITEM_ESCUDO_FOGO,      /* Escudo especial fogo */
-    TIPO_ITEM_ESCUDO_RAIO,      /* Escudo especial raio */
+    TIPO_ITEM_ESTRELINHA,  /* Invulnerabilidade */
+    TIPO_ITEM_BOTINHA,     /* Velocidade */
+    TIPO_ITEM_ESCUDO_AGUA, /* Escudo especial água */
+    TIPO_ITEM_ESCUDO_FOGO, /* Escudo especial fogo */
+    TIPO_ITEM_ESCUDO_RAIO, /* Escudo especial raio */
 } TipoItem;
 
 /**
@@ -220,13 +228,13 @@ typedef struct Jogador
     float contadorTempoPiscaPisca;
 
     bool possuiEscudo;
-    TipoEscudo tipoEscudo;  /* Tipo de escudo (água, fogo, raio) */
+    TipoEscudo tipoEscudo; /* Tipo de escudo (água, fogo, raio) */
 
     /* Sistema de Spin */
-    bool emSpin;                /* True quando o jogador está em movimento de spin */
-    float contadorTempoSpin;    /* Contador de tempo do spin */
-    float tempoMaxSpin;         /* Tempo máximo de duração do spin */
-    float velSpinHorizontal;    /* Velocidade horizontal durante o spin */
+    bool emSpin;             /* True quando o jogador está em movimento de spin */
+    float contadorTempoSpin; /* Contador de tempo do spin */
+    float tempoMaxSpin;      /* Tempo máximo de duração do spin */
+    float velSpinHorizontal; /* Velocidade horizontal durante o spin */
 
     bool freando;
 
@@ -244,7 +252,7 @@ typedef struct Jogador
     Animacao animacaoPulandoRapido;
     Animacao animacaoPulandoCorrendo;
     Animacao animacaoEscudo;
-    Animacao animacaoSpin;  /* Animação de spin/rolamento */
+    Animacao animacaoSpin; /* Animação de spin/rolamento */
 
 } Jogador;
 
@@ -361,6 +369,33 @@ typedef struct InimigoBatbrain
 
 } InimigoBatbrain;
 
+typedef struct InimigoEggMobile
+{
+    Rectangle ret;
+    Vector2 vel;
+
+    Color cor;
+
+    int vida;
+
+    bool ativo;
+    bool olhandoParaDireita;
+    bool invulneravel;
+
+    float contadorEstado;
+    float contadorInvulnerabilidade;
+
+    EstadoInimigoEggMobile estado;
+
+    Animacao *animacoes[3];
+    int quantidadeAnimacoes;
+
+    Animacao animacaoVoando;
+    Animacao animacaoDano;
+    Animacao animacaoDerrotado;
+
+} InimigoEggMobile;
+
 /**
  * @brief Representa um inimigo.
  * O inimigo de fato é endereçado via membro "objeto".
@@ -441,10 +476,10 @@ typedef struct BlocoInterrogacao
     float saltY;
     bool saltSubindo;
     int aneisParaSoltar;
-    
+
     /* Sistema de geração de itens */
-    bool itemGerado;        /* Flag para gerar item apenas uma vez */
-    int tipoItemGerado;     /* Tipo de item que foi gerado */
+    bool itemGerado;    /* Flag para gerar item apenas uma vez */
+    int tipoItemGerado; /* Tipo de item que foi gerado */
 
 } BlocoInterrogacao;
 
@@ -562,9 +597,9 @@ typedef struct GameWorld
     float gameOverContador; /* tempo na tela de game over                */
 
     /* ── Tela de Continue ── */
-    float continueContador;  /* tempo na tela de continue                 */
-    float continueDuracao;   /* duração do timeout da tela de continue    */
-    int continueOpcao;       /* 0 = continue, 1 = sair                    */
+    float continueContador; /* tempo na tela de continue                 */
+    float continueDuracao;  /* duração do timeout da tela de continue    */
+    int continueOpcao;      /* 0 = continue, 1 = sair                    */
 
     /* ── Transição (fade) ── */
     float fadeDuracao;  /* duração total de cada fade (seg)          */

@@ -22,6 +22,7 @@
 #include "InimigoSpikes.h"
 #include "InimigoBallHog.h"
 #include "InimigoBatbrain.h"
+#include "InimigoEggmobile.h"
 #include "TelaInicial.h"
 
 #include "raylib/raylib.h"
@@ -827,6 +828,8 @@ static bool todosInimigosMortos(GameWorld *gw)
             ativo = ((InimigoBallHog *)inimigo->objeto)->ativo;
         else if (inimigo->tipo == TIPO_INIMIGO_BATBRAIN)
             ativo = ((InimigoBatbrain *)inimigo->objeto)->ativo;
+        else if (inimigo->tipo == TIPO_INIMIGO_EGGMOBILE)
+            ativo = ((InimigoEggMobile *)inimigo->objeto)->ativo;
 
         if (ativo)
             return false;

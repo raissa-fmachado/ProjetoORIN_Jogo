@@ -17,6 +17,7 @@
 #include "InimigoSpikes.h"
 #include "InimigoBallHog.h"
 #include "InimigoBatbrain.h"
+#include "InimigoEggMobile.h"
 #include "Item.h"
 #include "ItemAnel.h"
 #include "ItemEscudo.h"
@@ -84,7 +85,7 @@ Jogador *criarJogador(float x, float y, float w, float h)
     /* Inicializar sistema de spin */
     novoJogador->emSpin = false;
     novoJogador->contadorTempoSpin = 0.0f;
-    novoJogador->tempoMaxSpin = 0.5f;  /* Spin dura 0.5 segundos */
+    novoJogador->tempoMaxSpin = 0.5f; /* Spin dura 0.5 segundos */
     novoJogador->velSpinHorizontal = 0.0f;
 
     novoJogador->freando = false;
@@ -345,15 +346,15 @@ void entradaJogador(Jogador *j, float delta)
             {
                 j->emSpin = true;
                 j->contadorTempoSpin = 0.0f;
-                j->velSpinHorizontal = 400.0f;  /* Velocidade do spin */
-                PlaySound(rm.somPulo);  /* Som do spin */
+                j->velSpinHorizontal = 400.0f; /* Velocidade do spin */
+                PlaySound(rm.somPulo);         /* Som do spin */
             }
             /* Caso 2: Parado + Pulo - entra em spin e pula */
             else if (puloPressed && j->quantidadePulos == 0)
             {
                 j->emSpin = true;
                 j->contadorTempoSpin = 0.0f;
-                j->velSpinHorizontal = 250.0f;  /* Velocidade mais baixa para spin parado */
+                j->velSpinHorizontal = 250.0f; /* Velocidade mais baixa para spin parado */
                 j->vel.y = j->velPulo;
                 j->quantidadePulos++;
                 PlaySound(rm.somPulo);
@@ -889,7 +890,7 @@ static void resolverColisaoJogadorItensMapa(Jogador *j, Mapa *mapa, GameWorld *g
             {
                 anelG->estado = ESTADO_ITEM_ANEL_GIGANTE_COLETADO;
 
-                j->quantidadeAneis += 10; 
+                j->quantidadeAneis += 10;
                 gw->pontuacao += 1000;
 
                 PlaySound(rm.somAnel);
@@ -1207,6 +1208,88 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
 
                         j->possuiEscudo = false;
 
+                        j->animacaoEscudo.quadroAtual = 0;
+
+                        PlaySound(rm.somHitInimigo);
+                    }
+                    else
+                    {
+                        if (j->quantidadeAneis > 0)
+                        {
+                            j->quantidadeAneis = 0;
+                            PlaySound(rm.somHitComAnel);
+                        }
+                        else
+                        {
+                            j->quantidadeVidas--;
+                            PlaySound(rm.somMorte);
+                        }
+                    }
+
+                    j->invulneravel = true;
+                }
+
+                return;
+            }
+        }
+        else if (inimigo->tipo == TIPO_INIMIGO_EGGMOBILE)
+        {
+            InimigoEggMobile *eggmobile =
+                (InimigoEggMobile *)inimigo->objeto;
+
+            if (!eggmobile->ativo ||
+                eggmobile->estado == ESTADO_INIMIGO_EGGMOBILE_DERROTADO)
+            {
+                el = el->proximo;
+                continue;
+            }
+
+            qaInimigo =
+                getQuadroAnimacaoAtualInimigoEggMobile(eggmobile);
+
+            olhandoParaDireita =
+                &eggmobile->olhandoParaDireita;
+
+            ret = &eggmobile->ret;
+
+            float deslocXIni = *olhandoParaDireita
+                                   ? ret->width -
+                                         qaInimigo->retColisao.x -
+                                         qaInimigo->retColisao.width
+                                   : qaInimigo->retColisao.x;
+
+            float deslocYIni = qaInimigo->retColisao.y;
+
+            Rectangle retColInimigoCalculado = {
+                ret->x + deslocXIni,
+                ret->y + deslocYIni,
+                qaInimigo->retColisao.width,
+                qaInimigo->retColisao.height};
+
+            if (CheckCollisionRecs(
+                    retColCalculado,
+                    retColInimigoCalculado))
+            {
+
+                if (j->estado >= ESTADO_JOGADOR_PULANDO &&
+                    j->estado <= ESTADO_JOGADOR_PULANDO_CORRENDO)
+                {
+
+                    j->vel.y = j->velPulo;
+
+                    eggmobile->estado =
+                        ESTADO_INIMIGO_EGGMOBILE_DERROTADO;
+
+                    gw->pontuacao += 1000;
+
+                    PlaySound(rm.somHitInimigo);
+                }
+                else if (!j->invulneravel)
+                {
+
+                    if (j->possuiEscudo)
+                    {
+                        j->possuiEscudo = false;
                         j->animacaoEscudo.quadroAtual = 0;
 
                         PlaySound(rm.somHitInimigo);

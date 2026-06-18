@@ -17,6 +17,7 @@
 #include "InimigoMotobug.h"
 #include "InimigoSpikes.h"
 #include "InimigoBatbrain.h"
+#include "InimigoEggMobile.h"
 #include "Item.h"
 #include "ItemAnel.h"
 #include "ItemAnelGigante.h"
@@ -263,6 +264,23 @@ Mapa *carregarMapaFase(const char *caminhoArquivo, int fase)
                                 .width = 62,
                                 .height = 54},
                             ORANGE);
+
+                        el->objeto = inimigo;
+                        el->tipo = TIPO_ELEMENTO_MAPA_INIMIGO;
+
+                        break;
+
+                    case '4':
+
+                        inimigo = criarInimigo(TIPO_INIMIGO_EGGMOBILE);
+
+                        inimigo->objeto = criarInimigoEggMobile(
+                            (Rectangle){
+                                .x = novoMapa->dimensaoPadraoElementos * colunaAtual,
+                                .y = novoMapa->dimensaoPadraoElementos * linhaAtual - 50,
+                                .width = 128,
+                                .height = 96},
+                            RED);
 
                         el->objeto = inimigo;
                         el->tipo = TIPO_ELEMENTO_MAPA_INIMIGO;

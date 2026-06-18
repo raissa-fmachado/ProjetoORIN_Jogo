@@ -39,6 +39,16 @@ void loadResourcesResourceManager(void)
         },
         1);
 
+    rm.texturaChefao = carregarTexturaAlterandoCores(
+        "resources/imagens/sprites/chefao.png",
+        (Color[]){
+            {13, 72, 7, 255},
+        },
+        (Color[]){
+            BLANK,
+        },
+        1);
+
     rm.texturaItens = carregarTexturaAlterandoCores(
         "resources/imagens/itens/itens.png",
         (Color[]){
@@ -107,6 +117,7 @@ void loadResourcesResourceManager(void)
 
     SetTextureFilter(rm.texturaJogador, TEXTURE_FILTER_POINT);
     SetTextureFilter(rm.texturaBadniks, TEXTURE_FILTER_POINT);
+    SetTextureFilter(rm.texturaChefao, TEXTURE_FILTER_POINT);
     SetTextureFilter(rm.texturaItens, TEXTURE_FILTER_POINT);
     SetTextureFilter(rm.texturaTerreno, TEXTURE_FILTER_POINT);
     SetTextureFilter(rm.texturaTerreno2, TEXTURE_FILTER_POINT);
@@ -132,6 +143,7 @@ void unloadResourcesResourceManager(void)
 {
     UnloadTexture(rm.texturaJogador);
     UnloadTexture(rm.texturaBadniks);
+    UnloadTexture(rm.texturaChefao);
     UnloadTexture(rm.texturaItens);
     UnloadTexture(rm.texturaTerreno);
     UnloadTexture(rm.texturaTerreno2);

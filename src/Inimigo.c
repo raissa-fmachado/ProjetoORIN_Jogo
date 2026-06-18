@@ -15,6 +15,7 @@
 #include "InimigoMotobug.h"
 #include "InimigoSpikes.h"
 #include "InimigoBatbrain.h"
+#include "InimigoEggMobile.h"
 #include "Tipos.h"
 
 /**
@@ -51,6 +52,10 @@ void destruirInimigo(Inimigo *inimigo)
         case TIPO_INIMIGO_BATBRAIN:
             destruirInimigoBatbrain((InimigoBatbrain *)inimigo->objeto);
             break;
+        case TIPO_INIMIGO_EGGMOBILE:
+            destruirInimigoEggMobile(
+                (InimigoEggMobile *)inimigo->objeto);
+            break;
         default:
             break;
         }
@@ -81,6 +86,12 @@ void atualizarInimigo(Inimigo *inimigo, GameWorld *gw, float delta)
             gw,
             delta);
         break;
+    case TIPO_INIMIGO_EGGMOBILE:
+        atualizarInimigoEggMobile(
+            (InimigoEggMobile *)inimigo->objeto,
+            gw,
+            delta);
+        break;
     default:
         return;
     }
@@ -106,6 +117,10 @@ void desenharInimigo(Inimigo *inimigo)
     case TIPO_INIMIGO_BATBRAIN:
         desenharInimigoBatbrain(
             (InimigoBatbrain *)inimigo->objeto);
+        break;
+    case TIPO_INIMIGO_EGGMOBILE:
+        desenharInimigoEggMobile(
+            (InimigoEggMobile *)inimigo->objeto);
         break;
     default:
         return;
