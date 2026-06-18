@@ -68,9 +68,6 @@ static void calcularBonusVitoria(GameWorld *gw);
 static bool todosInimigosMortos(GameWorld *gw);
 static bool jogadorSemVidas(GameWorld *gw);
 
-static void updateTelaInicial(GameWorld *gw, float delta);
-static void drawTelaInicial(GameWorld *gw);
-
 /* ═══════════════════════════════════════════════════════════════════════════ */
 /*  API pública                                                                */
 /* ═══════════════════════════════════════════════════════════════════════════ */
@@ -984,7 +981,7 @@ static void carregarFase(GameWorld *gw, int fase)
     gw->mapa = carregarMapaFase(caminhoMapa, fase);
 
     gw->jogador = criarJogador(
-        GetScreenWidth() / 2 + 144,
+        GetScreenWidth() / 2 - 100,
         calcularAlturaMapa(gw->mapa) - 196,
         96, 96);
 
