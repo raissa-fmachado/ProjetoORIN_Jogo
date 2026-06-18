@@ -1,17 +1,17 @@
 I                                                                                                     L
-C                   a                                          d                                      E
-C                  aM                                        aLBIa                                    E
-C                 aM                                       aaLGAFIaa                                  E
-C                aM          a               b        a   LBBGAAAFBBI                                 E
-C               aM          aaa                      aM   KDDDDDDDDDJ                                 E
-C   c     a    aM          aLBIa                    aM                                                E
-C  MMM    Ma   M    a   !@aLGAFIaa     M     2     MM                                                 E
-C          Ma      aM   LBBGAAAFBBI    LBBBBBBBBBBBI                                           4      E
-C           Ma    aM    KDDDDDDDDDJ    KDDDDDDDDDDDJ                                                  E
-C            M   aM                                                                                   E
-C               aM                                                                                    E
-C               M                a           a               b                           LBI      LBI E
-C                               aaa         aMa                                                       E
-C%@ !!           !  @M $# % 2  aaaaa  2     MMM    aaa   0      2   aaa                               E
+C                                                               d                                     E
+C                                                            aLBBIa                                   E
+C                                                          aaLGAAFIaa                                 E
+C                                                     a   LBBGAAAAFBBI                                E
+C                                            b       aM   KDDDDDDDDDDJ                                E
+C                            c                      aM                                                E
+C                           aaa        M     2     MM                                                 E
+C                          aLBIa       LBBBBBBBBBBBI                                           4      E
+C                       $ aLGAFIa#     KDDDDDDDDDDDJ                                                  E
+C                       LBBGAAAFBBI                                                                   E
+C               aaaa    KDDDDDDDDDJ               aaaaa     b      aaaaa                              E
+C                                            a                               a           LBI      LBI E
+C                    M     aaaaaaa          aMa                             aM                        E
+C%@ !!   @  %@ !! @ MM  !  2    !!   @2  %  MMM   !$  #  0!!  @ 0   @  !!   MM                        E
 FBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBG
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
