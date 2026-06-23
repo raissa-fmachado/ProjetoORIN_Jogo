@@ -284,7 +284,7 @@ Mapa *carregarMapaFase(const char *caminhoArquivo, int fase)
                                 .x = novoMapa->dimensaoPadraoElementos * colunaAtual,
                                 .y = novoMapa->dimensaoPadraoElementos * linhaAtual - 50,
                                 .width = 128,
-                                .height = 96},
+                                .height = 136},
                             GREEN);
 
                         el->objeto = inimigo;

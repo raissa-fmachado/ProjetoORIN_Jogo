@@ -20,8 +20,13 @@ static void desenharQuadroAnimacaoInimigoEggMobile(
     QuadroAnimacao *qa,
     Color tonalidade);
 
+Vector2 obterGanchoEggMobile(InimigoEggMobile *inimigo);
+
 static Animacao *getAnimacaoAtualInimigoEggMobile(
     InimigoEggMobile *inimigo);
+
+const float GANCHO_X = 58;
+const float GANCHO_Y = 128;
 
 static const bool MOSTRAR_RETANGULOS = false;
 
@@ -36,6 +41,10 @@ InimigoEggMobile *criarInimigoEggMobile(
     InimigoEggMobile *novoInimigo =
         (InimigoEggMobile *)malloc(
             sizeof(InimigoEggMobile));
+
+    novoInimigo->raioBola = 170;
+    novoInimigo->anguloBola = PI / 2;
+    novoInimigo->velocidadeAngular = 3.0f;
 
     novoInimigo->ret = ret;
     novoInimigo->vel = (Vector2){120, 0};
@@ -75,7 +84,7 @@ InimigoEggMobile *criarInimigoEggMobile(
         1);
 
     novoInimigo->animacaoVoando.quadros[0].fonte =
-        (Rectangle){1, 83, 64, 56};
+        (Rectangle){1, 83, 64, 68};
 
     novoInimigo->animacaoVoando.quadros[0].duracao =
         1000;
@@ -99,7 +108,7 @@ InimigoEggMobile *criarInimigoEggMobile(
         1);
 
     novoInimigo->animacaoDano.quadros[0].fonte =
-        (Rectangle){66, 83, 64, 56};
+        (Rectangle){66, 83, 64, 68};
 
     novoInimigo->animacaoDano.quadros[0].duracao =
         100;
@@ -123,7 +132,7 @@ InimigoEggMobile *criarInimigoEggMobile(
         1);
 
     novoInimigo->animacaoDerrotado.quadros[0].fonte =
-        (Rectangle){0, 0, 64, 56};
+        (Rectangle){0, 0, 64, 68};
 
     novoInimigo->animacaoDerrotado.quadros[0].duracao =
         1000;
@@ -202,6 +211,17 @@ void atualizarInimigoEggMobile(
         inimigo->ret.x +=
             inimigo->vel.x * delta;
 
+        inimigo->contadorPendulo += delta;
+
+        float amplitude = PI / 2.0f;
+
+        float angulo = PI / 2 +
+                       sinf(inimigo->contadorPendulo *
+                            inimigo->velocidadeAngular) *
+                           amplitude;
+
+        inimigo->anguloBola = angulo;
+
         if (inimigo->arenaAtivada)
         {
             if (inimigo->ret.x <= inimigo->limiteEsquerdoArena)
@@ -236,6 +256,14 @@ void atualizarInimigoEggMobile(
                 inimigo->olhandoParaDireita = false;
             }
         }
+
+        Vector2 centro = obterGanchoEggMobile(inimigo);
+
+        inimigo->posBola.x =
+            centro.x + cosf(angulo) * inimigo->raioBola;
+
+        inimigo->posBola.y =
+            centro.y + sinf(angulo) * inimigo->raioBola;
 
         inimigo->retParteInferior = (Rectangle){
             inimigo->ret.x + 10,
@@ -295,6 +323,23 @@ void atualizarInimigoEggMobile(
     }
 }
 
+Vector2 obterGanchoEggMobile(InimigoEggMobile *inimigo)
+{
+    Vector2 p;
+
+    float ganchoX = GANCHO_X;
+
+    if (inimigo->olhandoParaDireita)
+    {
+        ganchoX = inimigo->ret.width - GANCHO_X;
+    }
+
+    p.x = inimigo->ret.x + ganchoX;
+    p.y = inimigo->ret.y + GANCHO_Y;
+
+    return p;
+}
+
 /**
  * @brief Desenha um inimigo (Egg Mobile).
  */
@@ -306,6 +351,66 @@ void desenharInimigoEggMobile(
 
     Color cor = WHITE;
 
+    desenharQuadroAnimacaoInimigoEggMobile(
+        inimigo,
+        getQuadroAnimacaoAtualInimigoEggMobile(
+            inimigo),
+        cor);
+
+    Vector2 centro = obterGanchoEggMobile(inimigo);
+
+#define NUM_ELOS 4
+
+    Vector2 diferenca = {
+        inimigo->posBola.x - centro.x,
+        inimigo->posBola.y - centro.y};
+
+    float comprimento =
+        sqrtf(diferenca.x * diferenca.x +
+              diferenca.y * diferenca.y);
+
+    Vector2 direcao = {
+        diferenca.x / comprimento,
+        diferenca.y / comprimento};
+
+    float raioVisualBola = 48.0f;
+
+    Vector2 pontoFimCorrente = {
+        inimigo->posBola.x - direcao.x * raioVisualBola,
+        inimigo->posBola.y - direcao.y * raioVisualBola};
+
+    float anguloGraus =
+        atan2f(diferenca.y, diferenca.x) * RAD2DEG;
+
+    for (int i = 1; i <= NUM_ELOS; i++)
+    {
+        float t = (float)i / (NUM_ELOS + 0.5);
+
+        Vector2 elo = {
+            centro.x + (pontoFimCorrente.x - centro.x) * t,
+            centro.y + (pontoFimCorrente.y - centro.y) * t};
+
+        DrawTexturePro(
+            rm.texturaChefao,
+            (Rectangle){1, 156, 16, 16},
+            (Rectangle){elo.x, elo.y, 32, 32},
+            (Vector2){16, 16},
+            anguloGraus + 90,
+            WHITE);
+    }
+
+    DrawTexturePro(
+        rm.texturaChefao,
+        (Rectangle){1, 173, 48, 48},
+        (Rectangle){
+            inimigo->posBola.x,
+            inimigo->posBola.y,
+            96,
+            96},
+        (Vector2){48, 48},
+        0,
+        WHITE);
+
     if (inimigo->invulneravel)
     {
         if (((int)(GetTime() * 10)) % 2 == 0)
@@ -313,12 +418,6 @@ void desenharInimigoEggMobile(
             cor = Fade(WHITE, 0.3f);
         }
     }
-
-    desenharQuadroAnimacaoInimigoEggMobile(
-        inimigo,
-        getQuadroAnimacaoAtualInimigoEggMobile(
-            inimigo),
-        cor);
 
     if (MOSTRAR_RETANGULOS)
     {

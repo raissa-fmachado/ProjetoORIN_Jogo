@@ -9,7 +9,8 @@
 
 #include "raylib/raylib.h"
 
-typedef struct ResourceManager {
+typedef struct ResourceManager
+{
 
     Texture2D texturaJogador;
     Texture2D texturaBadniks;
@@ -22,11 +23,11 @@ typedef struct ResourceManager {
     Texture2D texturaTelaInicial;
     Texture2D texturaAnimacaoMenu;
 
-    Texture2D texturaTerreno;    /* tiles da fase 1 (Green Hill)  */
-    Texture2D texturaTerreno2;   /* tiles da fase 2 (Marble Zone) */
-    Texture2D texturaFundo;      /* fundo da fase 1               */
-    Texture2D texturaFundo2;     /* fundo da fase 2               */
-    Texture2D texturaParedeArena;          
+    Texture2D texturaTerreno;  /* tiles da fase 1 (Green Hill)  */
+    Texture2D texturaTerreno2; /* tiles da fase 2 (Marble Zone) */
+    Texture2D texturaFundo;    /* fundo da fase 1               */
+    Texture2D texturaFundo2;   /* fundo da fase 2               */
+    Texture2D texturaParedeArena;
 
     Sound somAnel;
     Sound somFrenagem;
@@ -35,6 +36,7 @@ typedef struct ResourceManager {
     Sound somMorte;
     Sound somPulo;
 
+    Music musicaAbertura;
     Music musicaFase01;
     Music musicaFase02;
 
@@ -48,9 +50,9 @@ extern ResourceManager rm;
 /**
  * @brief Load global game resources.
  */
-void loadResourcesResourceManager( void );
+void loadResourcesResourceManager(void);
 
 /**
  * @brief Unload global game resources.
  */
-void unloadResourcesResourceManager( void );
+void unloadResourcesResourceManager(void);

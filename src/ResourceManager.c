@@ -151,6 +151,7 @@ void loadResourcesResourceManager(void)
 
     rm.musicaFase01 = LoadMusicStream("resources/sons/musicas/green-hill-zone.mp3");
     rm.musicaFase02 = LoadMusicStream("resources/sons/musicas/marble-zone.mp3");
+    rm.musicaAbertura = LoadMusicStream("resources/sons/musicas/intro.mp3");
 }
 
 void unloadResourcesResourceManager(void)
@@ -179,4 +180,5 @@ void unloadResourcesResourceManager(void)
 
     UnloadMusicStream(rm.musicaFase01);
     UnloadMusicStream(rm.musicaFase02);
+    UnloadMusicStream(rm.musicaAbertura);
 }

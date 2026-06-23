@@ -403,6 +403,15 @@ typedef struct InimigoEggMobile
 
     bool batalhaIniciada;
 
+    Vector2 posBola;
+    float raioBola;          
+    float anguloBola;       
+    float velocidadeAngular; 
+
+    Rectangle retBola;
+
+    float contadorPendulo;
+
 } InimigoEggMobile;
 
 /**

@@ -112,6 +112,13 @@ void updateGameWorld(GameWorld *gw, float delta)
     /* ── despacha para a tela certa ──────────────────────────────────── */
     if (gw->estadoTela == TELA_INICIAL)
     {
+        Music *musicaAtual = &rm.musicaAbertura;
+
+        if (!IsMusicStreamPlaying(*musicaAtual))
+            PlayMusicStream(*musicaAtual);
+        else
+            UpdateMusicStream(*musicaAtual);
+
         atualizarTelaInicial(gw->telaInicial, delta);
 
         /* Qualquer hora que apertar ENTER, entra */
