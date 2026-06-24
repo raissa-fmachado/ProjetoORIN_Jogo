@@ -42,9 +42,9 @@ InimigoEggMobile *criarInimigoEggMobile(
         (InimigoEggMobile *)malloc(
             sizeof(InimigoEggMobile));
 
-    novoInimigo->raioBola = 170;
+    novoInimigo->raioBola = 195;
     novoInimigo->anguloBola = PI / 2;
-    novoInimigo->velocidadeAngular = 3.0f;
+    novoInimigo->velocidadeAngular = 2.0f;
 
     novoInimigo->ret = ret;
     novoInimigo->vel = (Vector2){120, 0};
@@ -359,7 +359,7 @@ void desenharInimigoEggMobile(
 
     Vector2 centro = obterGanchoEggMobile(inimigo);
 
-#define NUM_ELOS 4
+#define NUM_ELOS 6
 
     Vector2 diferenca = {
         inimigo->posBola.x - centro.x,

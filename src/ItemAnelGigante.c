@@ -63,7 +63,7 @@ ItemAnel *criarItemAnelGigante(Rectangle ret, Color cor)
         70,
         1, 247,
         64, 64,
-        2,
+        1,
         false,
         (Rectangle){0});
 
