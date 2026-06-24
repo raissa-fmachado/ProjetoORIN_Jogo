@@ -44,10 +44,15 @@ InimigoEggMobile *criarInimigoEggMobile(
 
     novoInimigo->raioBola = 195;
     novoInimigo->anguloBola = PI / 2;
-    novoInimigo->velocidadeAngular = 1.3f;
+    novoInimigo->velocidadeAngular = -1.3f;
 
     novoInimigo->ret = ret;
-    novoInimigo->vel = (Vector2){100, 0};
+
+    novoInimigo->olhandoParaDireita = false;
+
+    novoInimigo->vel = (Vector2){
+        novoInimigo->olhandoParaDireita ? 100 : -100,
+        0};
 
     novoInimigo->cor = cor;
 
@@ -56,7 +61,6 @@ InimigoEggMobile *criarInimigoEggMobile(
     novoInimigo->batalhaIniciada = false;
 
     novoInimigo->ativo = true;
-    novoInimigo->olhandoParaDireita = true;
     novoInimigo->invulneravel = false;
     novoInimigo->arenaAtivada = false;
     novoInimigo->limiteEsquerdoArena = 0;
@@ -191,6 +195,19 @@ void atualizarInimigoEggMobile(
     {
         inimigo->ret.y +=
             sinf(GetTime() * 2.0f) * 0.2f;
+
+        Vector2 centro =
+            obterGanchoEggMobile(inimigo);
+
+        inimigo->posBola.x = centro.x;
+        inimigo->posBola.y =
+            centro.y + inimigo->raioBola;
+
+        inimigo->retBola = (Rectangle){
+            inimigo->posBola.x - 48,
+            inimigo->posBola.y - 48,
+            96,
+            96};
 
         return;
     }

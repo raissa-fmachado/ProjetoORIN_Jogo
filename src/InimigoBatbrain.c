@@ -94,7 +94,7 @@ InimigoBatbrain *criarInimigoBatbrain(Rectangle ret, Color cor)
         (Rectangle){18, 113, 32, 32};
 
     novoInimigo->animacaoAndando.quadros[1].fonte =
-        (Rectangle){51, 113, 32, 24};
+        (Rectangle){51, 113, 32, 24}; 
 
     novoInimigo->animacaoAndando.quadros[2].fonte =
         (Rectangle){84, 113, 24, 32};

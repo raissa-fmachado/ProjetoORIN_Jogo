@@ -255,7 +255,7 @@ void updateGameWorld(GameWorld *gw, float delta)
 
     /* ATIVA A ARENA DO CHEFE */
     int fimMapa = calcularLarguraMapa(gw->mapa);
-    int maxX = fimMapa - GetScreenWidth() / 2;
+    int maxX = fimMapa - (GetScreenWidth() / 2) - 200;
 
     if (!gw->arenaBossAtivada &&
         gw->faseAtual == 1 &&

@@ -6,7 +6,7 @@ C                                                     a   LBBGAAAAFBBI          
 C                                            b       aM   KDDDDDDDDDDJ                                E
 C                            c                      aM                                                E
 C                           aaa        M     2     MM                                                 E
-C                          aLBIa       LBBBBBBBBBBBI                                           4      E
+C                          aLBIa       LBBBBBBBBBBBI                                         4        E
 C                       $ aLGAFIa#     KDDDDDDDDDDDJ                                                  E
 C                       LBBGAAAFBBI                                                                   E
 C               aaaa    KDDDDDDDDDJ               aaaaa     b      aaaaa                              E
