@@ -44,10 +44,10 @@ InimigoEggMobile *criarInimigoEggMobile(
 
     novoInimigo->raioBola = 195;
     novoInimigo->anguloBola = PI / 2;
-    novoInimigo->velocidadeAngular = 2.0f;
+    novoInimigo->velocidadeAngular = 1.3f;
 
     novoInimigo->ret = ret;
-    novoInimigo->vel = (Vector2){120, 0};
+    novoInimigo->vel = (Vector2){100, 0};
 
     novoInimigo->cor = cor;
 
@@ -227,7 +227,7 @@ void atualizarInimigoEggMobile(
             if (inimigo->ret.x <= inimigo->limiteEsquerdoArena)
             {
                 inimigo->ret.x = inimigo->limiteEsquerdoArena;
-                inimigo->vel.x = 120;
+                inimigo->vel.x = 100;
                 inimigo->olhandoParaDireita = true;
             }
 
@@ -238,7 +238,7 @@ void atualizarInimigoEggMobile(
                     inimigo->limiteDireitoArena -
                     inimigo->ret.width;
 
-                inimigo->vel.x = -120;
+                inimigo->vel.x = -100;
                 inimigo->olhandoParaDireita = false;
             }
         }
@@ -246,13 +246,13 @@ void atualizarInimigoEggMobile(
         {
             if (inimigo->ret.x < 100)
             {
-                inimigo->vel.x = 120;
+                inimigo->vel.x = 100;
                 inimigo->olhandoParaDireita = true;
             }
 
             if (inimigo->ret.x > 900)
             {
-                inimigo->vel.x = -120;
+                inimigo->vel.x = -100;
                 inimigo->olhandoParaDireita = false;
             }
         }
@@ -264,6 +264,12 @@ void atualizarInimigoEggMobile(
 
         inimigo->posBola.y =
             centro.y + sinf(angulo) * inimigo->raioBola;
+
+        inimigo->retBola = (Rectangle){
+            inimigo->posBola.x - 48,
+            inimigo->posBola.y - 48,
+            96,
+            96};
 
         inimigo->retParteInferior = (Rectangle){
             inimigo->ret.x + 10,
@@ -424,6 +430,12 @@ void desenharInimigoEggMobile(
         DrawRectangleRec(
             inimigo->ret,
             Fade(inimigo->cor, 0.5f));
+
+        DrawCircleLines(
+            inimigo->posBola.x,
+            inimigo->posBola.y,
+            40,
+            RED);
 
         DrawRectangleLines(
             inimigo->ret.x,

@@ -270,7 +270,7 @@ void updateGameWorld(GameWorld *gw, float delta)
 
         gw->paredeArena = criarObstaculo(
             (Rectangle){
-                fimMapa - GetScreenWidth(),
+                fimMapa - GetScreenWidth() - 48,
                 0,
                 48,
                 2000},
@@ -301,7 +301,7 @@ void updateGameWorld(GameWorld *gw, float delta)
                 eggmobile->arenaAtivada = true;
                 eggmobile->batalhaIniciada = true;
 
-                float padding = 64.0f;
+                float padding = 180.0f;
 
                 eggmobile->limiteEsquerdoArena =
                     fimMapa - GetScreenWidth() + padding;

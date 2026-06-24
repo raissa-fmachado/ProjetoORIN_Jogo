@@ -1275,6 +1275,51 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
                 qaInimigo->retColisao.width,
                 qaInimigo->retColisao.height};
 
+            if (CheckCollisionCircleRec(
+                    eggmobile->posBola,
+                    40.0f,
+                    retColCalculado))
+            {
+                if (!j->invulneravel)
+                {
+                    if (j->possuiEscudo)
+                    {
+                        j->possuiEscudo = false;
+                        j->animacaoEscudo.quadroAtual = 0;
+
+                        PlaySound(rm.somHitInimigo);
+                    }
+                    else
+                    {
+                        if (j->quantidadeAneis > 0)
+                        {
+                            j->quantidadeAneis = 0;
+                            PlaySound(rm.somHitComAnel);
+                        }
+                        else
+                        {
+                            j->quantidadeVidas--;
+                            PlaySound(rm.somMorte);
+                        }
+                    }
+
+                    j->invulneravel = true;
+
+                    if (j->ret.x < eggmobile->posBola.x)
+                    {
+                        j->vel.x = -250;
+                    }
+                    else
+                    {
+                        j->vel.x = 250;
+                    }
+
+                    j->vel.y = -150;
+                }
+
+                return;
+            }
+
             if (CheckCollisionRecs(
                     retColCalculado,
                     retColInimigoCalculado))
