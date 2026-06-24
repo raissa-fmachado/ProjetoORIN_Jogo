@@ -25,6 +25,7 @@ typedef enum EstadoJogador
     ESTADO_JOGADOR_PULANDO_CORRENDO,
     ESTADO_JOGADOR_SPIN,         /* Rolamento (movimento de spin) */
     ESTADO_JOGADOR_SPIN_PULANDO, /* Pulo duplo enquanto está em spin */
+    ESTADO_JOGADOR_AGACHADO,     /* Agachado, carregando o spin dash parado */
 } EstadoJogador;
 
 /**
@@ -195,6 +196,19 @@ typedef struct TelaInicial
 } TelaInicial;
 
 /**
+ * @brief Representa uma partícula de poeira do rastro do spin.
+ */
+typedef struct ParticulaPoeira
+{
+    bool ativa;
+    Vector2 pos;
+    Vector2 vel;
+    float tempoVida;
+    float tempoVidaMax;
+    float tamanho;
+} ParticulaPoeira;
+
+/**
  * @brief Representa o jogador controlado pelo usuário.
  */
 typedef struct Jogador
@@ -231,11 +245,23 @@ typedef struct Jogador
     bool possuiEscudo;
     TipoEscudo tipoEscudo; /* Tipo de escudo (água, fogo, raio) */
 
-    /* Sistema de Spin */
-    bool emSpin;             /* True quando o jogador está em movimento de spin */
+    /* Sistema de Spin (Roll - rolamento ao andar) */
+    bool emSpin;             /* True quando o jogador está rolando (em bolinha) */
     float contadorTempoSpin; /* Contador de tempo do spin */
-    float tempoMaxSpin;      /* Tempo máximo de duração do spin */
+    float tempoMaxSpin;      /* Tempo máximo de duração do spin (rolamento livre) */
     float velSpinHorizontal; /* Velocidade horizontal durante o spin */
+
+    /* Sistema de Spin Dash (carregar parado e disparar) */
+    bool carregandoSpinDash;
+    float cargaSpinDash;
+    float cargaSpinDashMax;
+    float velSpinDashMin;
+    float velSpinDashMax;
+
+    /* Visual do spin: partículas de poeira */
+    float anguloSpin;
+    ParticulaPoeira particulasPoeira[16];
+    float contadorEmissaoPoeira;
 
     bool freando;
 
@@ -253,7 +279,8 @@ typedef struct Jogador
     Animacao animacaoPulandoRapido;
     Animacao animacaoPulandoCorrendo;
     Animacao animacaoEscudo;
-    Animacao animacaoSpin; /* Animação de spin/rolamento */
+    Animacao animacaoSpin;     /* Animação de spin/rolamento (bolinha girando) */
+    Animacao animacaoAgachado; /* Animação de agachado/carregando o spin dash */
 
 } Jogador;
 
@@ -518,6 +545,9 @@ typedef enum TipoDecoracao
     TIPO_DECORACAO_ARBUSTO,
     TIPO_DECORACAO_TOTEM,
     TIPO_DECORACAO_GIRASSOL,
+    TIPO_DECORACAO_COLUNA,   /* Marble Zone: coluna de pedra */
+    TIPO_DECORACAO_ESTATUA,  /* Marble Zone: estátua/ídolo de pedra */
+    TIPO_DECORACAO_TOCHA,    /* Marble Zone: tocha com chamas (animada) */
 } TipoDecoracao;
 
 typedef struct Decoracao

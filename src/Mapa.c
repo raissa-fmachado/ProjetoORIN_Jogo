@@ -410,6 +410,72 @@ Mapa *carregarMapaFase(const char *caminhoArquivo, int fase)
 
                     inserirDecoracao(novoMapa, el);
                 }
+                else if (c == '^')
+                {
+                    Decoracao *decoracao = criarDecoracao(TIPO_DECORACAO_COLUNA);
+
+                    float escala = 2.0f;
+
+                    QuadroAnimacao *qa = &decoracao->animacaoPrincipal.quadros[0];
+
+                    float largura = qa->fonte.width * escala;
+                    float altura = qa->fonte.height * escala;
+
+                    decoracao->ret = (Rectangle){
+                        .x = novoMapa->dimensaoPadraoElementos * colunaAtual,
+                        .y = novoMapa->dimensaoPadraoElementos * linhaAtual - (altura - novoMapa->dimensaoPadraoElementos),
+                        .width = largura,
+                        .height = altura};
+
+                    el->objeto = decoracao;
+                    el->tipo = TIPO_ELEMENTO_MAPA_DECORACAO;
+
+                    inserirDecoracao(novoMapa, el);
+                }
+                else if (c == '&')
+                {
+                    Decoracao *decoracao = criarDecoracao(TIPO_DECORACAO_ESTATUA);
+
+                    float escala = 2.0f;
+
+                    QuadroAnimacao *qa = &decoracao->animacaoPrincipal.quadros[0];
+
+                    float largura = qa->fonte.width * escala;
+                    float altura = qa->fonte.height * escala;
+
+                    decoracao->ret = (Rectangle){
+                        .x = novoMapa->dimensaoPadraoElementos * colunaAtual,
+                        .y = novoMapa->dimensaoPadraoElementos * linhaAtual - (altura - novoMapa->dimensaoPadraoElementos),
+                        .width = largura,
+                        .height = altura};
+
+                    el->objeto = decoracao;
+                    el->tipo = TIPO_ELEMENTO_MAPA_DECORACAO;
+
+                    inserirDecoracao(novoMapa, el);
+                }
+                else if (c == '*')
+                {
+                    Decoracao *decoracao = criarDecoracao(TIPO_DECORACAO_TOCHA);
+
+                    float escala = 2.0f;
+
+                    QuadroAnimacao *qa = &decoracao->animacaoPrincipal.quadros[0];
+
+                    float largura = qa->fonte.width * escala;
+                    float altura = qa->fonte.height * escala;
+
+                    decoracao->ret = (Rectangle){
+                        .x = novoMapa->dimensaoPadraoElementos * colunaAtual,
+                        .y = novoMapa->dimensaoPadraoElementos * linhaAtual - (altura - novoMapa->dimensaoPadraoElementos),
+                        .width = largura,
+                        .height = altura};
+
+                    el->objeto = decoracao;
+                    el->tipo = TIPO_ELEMENTO_MAPA_DECORACAO;
+
+                    inserirDecoracao(novoMapa, el);
+                }
                 else
                 {
                     TraceLog(LOG_ERROR, "Entidade inválida no mapa.");

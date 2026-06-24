@@ -138,6 +138,75 @@ Decoracao *criarDecoracao(TipoDecoracao tipo)
 
         break;
 
+
+    case TIPO_DECORACAO_COLUNA:
+
+        decoracao->textura = &rm.texturaDecoracoes;
+
+        decoracao->animacaoPrincipal.quantidadeQuadros = 1;
+        criarQuadrosAnimacao(
+            &decoracao->animacaoPrincipal,
+            1
+        );
+
+        decoracao->animacaoPrincipal.quadros[0].fonte =
+            (Rectangle){1, 353, 40, 80};
+
+        decoracao->animacoes[0] = &decoracao->animacaoPrincipal;
+        decoracao->quantidadeAnimacoes = 1;
+
+        break;
+
+    case TIPO_DECORACAO_ESTATUA:
+
+        decoracao->textura = &rm.texturaDecoracoes;
+
+        decoracao->animacaoPrincipal.quantidadeQuadros = 1;
+        criarQuadrosAnimacao(
+            &decoracao->animacaoPrincipal,
+            1
+        );
+
+        decoracao->animacaoPrincipal.quadros[0].fonte =
+            (Rectangle){1, 435, 36, 64};
+
+        decoracao->animacoes[0] = &decoracao->animacaoPrincipal;
+        decoracao->quantidadeAnimacoes = 1;
+
+        break;
+
+    case TIPO_DECORACAO_TOCHA:
+
+        decoracao->textura = &rm.texturaDecoracoes;
+
+        decoracao->animacaoPrincipal.quantidadeQuadros = 2;
+        decoracao->animacaoPrincipal.quadroAtual = 0;
+        decoracao->animacaoPrincipal.contadorTempoQuadro = 0;
+        decoracao->animacaoPrincipal.pararNoUltimoQuadro = false;
+        decoracao->animacaoPrincipal.executarUmaVez = false;
+        decoracao->animacaoPrincipal.finalizada = false;
+
+        criarQuadrosAnimacao(
+            &decoracao->animacaoPrincipal,
+            2
+        );
+
+        inicializarQuadrosAnimacao(
+            decoracao->animacaoPrincipal.quadros,
+            2,
+            120,
+            1, 501,
+            24, 48,
+            1,
+            false,
+            (Rectangle){0}
+        );
+
+        decoracao->animacoes[0] = &decoracao->animacaoPrincipal;
+        decoracao->quantidadeAnimacoes = 1;
+
+        break;
+
     default:
         decoracao->textura = NULL;
         break;
