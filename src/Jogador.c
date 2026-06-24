@@ -887,6 +887,12 @@ static void resolverColisaoJogadorItensMapa(Jogador *j, Mapa *mapa, GameWorld *g
         {
             ItemAnelGigante *anelG = (ItemAnelGigante *)item->objeto;
 
+            if (anelG->estado == ESTADO_ITEM_ANEL_GIGANTE_COLETADO &&
+                !anelG->ativo)
+            {
+                gw->itemObjetivoColetado = true;
+            }
+
             if (!anelG->ativo || anelG->estado == ESTADO_ITEM_ANEL_GIGANTE_COLETADO)
             {
                 el = el->proximo;
@@ -1365,6 +1371,11 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
                         {
                             eggmobile->estado =
                                 ESTADO_INIMIGO_EGGMOBILE_DERROTADO;
+
+                            gw->arenaBossAtivada = false;
+                            gw->bossDerrotado = true;
+
+                            StopMusicStream(rm.musicaFase02);
 
                             gw->pontuacao += 5000;
                         }

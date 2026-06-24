@@ -689,4 +689,7 @@ typedef struct GameWorld
     float limiteEsquerdoArena;
     float limiteDireitoArena;
 
+    bool bossDerrotado;
+    bool itemObjetivoColetado;
+
 } GameWorld;

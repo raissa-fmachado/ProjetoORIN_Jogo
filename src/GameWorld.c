@@ -65,7 +65,7 @@ static void drawTelaContinue(GameWorld *gw);
 static void drawTelaGameOver(GameWorld *gw);
 static void drawFadeOverlay(float alpha);
 static void calcularBonusVitoria(GameWorld *gw);
-static bool todosInimigosMortos(GameWorld *gw);
+/*static bool todosInimigosMortos(GameWorld *gw);*/
 static bool jogadorSemVidas(GameWorld *gw);
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
@@ -81,6 +81,8 @@ GameWorld *createGameWorld(void)
     gw->estadoTela = TELA_INICIAL;
     gw->arenaBossAtivada = false;
     gw->paredeArena = NULL;
+    gw->bossDerrotado = false;
+    gw->itemObjetivoColetado = false;
 
     inicializar(gw);
     return gw;
@@ -109,10 +111,12 @@ void updateGameWorld(GameWorld *gw, float delta)
         return;
     }
 
+    Music *musicaAtual = NULL;
+
     /* ── despacha para a tela certa ──────────────────────────────────── */
     if (gw->estadoTela == TELA_INICIAL)
     {
-        Music *musicaAtual = &rm.musicaAbertura;
+        musicaAtual = &rm.musicaAbertura;
 
         if (!IsMusicStreamPlaying(*musicaAtual))
             PlayMusicStream(*musicaAtual);
@@ -162,12 +166,19 @@ void updateGameWorld(GameWorld *gw, float delta)
     /* ═══ TELA_JOGANDO ═════════════════════════════════════════════════ */
 
     /* ── música ────────────────────────────────────────────────────────── */
-    Music *musicaAtual = (gw->faseAtual == 1) ? &rm.musicaFase01 : &rm.musicaFase02;
 
-    if (!IsMusicStreamPlaying(*musicaAtual))
-        PlayMusicStream(*musicaAtual);
-    else
-        UpdateMusicStream(*musicaAtual);
+    if (gw->arenaBossAtivada)
+    {
+        musicaAtual = &rm.musicaBoss;
+    }
+    else if (gw->faseAtual == 1)
+    {
+        musicaAtual = &rm.musicaFase01;
+    }
+    else if (gw->faseAtual == 2)
+    {
+        musicaAtual = &rm.musicaFase02;
+    }
 
     /* ── fade de saída: espera terminar antes de trocar fase ────────── */
     if (gw->fadeSaida)
@@ -257,7 +268,7 @@ void updateGameWorld(GameWorld *gw, float delta)
     int fimMapa = calcularLarguraMapa(gw->mapa);
     int maxX = fimMapa - (GetScreenWidth() / 2) - 200;
 
-    if (!gw->arenaBossAtivada &&
+    if (!gw->arenaBossAtivada && !gw->bossDerrotado &&
         gw->faseAtual == 1 &&
         gw->camera.target.x >= maxX)
     {
@@ -284,7 +295,6 @@ void updateGameWorld(GameWorld *gw, float delta)
         gw->mapa->obstaculos = el;
         gw->mapa->quantidadeObstaculos++;
 
-        /* AQUI */
         ElementoMapa *elInimigo = gw->mapa->inimigos;
 
         while (elInimigo != NULL)
@@ -342,7 +352,7 @@ void updateGameWorld(GameWorld *gw, float delta)
         }
     }
 
-    /* ── vitória por matar todos os inimigos ────────────────────────── */
+    /* ── vitória por matar todos os inimigos ──────────────────────────
     if (!gw->faseCompleta && !gw->fadeSaida && todosInimigosMortos(gw))
     {
         gw->faseCompleta = true;
@@ -350,7 +360,7 @@ void updateGameWorld(GameWorld *gw, float delta)
         gw->fadeSaida = true;
         gw->fadeContador = 0.0f;
         gw->fadeAlpha = 0.0f;
-    }
+    } */
 
     /* ── game over: jogador sem vidas ───────────────────────────────── */
     if (!gw->fadeSaida && jogadorSemVidas(gw))
@@ -362,6 +372,11 @@ void updateGameWorld(GameWorld *gw, float delta)
         gw->continueContador = 0.0f;
         gw->continueOpcao = 0;
     }
+
+    if (!IsMusicStreamPlaying(*musicaAtual))
+        PlayMusicStream(*musicaAtual);
+    else
+        UpdateMusicStream(*musicaAtual);
 }
 
 /* ─────────────────────────────────────────────────────────────────────────── */
@@ -881,10 +896,10 @@ static void drawTelaGameOver(GameWorld *gw)
 
 /* ─────────────────────────────────────────────────────────────────────────── */
 
-static bool todosInimigosMortos(GameWorld *gw)
+/*static bool todosInimigosMortos(GameWorld *gw)
 {
     if (gw->mapa->quantidadeInimigos == 0)
-        return false; /* sem inimigos no mapa não conta como vitória */
+        return false;
 
     ElementoMapa *el = gw->mapa->inimigos;
     while (el != NULL)
@@ -909,6 +924,7 @@ static bool todosInimigosMortos(GameWorld *gw)
     }
     return true;
 }
+*/
 
 static bool jogadorSemVidas(GameWorld *gw)
 {
@@ -977,6 +993,9 @@ static void carregarFase(GameWorld *gw, int fase)
 {
     destruirFaseAtual(gw);
 
+    gw->arenaBossAtivada = false;
+    gw->itemObjetivoColetado = false;
+    
     gw->faseAtual = fase;
     gw->faseCompleta = false;
     gw->tempoJogo = 0.0f;
@@ -1059,9 +1078,29 @@ static void inicializar(GameWorld *gw)
 
 static void reiniciar(GameWorld *gw)
 {
-    Music *musicaAtual = (gw->faseAtual == 1) ? &rm.musicaFase01 : &rm.musicaFase02;
+    gw->itemObjetivoColetado = false;
+    gw->bossDerrotado = false;
+    gw->arenaBossAtivada = false;
+
+    Music *musicaAtual = NULL;
+
+    if (gw->faseAtual == 1)
+    {
+        musicaAtual = &rm.musicaFase01;
+    }
+    else if (gw->arenaBossAtivada)
+    {
+        musicaAtual = &rm.musicaBoss;
+    }
+    else if (gw->faseAtual == 2)
+    {
+        musicaAtual = &rm.musicaFase02;
+    }
+
     if (IsMusicStreamPlaying(*musicaAtual))
         StopMusicStream(*musicaAtual);
+
+    StopMusicStream(rm.musicaAbertura);
 
     gw->pontuacao = 0;
     gw->estadoTela = TELA_INICIAL;
@@ -1087,13 +1126,10 @@ static void reiniciar(GameWorld *gw)
     gw->telaInicialContador = 0.0f;
     gw->iniciarJogo = false;
 
-    gw->arenaBossAtivada = false;
-
     carregarFase(gw, 1);
 }
 
 static bool jogadorChegouAoFim(GameWorld *gw)
 {
-    int fimMapa = calcularLarguraMapa(gw->mapa);
-    return (gw->jogador->ret.x + gw->jogador->ret.width) >= (fimMapa - 48);
+    return gw->itemObjetivoColetado;
 }
