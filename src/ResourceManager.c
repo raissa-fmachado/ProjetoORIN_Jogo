@@ -148,6 +148,8 @@ void loadResourcesResourceManager(void)
     rm.somHitInimigo = LoadSound("resources/sons/efeitos/hit-inimigo.wav");
     rm.somMorte = LoadSound("resources/sons/efeitos/morte.wav");
     rm.somPulo = LoadSound("resources/sons/efeitos/pulo.wav");
+    rm.somHitBoss = LoadSound("resources/sons/efeitos/boss-hit.mp3");
+    rm.somExplosao = LoadSound("resources/sons/efeitos/yeehaw.mp3");
 
     rm.musicaFase01 = LoadMusicStream("resources/sons/musicas/green-hill-zone.mp3");
     rm.musicaFase02 = LoadMusicStream("resources/sons/musicas/marble-zone.mp3");
@@ -178,6 +180,8 @@ void unloadResourcesResourceManager(void)
     UnloadSound(rm.somHitInimigo);
     UnloadSound(rm.somMorte);
     UnloadSound(rm.somPulo);
+    UnloadSound(rm.somHitBoss);
+    UnloadSound(rm.somExplosao);
 
     UnloadMusicStream(rm.musicaFase01);
     UnloadMusicStream(rm.musicaFase02);

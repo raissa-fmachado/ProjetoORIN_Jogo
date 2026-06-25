@@ -14,20 +14,39 @@
 #include "ResourceManager.h"
 #include "Tipos.h"
 
-static void desenharQuadroAnimacaoItemAnelGigante(ItemAnel *item, QuadroAnimacao *qa, Color tonalidade);
-static Animacao *getAnimacaoAtualItemAnelGigante(ItemAnel *item);
-static QuadroAnimacao *getQuadroAnimacaoAtualItemAnelGigante(ItemAnel *item);
+static void desenharQuadroAnimacaoItemAnelGigante(ItemAnelGigante *item, QuadroAnimacao *qa, Color tonalidade);
+static Animacao *getAnimacaoAtualItemAnelGigante(ItemAnelGigante *item);
+static QuadroAnimacao *getQuadroAnimacaoAtualItemAnelGigante(ItemAnelGigante *item);
 
 static const bool MOSTRAR_RETANGULOS = false;
 
-ItemAnel *criarItemAnelGigante(Rectangle ret, Color cor)
+ItemAnelGigante *criarItemAnelGigante(Rectangle ret, Color cor)
 {
-    ItemAnel *novoItem = (ItemAnel *)malloc(sizeof(ItemAnel));
+    ItemAnelGigante *novoItem = (ItemAnelGigante *)malloc(sizeof(ItemAnelGigante));
 
     novoItem->ret = ret;
     novoItem->cor = cor;
-    novoItem->estado = ESTADO_ITEM_ANEL_PARADO;
+    novoItem->estado = ESTADO_ITEM_ANEL_GIGANTE_SURGINDO;
     novoItem->ativo = true;
+
+    novoItem->animacaoSurgindo.quantidadeQuadros = 7;
+    novoItem->animacaoSurgindo.quadroAtual = 0;
+    novoItem->animacaoSurgindo.contadorTempoQuadro = 0.0f;
+    novoItem->animacaoSurgindo.pararNoUltimoQuadro = false;
+    novoItem->animacaoSurgindo.executarUmaVez = true;
+    novoItem->animacaoSurgindo.finalizada = false;
+
+    criarQuadrosAnimacao(&novoItem->animacaoSurgindo, novoItem->animacaoSurgindo.quantidadeQuadros);
+
+    inicializarQuadrosAnimacao(
+        novoItem->animacaoSurgindo.quadros,
+        novoItem->animacaoSurgindo.quantidadeQuadros,
+        70,
+        1, 247,
+        64, 64,
+        1,
+        false,
+        (Rectangle){0});
 
     novoItem->animacaoParado.quantidadeQuadros = 4;
     novoItem->animacaoParado.quadroAtual = 0;
@@ -67,14 +86,15 @@ ItemAnel *criarItemAnelGigante(Rectangle ret, Color cor)
         false,
         (Rectangle){0});
 
-    novoItem->animacoes[ESTADO_ITEM_ANEL_PARADO] = &novoItem->animacaoParado;
-    novoItem->animacoes[ESTADO_ITEM_ANEL_COLETADO] = &novoItem->animacaoColetando;
+    novoItem->animacoes[ESTADO_ITEM_ANEL_GIGANTE_SURGINDO] = &novoItem->animacaoSurgindo;
+    novoItem->animacoes[ESTADO_ITEM_ANEL_GIGANTE_PARADO] = &novoItem->animacaoParado;
+    novoItem->animacoes[ESTADO_ITEM_ANEL_GIGANTE_COLETADO] = &novoItem->animacaoColetando;
     novoItem->quantidadeAnimacoes = 2;
 
     return novoItem;
 }
 
-void destruirItemAnelGigante(ItemAnel *item)
+void destruirItemAnelGigante(ItemAnelGigante *item)
 {
     if (item)
     {
@@ -86,21 +106,30 @@ void destruirItemAnelGigante(ItemAnel *item)
     }
 }
 
-void atualizarItemAnelGigante(ItemAnel *item, float delta)
+void atualizarItemAnelGigante(ItemAnelGigante *item, float delta)
 {
     if (item->ativo)
     {
         Animacao *anim = getAnimacaoAtualItemAnelGigante(item);
         atualizarAnimacao(anim, delta);
 
-        if (item->estado == ESTADO_ITEM_ANEL_COLETADO && anim->finalizada)
+        if (item->estado == ESTADO_ITEM_ANEL_GIGANTE_SURGINDO &&
+            anim->finalizada)
+        {
+            item->estado = ESTADO_ITEM_ANEL_GIGANTE_PARADO;
+
+            item->animacaoParado.quadroAtual = 0;
+            item->animacaoParado.contadorTempoQuadro = 0;
+        }
+
+        if (item->estado == ESTADO_ITEM_ANEL_GIGANTE_COLETADO && anim->finalizada)
         {
             item->ativo = false;
         }
     }
 }
 
-void desenharItemAnelGigante(ItemAnel *item)
+void desenharItemAnelGigante(ItemAnelGigante *item)
 {
     if (item->ativo)
     {
@@ -116,12 +145,12 @@ void desenharItemAnelGigante(ItemAnel *item)
     }
 }
 
-QuadroAnimacao *getQuadroAnimacaoAtualItemAnelGigante(ItemAnel *item)
+QuadroAnimacao *getQuadroAnimacaoAtualItemAnelGigante(ItemAnelGigante *item)
 {
     return getQuadroAtualAnimacao(getAnimacaoAtualItemAnelGigante(item));
 }
 
-static void desenharQuadroAnimacaoItemAnelGigante(ItemAnel *item, QuadroAnimacao *qa, Color tonalidade)
+static void desenharQuadroAnimacaoItemAnelGigante(ItemAnelGigante *item, QuadroAnimacao *qa, Color tonalidade)
 {
     if (qa)
     {
@@ -145,7 +174,7 @@ static void desenharQuadroAnimacaoItemAnelGigante(ItemAnel *item, QuadroAnimacao
     }
 }
 
-static Animacao *getAnimacaoAtualItemAnelGigante(ItemAnel *item)
+static Animacao *getAnimacaoAtualItemAnelGigante(ItemAnelGigante *item)
 {
     return item->animacoes[item->estado];
 }

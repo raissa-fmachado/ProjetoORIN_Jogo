@@ -2,7 +2,7 @@ I                                                                               
 A                   a                                                                                       E
 A                  aA                                                                                       E
 A                 aA                        a                                                               E
-A                aA                        aaa                                           d                  E
+A                aA                        aaa                                           a                  E
 A               aA          aaa           aaaaa                                         aaa                 E
 A         a    aA          aAAa          aaaaaaa                b                     aaaaaa                E
 A         Aa   A    a     aAAAAaa       aaaaaaaaa                                   AAAAAAAAAa              E
@@ -11,7 +11,7 @@ A           Aa    aA    AAAAAAAAAA    AAAAAAAAAAAAA     AAAAAAAAAAAAAAAAA       
 A            Aa  aA           3          3                                      aA             Aa           E
 A   b           aA                              AAAAAA                         aA     AAAAAA                E
 A               A                                  3              b            A         3                  E
-A                                       c                                                                   E
+A                                       c                                                               d   E
 A  1 1  A  ^       A  &  1    *     aaaaaaaaa   ^   1          *              1    &                        E
 KMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMK
 KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK

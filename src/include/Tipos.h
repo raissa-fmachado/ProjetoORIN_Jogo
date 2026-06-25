@@ -120,6 +120,7 @@ typedef enum EstadoItemAnelGigante
 {
     ESTADO_ITEM_ANEL_GIGANTE_PARADO,
     ESTADO_ITEM_ANEL_GIGANTE_COLETADO,
+    ESTADO_ITEM_ANEL_GIGANTE_SURGINDO,
 } EstadoItemAnelGigante;
 
 /**
@@ -421,6 +422,7 @@ typedef struct InimigoEggMobile
     Animacao animacaoVoando;
     Animacao animacaoDano;
     Animacao animacaoDerrotado;
+    Animacao animacaoBola;
 
     Rectangle retParteInferior;
 
@@ -438,7 +440,7 @@ typedef struct InimigoEggMobile
     Rectangle retBola;
 
     float contadorPendulo;
-
+    
 } InimigoEggMobile;
 
 /**
@@ -479,11 +481,12 @@ typedef struct ItemAnelGigante
     EstadoItemAnelGigante estado;
     bool ativo;
 
-    Animacao *animacoes[1];
+    Animacao *animacoes[3];
     int quantidadeAnimacoes;
 
     Animacao animacaoParado;
     Animacao animacaoColetando;
+    Animacao animacaoSurgindo;
 } ItemAnelGigante;
 
 /**

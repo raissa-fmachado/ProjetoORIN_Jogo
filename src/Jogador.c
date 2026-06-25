@@ -1295,7 +1295,7 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
                         j->possuiEscudo = false;
                         j->animacaoEscudo.quadroAtual = 0;
 
-                        PlaySound(rm.somHitInimigo);
+                        PlaySound(rm.somHitBoss);
                     }
                     else
                     {
@@ -1346,16 +1346,9 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
 
                 if (pulando && !acertouPorBaixo)
                 {
-                    j->vel.y = -250;
+                    j->vel.y = 200;
 
-                    if (j->ret.x < eggmobile->ret.x)
-                    {
-                        j->vel.x = -200;
-                    }
-                    else
-                    {
-                        j->vel.x = 200;
-                    }
+                    
 
                     if (!eggmobile->invulneravel)
                     {
@@ -1367,7 +1360,7 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
                         eggmobile->estado =
                             ESTADO_INIMIGO_EGGMOBILE_DANO;
 
-                        PlaySound(rm.somHitInimigo);
+                        PlaySound(rm.somHitBoss);
 
                         if (eggmobile->vida <= 0)
                         {
@@ -1379,6 +1372,7 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
                             gw->bossDropDelay = 2.0f; 
                             gw->bossDropAtivo = false;
 
+                            PlaySound(rm.somExplosao);
                             StopMusicStream(rm.musicaBoss);
 
                             gw->pontuacao += 5000;

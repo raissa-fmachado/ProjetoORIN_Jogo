@@ -56,7 +56,7 @@ InimigoEggMobile *criarInimigoEggMobile(
 
     novoInimigo->cor = cor;
 
-    novoInimigo->vida = 2;
+    novoInimigo->vida = 1;
 
     novoInimigo->batalhaIniciada = false;
 
@@ -76,7 +76,7 @@ InimigoEggMobile *criarInimigoEggMobile(
        ANIMAÇÃO VOANDO
        ========================= */
 
-    novoInimigo->animacaoVoando.quantidadeQuadros = 3;
+    novoInimigo->animacaoVoando.quantidadeQuadros = 2;
     novoInimigo->animacaoVoando.quadroAtual = 0;
     novoInimigo->animacaoVoando.contadorTempoQuadro = 0;
     novoInimigo->animacaoVoando.pararNoUltimoQuadro = false;
@@ -88,11 +88,30 @@ InimigoEggMobile *criarInimigoEggMobile(
         novoInimigo->animacaoVoando.quadros,
         novoInimigo->animacaoVoando.quantidadeQuadros,
         250,    // duração padrão para todos os quadros
-        1, 83,  // início
+        79, 83,  // início
         77, 72, // dimensões
         1,      // separação
         false,  // de trás para frente
         (Rectangle){0, 10, 115, 85});
+
+    /* =========================
+       ANIMAÇÃO BOLA
+       ========================= */
+
+    novoInimigo->animacaoBola.quantidadeQuadros = 2;
+    novoInimigo->animacaoBola.quadroAtual = 0;
+    novoInimigo->animacaoBola.contadorTempoQuadro = 0;
+    novoInimigo->animacaoBola.pararNoUltimoQuadro = false;
+    novoInimigo->animacaoBola.executarUmaVez = false;
+    novoInimigo->animacaoBola.finalizada = false;
+
+    criarQuadrosAnimacao(&novoInimigo->animacaoBola, 2);
+
+    novoInimigo->animacaoBola.quadros[0].fonte = (Rectangle){1, 173, 48, 48};
+    novoInimigo->animacaoBola.quadros[0].duracao = 250;
+
+    novoInimigo->animacaoBola.quadros[1].fonte = (Rectangle){50, 173, 48, 48};
+    novoInimigo->animacaoBola.quadros[1].duracao = 250;
 
     /* =========================
        ANIMAÇÃO DANO
@@ -122,7 +141,7 @@ InimigoEggMobile *criarInimigoEggMobile(
        ANIMAÇÃO DERROTADO
        ========================= */
 
-    novoInimigo->animacaoDerrotado.quantidadeQuadros = 3;
+    novoInimigo->animacaoDerrotado.quantidadeQuadros = 11;
     novoInimigo->animacaoDerrotado.quadroAtual = 0;
     novoInimigo->animacaoDerrotado.contadorTempoQuadro = 0;
     novoInimigo->animacaoDerrotado.pararNoUltimoQuadro = true;
@@ -133,8 +152,8 @@ InimigoEggMobile *criarInimigoEggMobile(
     inicializarQuadrosAnimacao(
         novoInimigo->animacaoDerrotado.quadros,
         novoInimigo->animacaoDerrotado.quantidadeQuadros,
-        250,    // duração padrão para todos os quadros
-        1, 222,  // início
+        300,    // duração padrão para todos os quadros
+        1, 222, // início
         77, 72, // dimensões
         1,      // separação
         false,  // de trás para frente
@@ -215,6 +234,8 @@ void atualizarInimigoEggMobile(
         getAnimacaoAtualInimigoEggMobile(
             inimigo),
         delta);
+
+    atualizarAnimacao(&inimigo->animacaoBola, delta);
 
     switch (inimigo->estado)
     {
@@ -325,7 +346,16 @@ void atualizarInimigoEggMobile(
 
     case ESTADO_INIMIGO_EGGMOBILE_DERROTADO:
 
-        inimigo->ativo = false;
+        inimigo->contadorEstado += delta;
+
+        atualizarAnimacao(
+            getAnimacaoAtualInimigoEggMobile(inimigo),
+            delta);
+
+        if (inimigo->animacaoDerrotado.finalizada)
+        {
+            inimigo->ativo = false;
+        }
 
         break;
     }
@@ -376,59 +406,65 @@ void desenharInimigoEggMobile(
             inimigo),
         cor);
 
-    Vector2 centro = obterGanchoEggMobile(inimigo);
+    if (inimigo->estado != ESTADO_INIMIGO_EGGMOBILE_DERROTADO)
+    {
+        Vector2 centro = obterGanchoEggMobile(inimigo);
 
 #define NUM_ELOS 6
 
-    Vector2 diferenca = {
-        inimigo->posBola.x - centro.x,
-        inimigo->posBola.y - centro.y};
+        Vector2 diferenca = {
+            inimigo->posBola.x - centro.x,
+            inimigo->posBola.y - centro.y};
 
-    float comprimento =
-        sqrtf(diferenca.x * diferenca.x +
-              diferenca.y * diferenca.y);
+        float comprimento =
+            sqrtf(diferenca.x * diferenca.x +
+                  diferenca.y * diferenca.y);
 
-    Vector2 direcao = {
-        diferenca.x / comprimento,
-        diferenca.y / comprimento};
+        Vector2 direcao = {
+            diferenca.x / comprimento,
+            diferenca.y / comprimento};
 
-    float raioVisualBola = 48.0f;
+        float raioVisualBola = 48.0f;
 
-    Vector2 pontoFimCorrente = {
-        inimigo->posBola.x - direcao.x * raioVisualBola,
-        inimigo->posBola.y - direcao.y * raioVisualBola};
+        Vector2 pontoFimCorrente = {
+            inimigo->posBola.x - direcao.x * raioVisualBola,
+            inimigo->posBola.y - direcao.y * raioVisualBola};
 
-    float anguloGraus =
-        atan2f(diferenca.y, diferenca.x) * RAD2DEG;
+        float anguloGraus =
+            atan2f(diferenca.y, diferenca.x) * RAD2DEG;
 
-    for (int i = 1; i <= NUM_ELOS; i++)
-    {
-        float t = (float)i / (NUM_ELOS + 0.5);
+        for (int i = 1; i <= NUM_ELOS; i++)
+        {
+            float t = (float)i / (NUM_ELOS + 0.5);
 
-        Vector2 elo = {
-            centro.x + (pontoFimCorrente.x - centro.x) * t,
-            centro.y + (pontoFimCorrente.y - centro.y) * t};
+            Vector2 elo = {
+                centro.x + (pontoFimCorrente.x - centro.x) * t,
+                centro.y + (pontoFimCorrente.y - centro.y) * t};
+
+            DrawTexturePro(
+                rm.texturaChefao,
+                (Rectangle){1, 156, 16, 16},
+                (Rectangle){elo.x, elo.y, 32, 32},
+                (Vector2){16, 16},
+                anguloGraus + 90,
+                WHITE);
+        }
+
+        QuadroAnimacao *qaBola =
+            getQuadroAtualAnimacao(&inimigo->animacaoBola);
 
         DrawTexturePro(
             rm.texturaChefao,
-            (Rectangle){1, 156, 16, 16},
-            (Rectangle){elo.x, elo.y, 32, 32},
-            (Vector2){16, 16},
-            anguloGraus + 90,
+            qaBola->fonte,
+            (Rectangle){
+                inimigo->posBola.x,
+                inimigo->posBola.y,
+                96,
+                96},
+            (Vector2){48, 48},
+            0,
             WHITE);
     }
-
-    DrawTexturePro(
-        rm.texturaChefao,
-        (Rectangle){1, 173, 48, 48},
-        (Rectangle){
-            inimigo->posBola.x,
-            inimigo->posBola.y,
-            96,
-            96},
-        (Vector2){48, 48},
-        0,
-        WHITE);
 
     if (inimigo->invulneravel)
     {
