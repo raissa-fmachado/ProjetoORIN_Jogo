@@ -1,14 +1,14 @@
-I                                                              aa                                     L
-C                                                             aaaa                                    E
-C                                                            aLBBIa                                   E
-C                                                          aaLGAAFIaa                                 E
-C                                                     a   LBBGAAAAFBBI                                E
-C                                            b       aM   KDDDDDDDDDDJ                                E
+I                                                               a                                     L
+C                                                              aaa                                    E
+C                                                            aLBBBIa                                  E
+C                                                          aaLGAAAFIaa                                E
+C                                                     a   LBBGAAAAAFBBI                               E
+C                                            b       aM   KDDDDDDDDDDDJ                               E
 C                            c                      aM                                                E
-C                           aaa        M     2     MM                                                 E
+C                                      M     2     MM                                                 E
 C                          aLBIa       LBBBBBBBBBBBI                                         4        E
 C                       $ aLGAFIa#     KDDDDDDDDDDDJ                                                  E
-C                       LBBGAAAFBBI                                                                   E
+C                       LBBGAAAFBBI                                          c                        E
 C               aaaa    KDDDDDDDDDJ               aaaaa     b      aaaaa                              E
 C                                            a                               a         LBI        LBI E
 C                    M     aaaaaaa          aMa                             aM                        E

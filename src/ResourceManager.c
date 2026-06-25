@@ -150,6 +150,11 @@ void loadResourcesResourceManager(void)
     rm.somPulo = LoadSound("resources/sons/efeitos/pulo.wav");
     rm.somHitBoss = LoadSound("resources/sons/efeitos/boss-hit.mp3");
     rm.somExplosao = LoadSound("resources/sons/efeitos/yeehaw.mp3");
+    rm.somAnelGColetado = LoadSound("resources/sons/efeitos/anel-g-coletado.mp3");
+    rm.somAnelSurgindo = LoadSound("resources/sons/efeitos/anel-surgindo.mp3");
+    rm.somTooEasy = LoadSound("resources/sons/efeitos/too-easy.mp3");
+    rm.somEscudo = LoadSound("resources/sons/efeitos/shield.mp3");
+    rm.somEscudoQuebrando = LoadSound("resources/sons/efeitos/shield-break.mp3");
 
     rm.musicaFase01 = LoadMusicStream("resources/sons/musicas/green-hill-zone.mp3");
     rm.musicaFase02 = LoadMusicStream("resources/sons/musicas/marble-zone.mp3");
@@ -182,6 +187,11 @@ void unloadResourcesResourceManager(void)
     UnloadSound(rm.somPulo);
     UnloadSound(rm.somHitBoss);
     UnloadSound(rm.somExplosao);
+    UnloadSound(rm.somTooEasy);
+    UnloadSound(rm.somAnelSurgindo);
+    UnloadSound(rm.somAnelGColetado);
+    UnloadSound(rm.somEscudo);
+    UnloadSound(rm.somEscudoQuebrando);
 
     UnloadMusicStream(rm.musicaFase01);
     UnloadMusicStream(rm.musicaFase02);

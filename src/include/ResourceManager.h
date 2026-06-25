@@ -37,6 +37,11 @@ typedef struct ResourceManager
     Sound somPulo;
     Sound somHitBoss;
     Sound somExplosao;
+    Sound somTooEasy;
+    Sound somAnelSurgindo;
+    Sound somAnelGColetado;
+    Sound somEscudo;
+    Sound somEscudoQuebrando;
 
     Music musicaAbertura;
     Music musicaFase01;

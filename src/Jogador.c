@@ -879,9 +879,7 @@ static void resolverColisaoJogadorItensMapa(Jogador *j, Mapa *mapa, GameWorld *g
 
                 gw->pontuacao += 500;
 
-                // PlaySound(rm.somEscudo);
-
-                // PlaySound(rm.somAnel);
+                PlaySound(rm.somEscudo);
             }
         }
 
@@ -901,6 +899,10 @@ static void resolverColisaoJogadorItensMapa(Jogador *j, Mapa *mapa, GameWorld *g
                 continue;
             }
 
+            if (anelG->estado == ESTADO_ITEM_ANEL_GIGANTE_SURGINDO && anelG->ativo) {
+                PlaySound(rm.somAnelSurgindo);
+            }
+
             Rectangle retItem = anelG->ret;
 
             if (CheckCollisionRecs(retColCalculado, retItem))
@@ -910,7 +912,7 @@ static void resolverColisaoJogadorItensMapa(Jogador *j, Mapa *mapa, GameWorld *g
                 j->quantidadeAneis += 10;
                 gw->pontuacao += 1000;
 
-                PlaySound(rm.somAnel);
+                PlaySound(rm.somAnelGColetado);
             }
         }
 
@@ -1029,7 +1031,7 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
 
                         j->animacaoEscudo.quadroAtual = 0;
 
-                        PlaySound(rm.somHitInimigo);
+                        PlaySound(rm.somEscudoQuebrando);
                     }
                     else
                     {
@@ -1094,7 +1096,7 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
 
                         j->animacaoEscudo.quadroAtual = 0;
 
-                        PlaySound(rm.somHitInimigo);
+                        PlaySound(rm.somEscudoQuebrando);
                     }
                     else
                     {
@@ -1159,7 +1161,7 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
 
                         j->animacaoEscudo.quadroAtual = 0;
 
-                        PlaySound(rm.somHitInimigo);
+                        PlaySound(rm.somEscudoQuebrando);
                     }
                     else
                     {
@@ -1227,7 +1229,7 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
 
                         j->animacaoEscudo.quadroAtual = 0;
 
-                        PlaySound(rm.somHitInimigo);
+                        PlaySound(rm.somEscudoQuebrando);
                     }
                     else
                     {
@@ -1295,7 +1297,7 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
                         j->possuiEscudo = false;
                         j->animacaoEscudo.quadroAtual = 0;
 
-                        PlaySound(rm.somHitBoss);
+                        PlaySound(rm.somEscudoQuebrando);
                     }
                     else
                     {
@@ -1391,7 +1393,7 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
                         j->possuiEscudo = false;
                         j->animacaoEscudo.quadroAtual = 0;
 
-                        PlaySound(rm.somHitInimigo);
+                        PlaySound(rm.somEscudoQuebrando);
                     }
                     else
                     {
