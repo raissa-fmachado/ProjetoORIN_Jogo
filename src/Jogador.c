@@ -1376,7 +1376,7 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
 
                             PlaySound(rm.somExplosao);
                             StopMusicStream(rm.musicaBoss);
-
+                            
                             gw->pontuacao += 5000;
                         }
                     }
