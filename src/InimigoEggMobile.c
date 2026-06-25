@@ -355,7 +355,6 @@ void atualizarInimigoEggMobile(
         if (inimigo->animacaoDerrotado.finalizada)
         {
             inimigo->ativo = false;
-            PlaySound(rm.somTooEasy);
         }
 
         break;

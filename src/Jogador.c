@@ -900,7 +900,7 @@ static void resolverColisaoJogadorItensMapa(Jogador *j, Mapa *mapa, GameWorld *g
             }
 
             if (anelG->estado == ESTADO_ITEM_ANEL_GIGANTE_SURGINDO && anelG->ativo) {
-                PlaySound(rm.somAnelSurgindo);
+                PlaySound(rm.somTooEasy);
             }
 
             Rectangle retItem = anelG->ret;
