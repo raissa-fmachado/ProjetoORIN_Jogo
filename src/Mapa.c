@@ -283,8 +283,8 @@ Mapa *carregarMapaFase(const char *caminhoArquivo, int fase)
                             (Rectangle){
                                 .x = novoMapa->dimensaoPadraoElementos * colunaAtual,
                                 .y = novoMapa->dimensaoPadraoElementos * linhaAtual - 50,
-                                .width = 128,
-                                .height = 136},
+                                .width = 154,
+                                .height = 144},
                             GREEN);
 
                         el->objeto = inimigo;

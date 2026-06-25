@@ -76,25 +76,23 @@ InimigoEggMobile *criarInimigoEggMobile(
        ANIMAÇÃO VOANDO
        ========================= */
 
-    novoInimigo->animacaoVoando.quantidadeQuadros = 1;
+    novoInimigo->animacaoVoando.quantidadeQuadros = 3;
     novoInimigo->animacaoVoando.quadroAtual = 0;
     novoInimigo->animacaoVoando.contadorTempoQuadro = 0;
     novoInimigo->animacaoVoando.pararNoUltimoQuadro = false;
     novoInimigo->animacaoVoando.executarUmaVez = false;
     novoInimigo->animacaoVoando.finalizada = false;
 
-    criarQuadrosAnimacao(
-        &novoInimigo->animacaoVoando,
-        1);
-
-    novoInimigo->animacaoVoando.quadros[0].fonte =
-        (Rectangle){1, 83, 64, 68};
-
-    novoInimigo->animacaoVoando.quadros[0].duracao =
-        1000;
-
-    novoInimigo->animacaoVoando.quadros[0].retColisao =
-        (Rectangle){0, 10, 115, 85};
+    criarQuadrosAnimacao(&novoInimigo->animacaoVoando, novoInimigo->animacaoVoando.quantidadeQuadros);
+    inicializarQuadrosAnimacao(
+        novoInimigo->animacaoVoando.quadros,
+        novoInimigo->animacaoVoando.quantidadeQuadros,
+        250,    // duração padrão para todos os quadros
+        1, 83,  // início
+        77, 72, // dimensões
+        1,      // separação
+        false,  // de trás para frente
+        (Rectangle){0, 10, 115, 85});
 
     /* =========================
        ANIMAÇÃO DANO
@@ -112,37 +110,35 @@ InimigoEggMobile *criarInimigoEggMobile(
         1);
 
     novoInimigo->animacaoDano.quadros[0].fonte =
-        (Rectangle){66, 83, 64, 68};
+        (Rectangle){235, 83, 77, 72};
 
     novoInimigo->animacaoDano.quadros[0].duracao =
-        100;
+        250;
 
     novoInimigo->animacaoDano.quadros[0].retColisao =
-        (Rectangle){0, 10, 128, 85};
+        (Rectangle){0, 10, 115, 85};
 
     /* =========================
        ANIMAÇÃO DERROTADO
        ========================= */
 
-    novoInimigo->animacaoDerrotado.quantidadeQuadros = 1;
+    novoInimigo->animacaoDerrotado.quantidadeQuadros = 3;
     novoInimigo->animacaoDerrotado.quadroAtual = 0;
     novoInimigo->animacaoDerrotado.contadorTempoQuadro = 0;
     novoInimigo->animacaoDerrotado.pararNoUltimoQuadro = true;
     novoInimigo->animacaoDerrotado.executarUmaVez = true;
     novoInimigo->animacaoDerrotado.finalizada = false;
 
-    criarQuadrosAnimacao(
-        &novoInimigo->animacaoDerrotado,
-        1);
-
-    novoInimigo->animacaoDerrotado.quadros[0].fonte =
-        (Rectangle){0, 0, 64, 68};
-
-    novoInimigo->animacaoDerrotado.quadros[0].duracao =
-        1000;
-
-    novoInimigo->animacaoDerrotado.quadros[0].retColisao =
-        (Rectangle){0, 10, 120, 85};
+    criarQuadrosAnimacao(&novoInimigo->animacaoDerrotado, novoInimigo->animacaoDerrotado.quantidadeQuadros);
+    inicializarQuadrosAnimacao(
+        novoInimigo->animacaoDerrotado.quadros,
+        novoInimigo->animacaoDerrotado.quantidadeQuadros,
+        250,    // duração padrão para todos os quadros
+        1, 222,  // início
+        77, 72, // dimensões
+        1,      // separação
+        false,  // de trás para frente
+        (Rectangle){0, 10, 115, 85});
 
     /* =========================
        ESTADOS
