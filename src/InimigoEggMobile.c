@@ -56,7 +56,7 @@ InimigoEggMobile *criarInimigoEggMobile(
 
     novoInimigo->cor = cor;
 
-    novoInimigo->vida = 8;
+    novoInimigo->vida = 2;
 
     novoInimigo->batalhaIniciada = false;
 

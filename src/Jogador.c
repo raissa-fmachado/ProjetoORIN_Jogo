@@ -20,11 +20,13 @@
 #include "InimigoEggMobile.h"
 #include "Item.h"
 #include "ItemAnel.h"
+#include "ItemAnelGigante.h"
 #include "ItemEscudo.h"
 #include "BlocoInterrogacao.h"
 #include "Macros.h"
 #include "Jogador.h"
 #include "ResourceManager.h"
+#include "Mapa.h"
 #include "Tipos.h"
 
 static void desenharQuadroAnimacaoJogador(Jogador *j, QuadroAnimacao *qa, Color tonalidade);
@@ -1369,13 +1371,15 @@ static void resolverColisaoJogadorInimigosMapa(Jogador *j, Mapa *mapa, GameWorld
 
                         if (eggmobile->vida <= 0)
                         {
-                            eggmobile->estado =
-                                ESTADO_INIMIGO_EGGMOBILE_DERROTADO;
+                            eggmobile->estado = ESTADO_INIMIGO_EGGMOBILE_DERROTADO;
 
                             gw->arenaBossAtivada = false;
                             gw->bossDerrotado = true;
 
-                            StopMusicStream(rm.musicaFase02);
+                            gw->bossDropDelay = 2.0f; 
+                            gw->bossDropAtivo = false;
+
+                            StopMusicStream(rm.musicaBoss);
 
                             gw->pontuacao += 5000;
                         }

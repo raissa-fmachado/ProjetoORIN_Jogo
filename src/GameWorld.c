@@ -24,6 +24,8 @@
 #include "InimigoBatbrain.h"
 #include "InimigoEggmobile.h"
 #include "TelaInicial.h"
+#include "Item.h"
+#include "ItemAnelGigante.h"
 
 #include "raylib/raylib.h"
 
@@ -83,6 +85,8 @@ GameWorld *createGameWorld(void)
     gw->paredeArena = NULL;
     gw->bossDerrotado = false;
     gw->itemObjetivoColetado = false;
+    gw->bossDropDelay = 0.0f;
+    gw->bossDropAtivo = false;
 
     inicializar(gw);
     return gw;
@@ -109,6 +113,44 @@ void updateGameWorld(GameWorld *gw, float delta)
     {
         reiniciar(gw);
         return;
+    }
+
+    if (gw->bossDerrotado && !gw->bossDropAtivo)
+    {
+        gw->bossDropDelay -= delta;
+
+        if (gw->bossDropDelay <= 0.0f)
+        {
+            gw->bossDropAtivo = true;
+
+            int fimMapa = calcularLarguraMapa(gw->mapa);
+
+            Rectangle pos = {
+                fimMapa - GetScreenWidth() / 2 - 50,
+                calcularAlturaMapa(gw->mapa) - GetScreenHeight() / 2 - 200,
+                64,
+                64};
+
+            Item *item = criarItem(TIPO_ITEM_ANEL_GIGANTE);
+
+            ItemAnelGigante *anel = criarItemAnelGigante(
+                (Rectangle){
+                    pos.x,
+                    pos.y,
+                    64,
+                    64},
+                GOLD);
+
+            item->objeto = anel;
+
+            ElementoMapa *elItem = (ElementoMapa *)malloc(sizeof(ElementoMapa));
+            elItem->objeto = item;
+            elItem->tipo = TIPO_ELEMENTO_MAPA_ITEM;
+
+            elItem->proximo = gw->mapa->itens;
+            gw->mapa->itens = elItem;
+            gw->mapa->quantidadeItens++;
+        }
     }
 
     Music *musicaAtual = NULL;
@@ -995,7 +1037,7 @@ static void carregarFase(GameWorld *gw, int fase)
 
     gw->arenaBossAtivada = false;
     gw->itemObjetivoColetado = false;
-    
+
     gw->faseAtual = fase;
     gw->faseCompleta = false;
     gw->tempoJogo = 0.0f;

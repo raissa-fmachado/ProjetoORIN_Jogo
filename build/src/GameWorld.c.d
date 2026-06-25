@@ -5,6 +5,7 @@ build/src/GameWorld.c.o: src/GameWorld.c src/include/GameWorld.h \
  src/include/InimigoMotobug.h src/include/InimigoSpikes.h \
  src/include/InimigoBallHog.h src/include/InimigoBatbrain.h \
  src/include/InimigoEggmobile.h src/include/TelaInicial.h \
+ src/include/Item.h src/include/ItemAnelGigante.h \
  src/include/raylib/raylib.h
 src/include/GameWorld.h:
 src/include/Tipos.h:
@@ -21,4 +22,6 @@ src/include/InimigoBallHog.h:
 src/include/InimigoBatbrain.h:
 src/include/InimigoEggmobile.h:
 src/include/TelaInicial.h:
+src/include/Item.h:
+src/include/ItemAnelGigante.h:
 src/include/raylib/raylib.h:

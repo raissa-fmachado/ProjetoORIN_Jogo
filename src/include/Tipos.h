@@ -431,9 +431,9 @@ typedef struct InimigoEggMobile
     bool batalhaIniciada;
 
     Vector2 posBola;
-    float raioBola;          
-    float anguloBola;       
-    float velocidadeAngular; 
+    float raioBola;
+    float anguloBola;
+    float velocidadeAngular;
 
     Rectangle retBola;
 
@@ -545,9 +545,9 @@ typedef enum TipoDecoracao
     TIPO_DECORACAO_ARBUSTO,
     TIPO_DECORACAO_TOTEM,
     TIPO_DECORACAO_GIRASSOL,
-    TIPO_DECORACAO_COLUNA,   /* Marble Zone: coluna de pedra */
-    TIPO_DECORACAO_ESTATUA,  /* Marble Zone: estátua/ídolo de pedra */
-    TIPO_DECORACAO_TOCHA,    /* Marble Zone: tocha com chamas (animada) */
+    TIPO_DECORACAO_COLUNA,  /* Marble Zone: coluna de pedra */
+    TIPO_DECORACAO_ESTATUA, /* Marble Zone: estátua/ídolo de pedra */
+    TIPO_DECORACAO_TOCHA,   /* Marble Zone: tocha com chamas (animada) */
 } TipoDecoracao;
 
 typedef struct Decoracao
@@ -691,5 +691,7 @@ typedef struct GameWorld
 
     bool bossDerrotado;
     bool itemObjetivoColetado;
+    float bossDropDelay;
+    bool bossDropAtivo;
 
 } GameWorld;
